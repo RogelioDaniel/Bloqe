@@ -109,30 +109,40 @@ function rotateModel(model: VoxelModel, k: number): VoxelModel {
   return src;
 }
 
-function prepareBricks(model: VoxelModel, maxDelay: number): RenderBrick[] {
+interface PreparedBricks {
+  /** Bricks con alguna cara visible, ordenados para pintar. */
+  visible: RenderBrick[];
+  /** TODOS los bricks (incluye interiores ocultos) — para el grafo de
+      soporte: un brick oculto también sostiene a los de arriba. */
+  all: Brick[];
+}
+
+function prepareBricks(model: VoxelModel, maxDelay: number): PreparedBricks {
   const bricks = groupBricks(model);
   const layers = Math.max(1, model.size[1]);
   const depth = model.size[2];
   const perLayer = maxDelay / layers;
 
+  // Espeja el eje z en TODOS (el frente del modelo vive en z=0 y la
+  // cámara isométrica mira la cara z máxima).
+  const all: Brick[] = bricks.map((b) => ({ ...b, z: depth - 1 - b.z }));
+
   const visible: RenderBrick[] = [];
-  for (const b of bricks) {
+  for (let i = 0; i < bricks.length; i++) {
+    const b = bricks[i];
     let anyFaceVisible = false;
     const studs: number[] = [];
-    for (let i = 0; i < b.w; i++) {
-      const topOpen = !isFilled(model, b.x + i, b.y + 1, b.z);
-      // El frente del modelo (fachadas, puertas) vive en z=0, así que
-      // se espeja el eje z al renderizar: el frente visible es z-1.
-      const frontOpen = !isFilled(model, b.x + i, b.y, b.z - 1);
-      if (topOpen) studs.push(i);
+    for (let j = 0; j < b.w; j++) {
+      const topOpen = !isFilled(model, b.x + j, b.y + 1, b.z);
+      const frontOpen = !isFilled(model, b.x + j, b.y, b.z - 1);
+      if (topOpen) studs.push(j);
       if (topOpen || frontOpen) anyFaceVisible = true;
     }
     if (!isFilled(model, b.x + b.w, b.y, b.z)) anyFaceVisible = true;
     if (!anyFaceVisible) continue;
 
     visible.push({
-      ...b,
-      z: depth - 1 - b.z,
+      ...all[i],
       studs,
       delay: b.y * perLayer + ((b.x + b.z * 3) % 5) * (perLayer * 0.12),
     });
@@ -142,7 +152,7 @@ function prepareBricks(model: VoxelModel, maxDelay: number): RenderBrick[] {
   visible.sort(
     (a, b) => a.x + a.z - (b.x + b.z) || a.y - b.y || a.x - b.x
   );
-  return visible;
+  return { visible, all };
 }
 
 /**
@@ -151,7 +161,7 @@ function prepareBricks(model: VoxelModel, maxDelay: number): RenderBrick[] {
  * Devuelve los ids que quedan desconectados del suelo al quitar `removed`.
  */
 function findUnsupported(
-  bricks: RenderBrick[],
+  bricks: Brick[],
   removed: Set<string>
 ): Map<string, number> {
   const remaining = bricks.filter((b) => !removed.has(b.id));
@@ -333,7 +343,7 @@ export function LegoModel({
   const movedRef = useRef(false);
 
   const rotated = useMemo(() => rotateModel(model, rotation), [model, rotation]);
-  const bricks = useMemo(
+  const { visible: bricks, all: allBricks } = useMemo(
     () => prepareBricks(rotated, maxDelay),
     [rotated, maxDelay]
   );
@@ -388,7 +398,7 @@ export function LegoModel({
         next.set(id, scatterMetaFor(brick, 0));
 
         const removed = new Set(next.keys());
-        const falling = findUnsupported(bricks, removed);
+        const falling = findUnsupported(allBricks, removed);
         for (const [fid, fy] of falling) {
           if (next.has(fid)) continue;
           const fb = bricks.find((b) => b.id === fid);
@@ -398,7 +408,7 @@ export function LegoModel({
       });
       onUserAction?.();
     },
-    [bricks, scatterMetaFor, onUserAction]
+    [bricks, allBricks, scatterMetaFor, onUserAction]
   );
 
   /** Rompe toda la maqueta, de arriba hacia abajo. */

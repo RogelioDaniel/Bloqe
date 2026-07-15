@@ -44,7 +44,7 @@ const WALL_COLORS = [
   "#22262e",
 ];
 
-const IN_MS = 520; // el muro termina de cubrir
+const IN_MS = 620; // el muro termina de cubrir (filas + jitter + duración)
 const OUT_MS = 900; // los bricks terminan de caer
 
 interface WallBrick {
