@@ -488,7 +488,7 @@ function genCastle(palette: string[], w = 9, d = 9, walls = 5): VoxelModel {
   const ground = LEGO_PALETTE.lime;
 
   const towerH = walls + 3;
-  const totalH = towerH + 2;
+  const totalH = towerH + 3;
   const grid = makeGrid(w, totalH, d);
 
   // césped
@@ -553,7 +553,7 @@ function genSchoolhouse(palette: string[], w = 9, d = 7, walls = 4): VoxelModel 
   const ground = LEGO_PALETTE.lime;
 
   const roofLayers = Math.ceil(Math.min(w, d) / 2);
-  const totalH = 1 + walls + roofLayers + 2;
+  const totalH = 1 + walls + roofLayers + 3;
   const grid = makeGrid(w, totalH, d);
 
   // césped
