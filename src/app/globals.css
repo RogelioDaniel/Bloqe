@@ -504,14 +504,18 @@
       transform: translateY(0) rotate(0deg);
     }
   }
+  /* Salida: los bloques se "desencajan" ligeramente y se desvanecen,
+     revelando la página destino ya posicionada debajo. No caen: se
+     disuelven en su lugar, dando la sensación de que la página se
+     construye/revela donde estaba el muro. */
   @keyframes wall-brick-out {
     0% {
       opacity: 1;
-      transform: translateY(0) rotate(0deg);
+      transform: translate(0, 0) scale(1) rotate(0deg);
     }
     100% {
       opacity: 0;
-      transform: translate(var(--wx, 0px), 70vh) rotate(var(--wr, 50deg));
+      transform: translate(var(--wx, 0px), var(--wy, 0px)) scale(0.9) rotate(var(--wr, 14deg));
     }
   }
   .wall-brick {
@@ -531,8 +535,8 @@
   }
   .wall-brick.out {
     animation-name: wall-brick-out;
-    animation-duration: 0.5s;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.8, 0.4);
+    animation-duration: 0.6s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
   /* stud del brick del muro */
   .wall-brick::before {

@@ -49,8 +49,9 @@ const WALL_COLORS = [
   "#22262e",
 ];
 
-const IN_MS = 480; // el muro termina de cubrir (filas + jitter + duración)
-const OUT_MS = 620; // los bricks terminan de caer
+const IN_MS = 360; // el muro termina de cubrir (filas + jitter + duración)
+const HOLD_MS = 70; // pausa con el muro tapando: deja pintar el destino
+const OUT_MS = 560; // los bricks terminan de caer
 
 /**
  * Tiempo total que tarda la transición en cubrir la pantalla por completo.
@@ -65,6 +66,7 @@ interface WallBrick {
   delayIn: number;
   delayOut: number;
   wx: number;
+  wy: number;
   wr: number;
   wr0: number;
 }
@@ -97,8 +99,9 @@ function buildWall(direction: "up" | "down"): WallGrid {
         color: WALL_COLORS[Math.floor(Math.random() * WALL_COLORS.length)],
         delayIn: rowOrder * perRow + Math.random() * 40,
         delayOut: Math.random() * 180,
-        wx: (Math.random() - 0.5) * 140,
-        wr: (Math.random() - 0.5) * 120,
+        wx: (Math.random() - 0.5) * 90,
+        wy: (Math.random() - 0.5) * 70,
+        wr: (Math.random() - 0.5) * 28,
         wr0: (Math.random() - 0.5) * 6,
       });
     }
@@ -123,10 +126,12 @@ export function BrickTransition() {
         if (el) {
           // Salto instantáneo (sin animación) para que la página NO se
           // deslice bajo el muro: el destino aparece ya posicionado.
-          const top =
-            el.getBoundingClientRect().top + window.scrollY - 0;
+          const top = el.getBoundingClientRect().top + window.scrollY;
           window.scrollTo({ top, behavior: "auto" });
           history.replaceState(null, "", href);
+          // Fuerza un repaint del destino antes de que se rompa el muro,
+          // para que el navegador ya tenga pintada la sección destino.
+          void document.body.offsetHeight;
         }
       } else {
         router.push(href);
@@ -158,12 +163,22 @@ export function BrickTransition() {
     timeouts.current = [];
     setWall({ grid: buildWall(direction), phase: "in", direction });
 
+    // 1) El muro termina de cubrir la pantalla por completo.
+    // 2) Salto instantáneo al destino MIENTRAS el muro tapa todo — el
+    //    usuario no ve el desplazamiento porque está cubierto.
+    // 3) Esperamos un par de frames a que el navegador pinte el destino
+    //    antes de romper el muro. Así no se ve "deslizándose" al final.
     timeouts.current.push(
+      // Salto oculto tras el muro.
       setTimeout(() => {
         jumpTo(href);
-        setWall((w) => (w ? { ...w, phase: "out" } : w));
       }, IN_MS),
-      setTimeout(() => setWall(null), IN_MS + OUT_MS)
+      // Pausa para que el destino se asiente (el muro sigue tapando).
+      setTimeout(() => {
+        setWall((w) => (w ? { ...w, phase: "out" } : w));
+      }, IN_MS + HOLD_MS),
+      // El muro termina de caer y se quita.
+      setTimeout(() => setWall(null), IN_MS + HOLD_MS + OUT_MS)
     );
   }, [pending, jumpTo]);
 
@@ -218,6 +233,7 @@ export function BrickTransition() {
                       phase === "in" ? b.delayIn : b.delayOut
                     }ms`,
                     "--wx": `${b.wx}px`,
+                    "--wy": `${b.wy}px`,
                     "--wr": `${b.wr}deg`,
                     "--wr0": `${b.wr0}deg`,
                   } as React.CSSProperties
