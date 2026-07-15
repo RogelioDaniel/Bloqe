@@ -82,7 +82,7 @@ export function Stats() {
   return (
     <section
       aria-label="Métricas de BLOQE"
-      className="relative overflow-hidden border-t-2 border-signal bg-ink-2 bg-grain py-16 sm:py-20"
+      className="relative overflow-hidden border-t-2 border-signal bg-ink-2 bg-baseplate bg-grain py-16 sm:py-20"
     >
       {/* Floating LEGO studs motif (decorative, low opacity) */}
       <div

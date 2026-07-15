@@ -343,7 +343,7 @@ export function Contact() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-signal text-signal-foreground hover:bg-signal-2 rounded-full px-6 sm:min-w-[180px]"
+                  className="btn-brick font-round bg-signal text-signal-foreground hover:bg-signal-2 px-6 sm:min-w-[180px]"
                 >
                   <Send className="h-4 w-4" />
                   {isSubmitting ? "Enviando…" : "Enviar solicitud"}

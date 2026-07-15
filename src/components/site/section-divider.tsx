@@ -21,8 +21,10 @@ export function SectionDivider({
   const bricks = Array.from({ length: 14 }, (_, i) => i);
   const colors = ["#c8281c", "#f5b82e", "#1e5aa8", "#2e8b57", "#e8542a", "#9aa1ad"];
 
-  const fromBg = variant === "dark-to-light" ? "#0b0d10" : "#efe9db";
-  const toBg = variant === "dark-to-light" ? "#efe9db" : "#0b0d10";
+  // Var-driven: en modo claro --ink se remapea a tonos papel y el
+  // divisor sigue siendo coherente con ambos temas.
+  const fromBg = variant === "dark-to-light" ? "var(--ink)" : "var(--paper)";
+  const toBg = variant === "dark-to-light" ? "var(--paper)" : "var(--ink)";
 
   return (
     <div

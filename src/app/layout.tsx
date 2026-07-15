@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
+import { Geist, Geist_Mono, Titan_One, Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { BrickTransition } from "@/components/site/brick-transition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,10 +15,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+// Display "de juguete": redonda y maciza como los logos de sets de bloques.
+const titanOne = Titan_One({
+  variable: "--font-titan",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: "400",
+});
+
+// Redonda legible para botones, etiquetas y subtítulos.
+const baloo = Baloo_2({
+  variable: "--font-baloo",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -66,9 +75,10 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} ${titanOne.variable} ${baloo.variable} antialiased bg-background text-foreground`}
       >
         {children}
+        <BrickTransition />
         <Toaster />
         <SonnerToaster />
       </body>

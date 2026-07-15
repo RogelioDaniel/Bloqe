@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BrickLink } from "@/components/site/brick-transition";
 
 interface Step {
   number: string;
@@ -172,12 +173,12 @@ export function Process() {
               Cuéntanos tu proyecto hoy y agenda una visita sin costo.
             </p>
           </div>
-          <a
+          <BrickLink
             href="#contacto"
-            className="brick-press inline-flex items-center gap-1.5 rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-signal-foreground transition-colors hover:bg-signal-2"
+            className="btn-brick font-round inline-flex items-center gap-1.5 bg-signal px-5 py-2.5 text-sm font-semibold text-signal-foreground transition-colors hover:bg-signal-2"
           >
             Cotizar mi obra
-          </a>
+          </BrickLink>
         </motion.div>
       </div>
     </section>

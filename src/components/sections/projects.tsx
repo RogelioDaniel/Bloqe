@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, RefreshCw, MapPin } from "lucide-react";
+import { ArrowUpRight, Hand, MapPin } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { BrickLink } from "@/components/site/brick-transition";
 import { LegoModel } from "@/components/lego/lego-model";
 import {
   generateBuilding,
@@ -102,7 +103,6 @@ const TAB_LABEL: Record<StructureType, string> = {
 const STUD_STRIP_COLORS = ["#c8281c", "#f5b82e", "#1e5aa8", "#2e8b57", "#e8542a"];
 
 function ProjectCard({ project }: { project: Project }) {
-  const [buildId, setBuildId] = useState(0);
   const model: VoxelModel = useMemo(
     () =>
       generateBuilding(project.structureType, PALETTE_SETS[project.palette], project.opts),
@@ -115,7 +115,7 @@ function ProjectCard({ project }: { project: Project }) {
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="group relative overflow-hidden rounded-2xl border border-border bg-ink-2/40 transition-all duration-300 hover:-translate-y-1 hover:border-signal/40"
+      className="group card-brick relative overflow-hidden rounded-2xl border border-border bg-ink-2/40 transition-all duration-300 hover:-translate-y-1 hover:border-signal/40"
     >
       {/* studs que asoman al pasar el cursor */}
       <div
@@ -134,52 +134,48 @@ function ProjectCard({ project }: { project: Project }) {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={() => setBuildId((id) => id + 1)}
-        className="brick-press relative block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-        aria-label={`Rearmar la maqueta de ${project.title}`}
-      >
-        <div className="relative aspect-[4/3] overflow-hidden bg-blueprint-fine">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full blur-3xl opacity-70"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(232,84,42,0.16), rgba(232,84,42,0) 65%)",
-            }}
-          />
-          <LegoModel
-            model={model}
-            buildId={buildId}
-            className="absolute inset-0 h-full w-full p-4"
-            maxDelay={1200}
-            ariaLabel={`Maqueta de bloques de ${project.title}`}
-          />
-          {/* Top meta strip */}
-          <div className="absolute left-3 top-3 flex items-center gap-2">
-            <span className="rounded-md border border-border bg-ink/70 px-2 py-0.5 backdrop-blur">
-              <span className="label-mono text-muted-foreground">
-                {TAB_LABEL[project.structureType]}
-              </span>
+      <div className="relative aspect-[4/3] overflow-hidden bg-blueprint-fine">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full blur-3xl opacity-70"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(232,84,42,0.16), rgba(232,84,42,0) 65%)",
+          }}
+        />
+        <LegoModel
+          model={model}
+          className="absolute inset-0 h-full w-full p-4"
+          maxDelay={1200}
+          interactive
+          controls
+          ariaLabel={`Maqueta de bloques de ${project.title}`}
+        />
+        {/* Top meta strip */}
+        <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2">
+          <span className="rounded-md border border-border bg-ink/70 px-2 py-0.5 backdrop-blur">
+            <span className="label-mono text-muted-foreground">
+              {TAB_LABEL[project.structureType]}
             </span>
-          </div>
-          {/* Rebuild hint */}
-          <div className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-md border border-border bg-ink/70 px-2 py-1 backdrop-blur opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            <RefreshCw className="h-3 w-3 text-signal" />
-            <span className="label-mono text-muted-foreground">rearmar</span>
-          </div>
-          {/* Block count badge */}
-          <div className="absolute bottom-3 right-3">
-            <Badge
-              variant="outline"
-              className="border-border bg-ink/70 font-mono text-xs backdrop-blur"
-            >
-              {model.metrics.blockCount} bloques
-            </Badge>
-          </div>
+          </span>
         </div>
-      </button>
+        {/* Interaction hint */}
+        <div className="pointer-events-none absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-md border border-border bg-ink/70 px-2 py-1 backdrop-blur opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <Hand className="h-3 w-3 text-signal" />
+          <span className="label-mono text-muted-foreground">
+            tócala · gírala
+          </span>
+        </div>
+        {/* Block count badge */}
+        <div className="pointer-events-none absolute bottom-3 left-3">
+          <Badge
+            variant="outline"
+            className="border-border bg-ink/70 font-mono text-xs backdrop-blur"
+          >
+            {model.metrics.blockCount} bloques
+          </Badge>
+        </div>
+      </div>
 
       {/* Info */}
       <div className="border-t border-border p-5">
@@ -254,8 +250,8 @@ export function Projects() {
             </h2>
             <p className="mt-5 text-lg text-muted-foreground text-pretty leading-relaxed">
               Cada obra entregada conserva su maqueta de bloques — la misma que
-              vio el cliente antes de empezar. Toca cualquiera para verla
-              armarse capa por capa.
+              vio el cliente antes de empezar. Juega con ellas: gíralas con un
+              swipe, quítales bloques o rómpelas y reármalas.
             </p>
           </motion.div>
         </div>
@@ -309,13 +305,13 @@ export function Projects() {
               maqueta incluida.
             </p>
           </div>
-          <a
+          <BrickLink
             href="#contacto"
-            className="brick-press inline-flex items-center gap-1.5 rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-signal-foreground transition-colors hover:bg-signal-2"
+            className="btn-brick font-round inline-flex items-center gap-1.5 bg-signal px-5 py-2.5 text-sm font-semibold text-signal-foreground transition-colors hover:bg-signal-2"
           >
             Cotizar mi obra
             <ArrowUpRight className="h-4 w-4" />
-          </a>
+          </BrickLink>
         </motion.div>
       </div>
     </section>

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrickLink } from "@/components/site/brick-transition";
 
 /**
  * A bold closing CTA banner that bridges the FAQ/Contact sections.
@@ -76,20 +77,20 @@ export function CtaBanner() {
             <Button
               asChild
               size="lg"
-              className="brick-press bg-signal text-signal-foreground hover:bg-signal-2 rounded-full h-12 px-7 text-base"
+              className="btn-brick font-round bg-signal text-signal-foreground hover:bg-signal-2 h-12 px-7 text-base"
             >
-              <a href="#contacto">
+              <BrickLink href="#contacto">
                 Cotizar mi obra
                 <ArrowUpRight className="ml-2 h-4 w-4" />
-              </a>
+              </BrickLink>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="brick-press rounded-full h-12 px-7 text-base border-border bg-ink-2/40 hover:bg-ink-3"
+              className="brick-press font-round rounded-lg h-12 px-7 text-base border-border bg-ink-2/40 hover:bg-ink-3"
             >
-              <a href="#proyectos">Ver obras entregadas</a>
+              <BrickLink href="#proyectos">Ver obras entregadas</BrickLink>
             </Button>
           </div>
 

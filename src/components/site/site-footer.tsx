@@ -12,6 +12,7 @@ const COLS = [
       { label: "Proyectos", href: "#proyectos" },
       { label: "Preguntas", href: "#faq" },
       { label: "Contacto", href: "#contacto" },
+      { label: "Laboratorio de bloques", href: "/lab" },
     ],
   },
   {

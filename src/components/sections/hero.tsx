@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, HardHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrickLink } from "@/components/site/brick-transition";
 import { LegoModel } from "@/components/lego/lego-model";
 import {
   generateBuilding,
@@ -17,17 +18,23 @@ const STATS = [
   { value: "12", label: "ciudades activas" },
 ];
 
-/** La maqueta del hero se rearma en loop, como obra en curso. */
-function useLoopedTower(intervalMs = 7500) {
+/** La maqueta del hero se rearma en loop hasta que el usuario juega con ella. */
+function useLoopedTower(intervalMs = 8000) {
   const [buildId, setBuildId] = useState(0);
+  const pausedRef = useRef(false);
   const [model] = useState<VoxelModel>(() =>
     generateBuilding("tower", PALETTE_SETS.classic, { floors: 8, width: 5, depth: 5 })
   );
   useEffect(() => {
-    const t = setInterval(() => setBuildId((i) => i + 1), intervalMs);
+    const t = setInterval(() => {
+      if (!pausedRef.current) setBuildId((i) => i + 1);
+    }, intervalMs);
     return () => clearInterval(t);
   }, [intervalMs]);
-  return { buildId, model };
+  const pause = useCallback(() => {
+    pausedRef.current = true;
+  }, []);
+  return { buildId, model, pause };
 }
 
 /** Brick decorativo flotante con studs, en colores de marca. */
@@ -74,7 +81,7 @@ function FloatingBrick({
 }
 
 export function Hero() {
-  const { buildId, model } = useLoopedTower();
+  const { buildId, model, pause } = useLoopedTower();
 
   return (
     <section
@@ -168,20 +175,20 @@ export function Hero() {
               <Button
                 asChild
                 size="lg"
-                className="brick-press bg-signal text-signal-foreground hover:bg-signal-2 rounded-full h-12 px-6 text-base"
+                className="btn-brick font-round bg-signal text-signal-foreground hover:bg-signal-2 h-12 px-6 text-base"
               >
-                <a href="#contacto">
+                <BrickLink href="#contacto">
                   Cotizar mi obra
                   <ArrowUpRight className="ml-2 h-4 w-4" />
-                </a>
+                </BrickLink>
               </Button>
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="brick-press rounded-full h-12 px-6 text-base border-border bg-ink-2/40 hover:bg-ink-3"
+                className="brick-press font-round rounded-lg h-12 px-6 text-base border-border bg-ink-2/40 hover:bg-ink-3"
               >
-                <a href="#proyectos">Ver proyectos</a>
+                <BrickLink href="#proyectos">Ver proyectos</BrickLink>
               </Button>
             </motion.div>
 
@@ -230,7 +237,7 @@ export function Hero() {
                     </span>
                   </div>
                   <span className="label-mono text-muted-foreground hidden sm:inline">
-                    en construcción
+                    tócala · gírala · rómpela
                   </span>
                 </div>
 
@@ -246,6 +253,9 @@ export function Hero() {
                     className="absolute inset-0 h-full w-full p-6 sm:p-10"
                     maxDelay={2200}
                     float
+                    interactive
+                    controls
+                    onUserAction={pause}
                     ariaLabel="Maqueta de bloques de una torre residencial armándose"
                   />
                   {/* scanning beam */}

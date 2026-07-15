@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
+import { BrickLink } from "./brick-transition";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import {
@@ -19,6 +20,7 @@ const NAV = [
   { label: "Proyectos", href: "#proyectos" },
   { label: "Preguntas", href: "#faq" },
   { label: "Contacto", href: "#contacto" },
+  { label: "Lab", href: "/lab" },
 ];
 
 export function SiteHeader() {
@@ -52,13 +54,13 @@ export function SiteHeader() {
 
           <nav className="hidden md:flex items-center gap-1">
             {NAV.map((item) => (
-              <a
+              <BrickLink
                 key={item.href}
                 href={item.href}
-                className="px-3.5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md"
+                className="font-round px-3.5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md"
               >
                 {item.label}
-              </a>
+              </BrickLink>
             ))}
           </nav>
 
@@ -67,12 +69,12 @@ export function SiteHeader() {
             <Button
               asChild
               size="sm"
-              className="brick-press bg-signal text-signal-foreground hover:bg-signal-2 rounded-full"
+              className="btn-brick font-round bg-signal text-signal-foreground hover:bg-signal-2"
             >
-              <a href="#contacto">
+              <BrickLink href="#contacto">
                 Cotizar mi obra
                 <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
-              </a>
+              </BrickLink>
             </Button>
           </div>
 
@@ -109,23 +111,23 @@ export function SiteHeader() {
                 <nav className="flex flex-col p-3">
                   {NAV.map((item) => (
                     <SheetClose asChild key={item.href}>
-                      <a
+                      <BrickLink
                         href={item.href}
-                        className="px-4 py-3.5 text-lg font-display font-semibold tracking-tight hover:bg-ink-3 rounded-lg transition-colors"
+                        className="px-4 py-3.5 text-lg font-round font-semibold tracking-tight hover:bg-ink-3 rounded-lg transition-colors"
                       >
                         {item.label}
-                      </a>
+                      </BrickLink>
                     </SheetClose>
                   ))}
                 </nav>
                 <div className="p-5 mt-auto">
                   <Button
                     asChild
-                    className="brick-press w-full h-12 bg-signal text-signal-foreground hover:bg-signal-2 rounded-full"
+                    className="btn-brick font-round w-full h-12 bg-signal text-signal-foreground hover:bg-signal-2"
                   >
-                    <a href="#contacto" onClick={() => setOpen(false)}>
+                    <BrickLink href="#contacto" onClick={() => setOpen(false)}>
                       Cotizar mi obra
-                    </a>
+                    </BrickLink>
                   </Button>
                 </div>
               </SheetContent>

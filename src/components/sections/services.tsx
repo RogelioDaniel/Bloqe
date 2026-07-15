@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   type LucideIcon,
 } from "lucide-react";
+import { BrickLink } from "@/components/site/brick-transition";
 import { LegoModel } from "@/components/lego/lego-model";
 import {
   generateBuilding,
@@ -103,7 +104,7 @@ export function Services() {
   return (
     <section
       id="servicios"
-      className="relative bg-ink bg-grain py-20 sm:py-28"
+      className="relative bg-ink bg-baseplate bg-grain py-20 sm:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         {/* Heading */}
@@ -139,7 +140,7 @@ export function Services() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.55, delay: i * 0.05 }}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-ink-2/50 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-signal/40 md:col-span-2 lg:col-span-2 lg:row-span-2"
+                  className="group card-brick relative flex flex-col overflow-hidden rounded-2xl border border-border bg-ink-2/50 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-signal/40 md:col-span-2 lg:col-span-2 lg:row-span-2"
                 >
                   <div className="flex flex-1 flex-col">
                     <div className="flex items-center justify-between">
@@ -183,13 +184,13 @@ export function Services() {
                     </div>
                   </div>
 
-                  <a
+                  <BrickLink
                     href="#contacto"
                     className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-signal link-signal w-fit"
                   >
                     Cotizar este servicio
                     <ArrowUpRight className="h-4 w-4" />
-                  </a>
+                  </BrickLink>
                 </motion.article>
               );
             }
@@ -201,7 +202,7 @@ export function Services() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.55, delay: i * 0.05 }}
-                className="group relative flex flex-col rounded-2xl border border-border bg-ink-2/50 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-signal/40"
+                className="group card-brick relative flex flex-col rounded-2xl border border-border bg-ink-2/50 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-signal/40"
               >
                 <div className="flex items-center justify-between">
                   <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-ink-3/60 text-signal transition-colors group-hover:bg-signal group-hover:text-signal-foreground">
