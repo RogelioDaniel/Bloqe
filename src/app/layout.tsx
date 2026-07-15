@@ -30,39 +30,38 @@ const baloo = Baloo_2({
 });
 
 export const metadata: Metadata = {
-  title: "BLOQE — Constructora | Construimos tu obra bloque a bloque",
+  title: "BLOQE — Escuela de Educación Inicial | Donde crecen bloque a bloque",
   description:
-    "BLOQE es una constructora: casas, locales, remodelaciones y obra comercial. Cada proyecto se presenta como una maqueta de bloques antes de construirse — ves tu obra pieza por pieza, con presupuesto cerrado y garantía de 10 años.",
+    "BLOQE es una escuela preescolar para niños de 3 a 6 años. Aprendizaje lúdico por proyectos, bloques, arte e inglés en espacios diseñados para descubrir, crear y crecer — pieza por pieza.",
   keywords: [
-    "constructora",
-    "construcción",
-    "obra nueva",
-    "remodelación",
-    "diseño arquitectónico",
-    "arquitectura",
+    "guardería",
+    "preescolar",
+    "kínder",
+    "educación inicial",
+    "escuela infantil",
+    "maternal",
     "BLOQE",
-    "obra",
     "CDMX",
   ],
-  authors: [{ name: "BLOQE Constructora" }],
+  authors: [{ name: "BLOQE Escuela de Educación Inicial" }],
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
   },
   openGraph: {
-    title: "BLOQE — Constructora",
+    title: "BLOQE — Escuela de Educación Inicial",
     description:
-      "Construimos tu obra bloque a bloque: diseño, presupuesto cerrado y garantía de 10 años.",
+      "Preescolar para niños de 3 a 6 años: aprendizaje lúdico, bloques, arte e inglés. Donde crecen bloque a bloque.",
     siteName: "BLOQE",
     type: "website",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "BLOQE — Constructora" }],
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "BLOQE — Escuela de Educación Inicial" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BLOQE — Constructora",
+    title: "BLOQE — Escuela de Educación Inicial",
     description:
-      "Construimos tu obra bloque a bloque: diseño, presupuesto cerrado y garantía de 10 años.",
+      "Preescolar para niños de 3 a 6 años: aprendizaje lúdico, bloques, arte e inglés.",
     images: ["/og-image.svg"],
   },
 };

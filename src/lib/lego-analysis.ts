@@ -20,6 +20,10 @@ const STRUCTURE_TYPES: StructureType[] = [
   "house",
   "bridge",
   "pavilion",
+  "castle",
+  "schoolhouse",
+  "abc",
+  "playground",
 ];
 
 const VLM_PROMPT =
@@ -160,6 +164,10 @@ const FALLBACK_TITLES: Record<StructureType, string> = {
   house: "Vivienda Modular",
   bridge: "Viaducto Modular",
   pavilion: "Pabellón Modular",
+  castle: "Castillo de Cuento",
+  schoolhouse: "Escuelita",
+  abc: "Torre ABC",
+  playground: "Juego Modular",
 };
 
 const FALLBACK_FEATURES: Record<StructureType, string[]> = {
@@ -168,6 +176,10 @@ const FALLBACK_FEATURES: Record<StructureType, string[]> = {
   house: ["Techo a dos aguas", "Ventanas modulares", "Chimenea lateral"],
   bridge: ["Arco suspendido", "Dos soportes", "Barandillas modulares"],
   pavilion: ["Columnata perimetral", "Losplano", "Cubierta plana"],
+  castle: ["Almenas", "Cuatro torres", "Bandera central"],
+  schoolhouse: ["Tejado a dos aguas", "Campanario", "Ventanas amplias"],
+  abc: ["Bloques de colores", "Letra marcada", "Coronación"],
+  playground: ["Plataforma elevada", "Tobogán", "Escalera de acceso"],
 };
 
 const FALLBACK_MATERIALS: Record<StructureType, string[]> = {
@@ -176,6 +188,10 @@ const FALLBACK_MATERIALS: Record<StructureType, string[]> = {
   house: ["Madera", "Ladrillo", "Teja"],
   bridge: ["Acero", "Concreto", "Cables"],
   pavilion: ["Concreto", "Madera", "Acero"],
+  castle: ["Bloque", "Madera", "Teja"],
+  schoolhouse: ["Bloque", "Madera", "Teja"],
+  abc: ["Bloque", "Plástico", "Esmalte"],
+  playground: ["Madera", "Plástico", "Metal"],
 };
 
 /**
@@ -198,6 +214,10 @@ export function fallbackAnalysis(): StructureAnalysis {
     house: 3,
     bridge: 4,
     pavilion: 4,
+    castle: 5,
+    schoolhouse: 4,
+    abc: 11,
+    playground: 4,
   };
 
   const heightByType: Record<StructureType, StructureAnalysis["height"]> = {
@@ -206,6 +226,10 @@ export function fallbackAnalysis(): StructureAnalysis {
     house: "low",
     bridge: "medium",
     pavilion: "low",
+    castle: "medium",
+    schoolhouse: "low",
+    abc: "tall",
+    playground: "low",
   };
 
   return {

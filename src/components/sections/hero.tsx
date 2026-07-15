@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, HardHat } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrickLink } from "@/components/site/brick-transition";
 import { LegoModel } from "@/components/lego/lego-model";
@@ -13,17 +13,17 @@ import {
 } from "@/lib/lego";
 
 const STATS = [
-  { value: "240+", label: "obras entregadas" },
-  { value: "18", label: "años construyendo" },
-  { value: "12", label: "ciudades activas" },
+  { value: "12", label: "años formando niños" },
+  { value: "8:1", label: "ratio maestro-niño" },
+  { value: "3–6", label: "años de edad" },
 ];
 
-/** La maqueta del hero se rearma en loop hasta que el usuario juega con ella. */
-function useLoopedTower(intervalMs = 8000) {
+/** El castillo del hero se rearma en loop hasta que el usuario juega con él. */
+function useLoopedCastle(intervalMs = 8000) {
   const [buildId, setBuildId] = useState(0);
   const pausedRef = useRef(false);
   const [model] = useState<VoxelModel>(() =>
-    generateBuilding("tower", PALETTE_SETS.classic, { floors: 8, width: 5, depth: 5 })
+    generateBuilding("castle", PALETTE_SETS.storybook, { floors: 5, width: 9, depth: 9 })
   );
   useEffect(() => {
     const t = setInterval(() => {
@@ -81,7 +81,7 @@ function FloatingBrick({
 }
 
 export function Hero() {
-  const { buildId, model, pause } = useLoopedTower();
+  const { buildId, model, pause } = useLoopedCastle();
 
   return (
     <section
@@ -102,7 +102,7 @@ export function Hero() {
         className="pointer-events-none absolute bottom-0 left-1/4 h-[360px] w-[360px] rounded-full blur-3xl"
         style={{
           background:
-            "radial-gradient(circle, rgba(30,90,168,0.16), rgba(30,90,168,0) 65%)",
+            "radial-gradient(circle, rgba(58,166,201,0.18), rgba(58,166,201,0) 65%)",
         }}
       />
 
@@ -121,9 +121,9 @@ export function Hero() {
               transition={{ duration: 0.6 }}
               className="inline-flex items-center gap-2 rounded-full border border-border bg-ink-2/60 px-3 py-1.5 backdrop-blur"
             >
-              <HardHat className="h-3.5 w-3.5 text-signal" />
+              <Sparkles className="h-3.5 w-3.5 text-signal" />
               <span className="label-mono text-muted-foreground">
-                Constructora · CDMX · est. 2008
+                Preescolar · CDMX · est. 2014
               </span>
             </motion.div>
 
@@ -133,7 +133,7 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.05 }}
               className="mt-6 font-display font-extrabold tracking-tight text-balance text-[clamp(2.6rem,7vw,5.2rem)] leading-[0.92]"
             >
-              Construimos tu obra{" "}
+              Donde crecen{" "}
               <span className="relative inline-block">
                 <span className="text-signal">bloque a bloque</span>
                 <svg
@@ -160,10 +160,10 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.15 }}
               className="mt-6 max-w-xl text-lg text-muted-foreground text-pretty leading-relaxed"
             >
-              Bloqe es una constructora: casas, locales, remodelaciones y obra
-              comercial. Antes de colocar el primer ladrillo te mostramos tu
-              proyecto como una maqueta de bloques — así ves exactamente qué
-              vamos a construir, pieza por pieza.
+              Bloqe es una escuela preescolar para niños de 3 a 6 años. Aprenden
+              jugando con bloques, arte, música e inglés en espacios diseñados
+              para descubrir y crear — cada niño avanza a su ritmo, pieza por
+              pieza.
             </motion.p>
 
             <motion.div
@@ -178,7 +178,7 @@ export function Hero() {
                 className="btn-brick font-round bg-signal text-signal-foreground hover:bg-signal-2 h-12 px-6 text-base"
               >
                 <BrickLink href="#contacto">
-                  Cotizar mi obra
+                  Agendar una visita
                   <ArrowUpRight className="ml-2 h-4 w-4" />
                 </BrickLink>
               </Button>
@@ -188,7 +188,7 @@ export function Hero() {
                 variant="outline"
                 className="brick-press font-round rounded-lg h-12 px-6 text-base border-border bg-ink-2/40 hover:bg-ink-3"
               >
-                <BrickLink href="#proyectos">Ver proyectos</BrickLink>
+                <BrickLink href="#espacios">Ver los espacios</BrickLink>
               </Button>
             </motion.div>
 
@@ -233,20 +233,15 @@ export function Hero() {
                   <div className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-signal" />
                     <span className="label-mono text-muted-foreground">
-                      maqueta-001 · torre residencial
+                      aula-001 · castillo de lectura
                     </span>
                   </div>
                   <span className="label-mono text-muted-foreground hidden sm:inline">
-                    tócala · gírala · rómpela
+                    tócalo · gíralo · rómpelo
                   </span>
                 </div>
 
                 <div className="relative aspect-[4/3] sm:aspect-[16/11] bg-blueprint-fine">
-                  {/* crane line */}
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute left-1/2 top-0 h-2/3 w-px bg-gradient-to-b from-transparent via-signal/40 to-transparent"
-                  />
                   <LegoModel
                     model={model}
                     buildId={buildId}
@@ -256,7 +251,7 @@ export function Hero() {
                     interactive
                     controls
                     onUserAction={pause}
-                    ariaLabel="Maqueta de bloques de una torre residencial armándose"
+                    ariaLabel="Castillo de bloques de cuento armándose"
                   />
                   {/* scanning beam */}
                   <div
@@ -290,9 +285,9 @@ export function Hero() {
 
               {/* floating tag */}
               <div className="absolute -bottom-4 -left-3 sm:-left-6 rounded-lg border border-border bg-ink-2 px-3.5 py-2.5 shadow-brick">
-                <div className="label-mono text-signal">maqueta de bloques</div>
+                <div className="label-mono text-signal">aprender jugando</div>
                 <div className="mt-0.5 text-xs text-muted-foreground">
-                  así presentamos cada diseño antes de construirlo
+                  así construimos cada experiencia en el aula
                 </div>
               </div>
             </motion.div>

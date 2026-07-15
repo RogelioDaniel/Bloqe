@@ -3,9 +3,9 @@
 import { motion } from "framer-motion";
 import {
   MessagesSquare,
-  PencilRuler,
-  Calculator,
-  HardHat,
+  CalendarHeart,
+  ClipboardCheck,
+  HeartHandshake,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,35 +22,35 @@ interface Step {
 const STEPS: Step[] = [
   {
     number: "01",
-    title: "Nos cuentas tu proyecto",
+    title: "Nos conocemos",
     description:
-      "Una llamada o una visita al terreno. Escuchamos qué quieres construir, para quién y con qué presupuesto.",
-    detail: "respuesta en 24 h · visita sin costo",
+      "Una llamada o mensaje para contarnos sobre tu hijo: su edad, sus intereses y lo que buscan como familia. Te respondemos todas tus dudas.",
+    detail: "respuesta en 24 h",
     icon: MessagesSquare,
   },
   {
     number: "02",
-    title: "Diseño + maqueta de bloques",
+    title: "Visita guiada",
     description:
-      "Dibujamos el proyecto y lo armamos como maqueta de bloques: ves volúmenes, niveles y fachadas antes de aprobar nada.",
-    detail: "2–4 semanas",
-    icon: PencilRuler,
+      "Conoces la escuela y los espacios con tu hijo. Vemos juntos las aulas, el patio y el método. La primera visita es sin costo.",
+    detail: "visita sin costo",
+    icon: CalendarHeart,
   },
   {
     number: "03",
-    title: "Presupuesto pieza por pieza",
+    title: "Inscripción",
     description:
-      "Desglosamos la obra como un set de bloques: cada partida con su precio. Presupuesto cerrado, sin sorpresas a mitad de obra.",
-    detail: "precio cerrado por contrato",
-    icon: Calculator,
+      "Reservamos el lugar, entregamos la documentación y te platicamos sobre la适应性 del niño a su nuevo grupo. Todo claro, por escrito.",
+    detail: "cupos limitados por grupo",
+    icon: ClipboardCheck,
   },
   {
     number: "04",
-    title: "Construcción y entrega",
+    title: "Su primer día",
     description:
-      "Construimos por etapas con reportes semanales de avance y residente en obra. Entregamos a tiempo, con garantía de 10 años.",
-    detail: "3–9 meses según la obra",
-    icon: HardHat,
+      "Acompañamos la adaptación con mucho cariño: periodo de adaptación gradual, reportes diarios y comunicación cercana con la familia.",
+    detail: "adaptación gradual",
+    icon: HeartHandshake,
   },
 ];
 
@@ -71,11 +71,11 @@ export function Process() {
           >
             <span className="label-mono text-signal">Proceso</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98] text-foreground">
-              De la idea a las llaves, en cuatro pasos.
+              De la primera llamada a su primer día.
             </h2>
             <p className="mt-5 max-w-2xl text-lg text-muted-foreground text-pretty leading-relaxed">
-              Un proceso claro y sin intermediarios. Cada paso deja registro:
-              sabes en qué va tu obra, siempre.
+              Un proceso claro y cercano. Cada paso pensado para que tu hijo y
+              tú se sientan acompañados: sabes qué sigue, siempre.
             </p>
           </motion.div>
         </div>
@@ -167,17 +167,17 @@ export function Process() {
         >
           <div>
             <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
-              ¿Listo para el paso 01?
+              ¿Listos para el paso 01?
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Cuéntanos tu proyecto hoy y agenda una visita sin costo.
+              Cuéntanos sobre tu hijo y agenda una visita sin costo.
             </p>
           </div>
           <BrickLink
             href="#contacto"
             className="btn-brick font-round inline-flex items-center gap-1.5 bg-signal px-5 py-2.5 text-sm font-semibold text-signal-foreground transition-colors hover:bg-signal-2"
           >
-            Cotizar mi obra
+            Agendar una visita
           </BrickLink>
         </motion.div>
       </div>

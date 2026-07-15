@@ -3,12 +3,12 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  Home,
-  Building2,
-  Hammer,
-  PencilRuler,
-  HardHat,
-  Wrench,
+  Baby,
+  Backpack,
+  GraduationCap,
+  Blocks,
+  Palette,
+  Music,
   ArrowUpRight,
   type LucideIcon,
 } from "lucide-react";
@@ -29,41 +29,41 @@ interface Service {
 
 const SERVICES: Service[] = [
   {
-    icon: Home,
-    title: "Obra nueva residencial",
+    icon: Baby,
+    title: "Párvulos · 3 a 4 años",
     description:
-      "Casas desde cero: cimentación, estructura, instalaciones y acabados. Un solo contrato, un solo responsable de principio a fin.",
+      "El primer contacto con la escuela: rutinas, lenguaje, autonomía y juego sensorial. Grupos pequeños con mucha contención afectiva.",
     featured: true,
   },
   {
-    icon: Building2,
-    title: "Construcción comercial",
+    icon: Backpack,
+    title: "Intermedio · 4 a 5 años",
     description:
-      "Locales, oficinas y naves industriales, con plazos y horarios que respetan tu operación.",
+      "Exploración del mundo mediante proyectos: ciencias, números, letras y mucha pregunta. Aprender haciendo.",
   },
   {
-    icon: Hammer,
-    title: "Remodelación y ampliación",
+    icon: GraduationCap,
+    title: "Preescolar · 5 a 6 años",
     description:
-      "Intervenimos lo construido sin tirar lo que funciona: niveles nuevos, espacios abiertos, fachadas renovadas.",
+      "Preparación para primaria: lectoescritura inicial, pensamiento lógico y habilidades socioemocionales.",
   },
   {
-    icon: PencilRuler,
-    title: "Diseño arquitectónico",
+    icon: Blocks,
+    title: "Taller de bloques y robótica",
     description:
-      "Proyecto ejecutivo completo, entregado con su maqueta de bloques para que veas la obra antes de construirla.",
+      "Construyen, diseñan y resuelven retos con bloques: pensamiento espacial, ingeniería temprana y trabajo en equipo.",
   },
   {
-    icon: HardHat,
-    title: "Supervisión de obra",
+    icon: Palette,
+    title: "Arte y expresión creativa",
     description:
-      "Residente asignado, bitácora semanal con fotos y avance por etapas. Sabes en qué va tu obra, siempre.",
+      "Pintura, modelado, teatro y música para que cada niño encuentre su forma de expresarse y crear.",
   },
   {
-    icon: Wrench,
-    title: "Mantenimiento y garantía",
+    icon: Music,
+    title: "Inglés y música diarios",
     description:
-      "Programa anual de mantenimiento y garantía estructural de 10 años en todo lo que construimos.",
+      "Inmersión en inglés y música todos los días, con juegos, canciones y cuentos en otro idioma.",
   },
 ];
 
@@ -93,7 +93,7 @@ function StudRow({ className }: { className?: string }) {
 export function Services() {
   const featuredModel: VoxelModel = useMemo(
     () =>
-      generateBuilding("house", PALETTE_SETS.classic, {
+      generateBuilding("schoolhouse", PALETTE_SETS.storybook, {
         width: 8,
         depth: 6,
         floors: 3,
@@ -115,14 +115,14 @@ export function Services() {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5 }}
           >
-            <span className="label-mono text-signal">Servicios</span>
+            <span className="label-mono text-signal">Programas</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98]">
-              Todo lo que tu obra necesita, en un solo lugar.
+              Un programa para cada edad, una sola filosofía.
             </h2>
             <p className="mt-5 max-w-2xl text-lg text-muted-foreground text-pretty leading-relaxed">
-              De la primera visita al último acabado: diseñamos, construimos y
-              damos mantenimiento. Contratas lo que necesites, del tamaño que
-              lo necesites.
+              De los primeros pasos a la puerta de primaria: acompañamos cada
+              etapa con aprendizajes pensados al ritmo de cada niño. Tres
+              niveles, más talleres que encienden la curiosidad.
             </p>
           </motion.div>
         </div>
@@ -148,7 +148,7 @@ export function Services() {
                         <Icon className="h-5 w-5" />
                       </span>
                       <span className="label-mono text-muted-foreground">
-                        servicio · 01
+                        programa · 01
                       </span>
                     </div>
                     <h3 className="mt-5 font-display text-2xl font-bold tracking-tight sm:text-3xl">
@@ -175,11 +175,11 @@ export function Services() {
                       className="absolute inset-0 h-full w-full p-5"
                       maxDelay={1600}
                       float
-                      ariaLabel="Maqueta de bloques de una casa residencial"
+                      ariaLabel="Escuelita de bloques para los más pequeños"
                     />
                     <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-border bg-ink/70 px-2.5 py-1 backdrop-blur">
                       <span className="label-mono text-muted-foreground">
-                        maqueta · casa · {featuredModel.metrics.blockCount} bloques
+                        aula · escuelita · {featuredModel.metrics.blockCount} bloques
                       </span>
                     </div>
                   </div>
@@ -188,7 +188,7 @@ export function Services() {
                     href="#contacto"
                     className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-signal link-signal w-fit"
                   >
-                    Cotizar este servicio
+                    Inscribir a mi hijo
                     <ArrowUpRight className="h-4 w-4" />
                   </BrickLink>
                 </motion.article>

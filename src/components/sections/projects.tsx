@@ -29,75 +29,79 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     id: "p1",
-    title: "Torre Polanco",
-    location: "Polanco, CDMX",
+    title: "Castillo de Lectura",
+    location: "Aula de párvulos",
     year: 2024,
-    structureType: "tower",
-    palette: "classic",
-    opts: { floors: 9, width: 3, depth: 3 },
+    structureType: "castle",
+    palette: "storybook",
+    opts: { floors: 5, width: 9, depth: 9 },
   },
   {
     id: "p2",
-    title: "Rascacielos Reforma",
-    location: "Paseo de la Reforma, CDMX",
+    title: "La Escuelita",
+    location: "Edificio principal",
     year: 2023,
-    structureType: "skyscraper",
-    palette: "industrial",
-    opts: { floors: 14, width: 3, depth: 3 },
+    structureType: "schoolhouse",
+    palette: "classic",
+    opts: { floors: 4, width: 9, depth: 7 },
   },
   {
     id: "p3",
-    title: "Casa Valle de Bravo",
-    location: "Valle de Bravo, Edo. Méx.",
+    title: "Torre del Abecedario",
+    location: "Rincón de letras",
+    year: 2024,
+    structureType: "abc",
+    palette: "candy",
+    opts: { floors: 11 },
+  },
+  {
+    id: "p4",
+    title: "Patio de Juegos",
+    location: "Zona al aire libre",
+    year: 2022,
+    structureType: "playground",
+    palette: "rainbow",
+    opts: { width: 10, depth: 8 },
+  },
+  {
+    id: "p5",
+    title: "Casa de los Cuentos",
+    location: "Biblioteca infantil",
     year: 2024,
     structureType: "house",
     palette: "forest",
     opts: { width: 5, depth: 4, walls: 3 },
   },
   {
-    id: "p4",
-    title: "Puente Los Cabos",
-    location: "San José del Cabo, BCS",
-    year: 2022,
-    structureType: "bridge",
-    palette: "coastal",
-    opts: { span: 9 },
-  },
-  {
-    id: "p5",
-    title: "Pabellón Roma",
-    location: "Colonia Roma, CDMX",
-    year: 2024,
-    structureType: "pavilion",
-    palette: "monolith",
-    opts: { width: 5, depth: 5 },
-  },
-  {
     id: "p6",
-    title: "Torre Cancún",
-    location: "Cancún, Q. Roo",
+    title: "Foro de Arte",
+    location: "Aula multiusos",
     year: 2023,
-    structureType: "tower",
+    structureType: "pavilion",
     palette: "sunset",
-    opts: { floors: 7, width: 3, depth: 3 },
+    opts: { width: 5, depth: 5 },
   },
 ];
 
 const FILTERS: { value: string; label: string }[] = [
-  { value: "all", label: "Todas" },
-  { value: "tower", label: "Torres" },
-  { value: "skyscraper", label: "Rascacielos" },
-  { value: "house", label: "Casas" },
-  { value: "bridge", label: "Puentes" },
-  { value: "pavilion", label: "Pabellones" },
+  { value: "all", label: "Todos" },
+  { value: "castle", label: "Castillos" },
+  { value: "schoolhouse", label: "Escuelitas" },
+  { value: "abc", label: "Letras" },
+  { value: "playground", label: "Juegos" },
+  { value: "house", label: "Casitas" },
 ];
 
 const TAB_LABEL: Record<StructureType, string> = {
   tower: "Torre",
   skyscraper: "Rascacielos",
-  house: "Casa",
+  house: "Casita",
   bridge: "Puente",
-  pavilion: "Pabellón",
+  pavilion: "Foro",
+  castle: "Castillo",
+  schoolhouse: "Escuelita",
+  abc: "Letras",
+  playground: "Juegos",
 };
 
 const STUD_STRIP_COLORS = ["#c8281c", "#f5b82e", "#1e5aa8", "#2e8b57", "#e8542a"];
@@ -149,7 +153,7 @@ function ProjectCard({ project }: { project: Project }) {
           maxDelay={1200}
           interactive
           controls
-          ariaLabel={`Maqueta de bloques de ${project.title}`}
+          ariaLabel={`Espacio de bloques: ${project.title}`}
         />
         {/* Top meta strip */}
         <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2">
@@ -231,7 +235,7 @@ export function Projects() {
 
   return (
     <section
-      id="proyectos"
+      id="espacios"
       className="relative bg-ink bg-grain py-20 sm:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
@@ -244,14 +248,14 @@ export function Projects() {
             transition={{ duration: 0.5 }}
             className="max-w-2xl"
           >
-            <span className="label-mono text-signal">Obras construidas</span>
+            <span className="label-mono text-signal">Nuestros espacios</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98]">
-              Obra real, presentada bloque a bloque.
+              Espacios pensados para jugar y aprender.
             </h2>
             <p className="mt-5 text-lg text-muted-foreground text-pretty leading-relaxed">
-              Cada obra entregada conserva su maqueta de bloques — la misma que
-              vio el cliente antes de empezar. Juega con ellas: gíralas con un
-              swipe, quítales bloques o rómpelas y reármalas.
+              Cada rincón de la escuela está diseñado como un mundo de bloques
+              que despierta la imaginación. Juega con ellos: gíralos con un
+              swipe, quítales bloques o rómpelos y reármalos.
             </p>
           </motion.div>
         </div>
@@ -298,18 +302,18 @@ export function Projects() {
         >
           <div>
             <h3 className="font-display text-xl font-bold tracking-tight">
-              ¿La tuya?
+              ¿Quieres verlo en persona?
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Cuéntanos qué quieres construir y recibe tu presupuesto con
-              maqueta incluida.
+              Agenda una visita y conoce cada espacio con tu hijo. Sin costo y
+              sin compromiso.
             </p>
           </div>
           <BrickLink
             href="#contacto"
             className="btn-brick font-round inline-flex items-center gap-1.5 bg-signal px-5 py-2.5 text-sm font-semibold text-signal-foreground transition-colors hover:bg-signal-2"
           >
-            Cotizar mi obra
+            Agendar una visita
             <ArrowUpRight className="h-4 w-4" />
           </BrickLink>
         </motion.div>

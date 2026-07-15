@@ -10,7 +10,12 @@ export type StructureType =
   | "skyscraper"
   | "house"
   | "bridge"
-  | "pavilion";
+  | "pavilion"
+  // Temáticos de preescolar
+  | "castle"
+  | "schoolhouse"
+  | "abc"
+  | "playground";
 
 // Classic LEGO palette — used ONLY for brick colors, never UI chrome.
 export const LEGO_PALETTE = {
@@ -30,6 +35,9 @@ export const LEGO_PALETTE = {
   brown: "#6b4a2b",
   azure: "#3aa6c9",
   sand: "#c2a878",
+  pink: "#e85aa8",
+  purple: "#7b4ea8",
+  lime: "#9bc53d",
 } as const;
 
 export const PALETTE_SETS: Record<string, string[]> = {
@@ -40,6 +48,10 @@ export const PALETTE_SETS: Record<string, string[]> = {
   forest: [LEGO_PALETTE.green, LEGO_PALETTE.brown, LEGO_PALETTE.tan, LEGO_PALETTE.white],
   sunset: [LEGO_PALETTE.orange, LEGO_PALETTE.red, LEGO_PALETTE.yellow, LEGO_PALETTE.tan],
   desert: [LEGO_PALETTE.sand, LEGO_PALETTE.brown, LEGO_PALETTE.tan, LEGO_PALETTE.white],
+  // Paletas infantiles para los modelos temáticos de preescolar
+  candy: [LEGO_PALETTE.pink, LEGO_PALETTE.azure, LEGO_PALETTE.yellow, LEGO_PALETTE.white],
+  rainbow: [LEGO_PALETTE.red, LEGO_PALETTE.orange, LEGO_PALETTE.yellow, LEGO_PALETTE.green],
+  storybook: [LEGO_PALETTE.pink, LEGO_PALETTE.purple, LEGO_PALETTE.azure, LEGO_PALETTE.yellow],
 };
 
 // ---------- color utils ----------
@@ -462,7 +474,259 @@ function genPavilion(palette: string[], w = 8, d = 8): VoxelModel {
   return finalize("pavilion", palette, grid, [w, totalH, d]);
 }
 
-function finalize(
+// ============================================================
+//  GENERADORES TEMÁTICOS DE PREESCOLAR
+//  Modelos lúdicos reconocibles para una escuela infantil.
+// ============================================================
+
+/** Castillo de cuento: base cuadrada, almenas, torres en esquinas y bandera. */
+function genCastle(palette: string[], w = 9, d = 9, walls = 5): VoxelModel {
+  const stone = palette[0];
+  const roof = palette[1] ?? LEGO_PALETTE.purple;
+  const flag = palette[2] ?? LEGO_PALETTE.red;
+  const trim = palette[3] ?? LEGO_PALETTE.yellow;
+  const ground = LEGO_PALETTE.lime;
+
+  const towerH = walls + 3;
+  const totalH = towerH + 2;
+  const grid = makeGrid(w, totalH, d);
+
+  // césped
+  fill(grid, 0, 0, 0, w, 1, d, ground);
+
+  // cuerpo del castillo (muro perimetral)
+  fillShell(grid, 0, 1, 0, w, walls, d, stone, 1);
+  // puerta (arcada) al frente
+  const doorX = Math.floor(w / 2) - 1;
+  clear(grid, doorX, 1, 0, 2, 3, 1);
+  grid[doorX][1][0] = { color: LEGO_PALETTE.darkGray };
+  grid[doorX + 1][1][0] = { color: LEGO_PALETTE.darkGray };
+  grid[doorX][2][0] = { color: LEGO_PALETTE.darkGray };
+  grid[doorX + 1][2][0] = { color: LEGO_PALETTE.darkGray };
+  grid[doorX][3][0] = { color: trim }; // dintel
+  grid[doorX + 1][3][0] = { color: trim };
+  // ventanas
+  grid[1][3][0] = { color: LEGO_PALETTE.azure };
+  grid[w - 2][3][0] = { color: LEGO_PALETTE.azure };
+
+  // almenas (dientes en el borde superior del muro)
+  for (let x = 0; x < w; x++) {
+    if (x % 2 === 0) {
+      grid[x][1 + walls][0] = { color: stone };
+      grid[x][1 + walls][d - 1] = { color: stone };
+    }
+  }
+  for (let z = 0; z < d; z++) {
+    if (z % 2 === 0) {
+      grid[0][1 + walls][z] = { color: stone };
+      grid[w - 1][1 + walls][z] = { color: stone };
+    }
+  }
+
+  // cuatro torres en las esquinas (más altas, con techo cónico)
+  const corners: [number, number][] = [
+    [0, 0], [w - 1, 0], [0, d - 1], [w - 1, d - 1],
+  ];
+  for (const [cx, cz] of corners) {
+    fill(grid, cx, 1, cz, 1, towerH, 1, shade(stone, 1.08));
+    // techo cónico (pirámide de 2 niveles)
+    grid[cx][1 + towerH][cz] = { color: roof };
+    grid[cx][1 + towerH + 1][cz] = { color: shade(roof, 0.9) };
+    // banderín en la torre frontal-izquierda
+    if (cx === 0 && cz === 0) {
+      grid[cx][1 + towerH + 2] === undefined;
+    }
+  }
+
+  // bandera central sobre el cuerpo
+  const midX = Math.floor(w / 2);
+  const midZ = Math.floor(d / 2);
+  fill(grid, midX, 1 + walls, midZ, 1, 3, 1, LEGO_PALETTE.darkGray); // mástil
+  grid[midX + 1][1 + walls + 2][midZ] = { color: flag }; // bandera
+
+  return finalize("castle", palette, grid, [w, totalH, d]);
+}
+
+/** Escuelita: casita acogedora con tejado, campana y letrero de entrada. */
+function genSchoolhouse(palette: string[], w = 9, d = 7, walls = 4): VoxelModel {
+  const wallColor = palette[0];
+  const roofColor = palette[1] ?? LEGO_PALETTE.red;
+  const trim = palette[2] ?? LEGO_PALETTE.yellow;
+  const bell = palette[3] ?? LEGO_PALETTE.orange;
+  const glass = LEGO_PALETTE.azure;
+  const ground = LEGO_PALETTE.lime;
+
+  const roofLayers = Math.ceil(Math.min(w, d) / 2);
+  const totalH = 1 + walls + roofLayers + 2;
+  const grid = makeGrid(w, totalH, d);
+
+  // césped
+  fill(grid, 0, 0, 0, w, 1, d, ground);
+
+  // muros
+  fillShell(grid, 0, 1, 0, w, walls, d, wallColor, 1);
+  // esquinas decorativas
+  for (let y = 1; y <= walls; y++) {
+    grid[0][y][0] = { color: trim };
+    grid[w - 1][y][0] = { color: trim };
+    grid[0][y][d - 1] = { color: trim };
+    grid[w - 1][y][d - 1] = { color: trim };
+  }
+
+  // puerta grande al centro
+  const doorX = Math.floor(w / 2) - 1;
+  clear(grid, doorX, 1, 0, 2, 2, 1);
+  grid[doorX][1][0] = { color: LEGO_PALETTE.brown };
+  grid[doorX + 1][1][0] = { color: LEGO_PALETTE.brown };
+  grid[doorX][2][0] = { color: LEGO_PALETTE.brown };
+  grid[doorX + 1][2][0] = { color: LEGO_PALETTE.brown };
+  grid[doorX][3][0] = { color: trim };
+  grid[doorX + 1][3][0] = { color: trim };
+
+  // ventanas grandes (más luz = aulas)
+  grid[2][2][0] = { color: glass };
+  grid[w - 3][2][0] = { color: glass };
+  grid[2][3][0] = { color: glass };
+  grid[w - 3][3][0] = { color: glass };
+
+  // tejado a dos aguas
+  const roofBase = 1 + walls;
+  for (let layer = 0; layer < roofLayers; layer++) {
+    const zMin = layer;
+    const zMax = d - layer;
+    if (zMax <= zMin) break;
+    const roofY = roofBase + layer;
+    for (let x = 0; x < w; x++) {
+      for (let z = zMin; z < zMax; z++) {
+        grid[x][roofY][z] = { color: roofColor };
+      }
+    }
+  }
+
+  // campanario pequeño en el tejado
+  const midX = Math.floor(w / 2);
+  fill(grid, midX - 1, roofBase + roofLayers, Math.floor(d / 2), 3, 2, 1, shade(wallColor, 1.05));
+  grid[midX][roofBase + roofLayers + 2][Math.floor(d / 2)] = { color: bell };
+
+  return finalize("schoolhouse", palette, grid, [w, totalH, d]);
+}
+
+/** Torre ABC: pilar de bloques de colores con una "A" marcada al frente. */
+function genAbc(palette: string[], height = 11): VoxelModel {
+  const colors = [
+    palette[0],
+    palette[1] ?? LEGO_PALETTE.azure,
+    palette[2] ?? LEGO_PALETTE.yellow,
+    palette[3] ?? LEGO_PALETTE.green,
+  ];
+  const ground = LEGO_PALETTE.lime;
+  const w = 7;
+  const d = 5;
+  const totalH = 1 + height + 2;
+  const grid = makeGrid(w, totalH, d);
+
+  // césped
+  fill(grid, 0, 0, 0, w, 1, d, ground);
+
+  // columna de bloques alternando colores por nivel (efecto "stack" de juguete)
+  for (let y = 0; y < height; y++) {
+    const c = colors[y % colors.length];
+    fill(grid, 1, 1 + y, 1, w - 2, 1, d - 2, c);
+    // "studs" visibles simulados como borde más claro arriba
+    for (let x = 1; x < w - 1; x++) {
+      if (x % 2 === 1) grid[x][1 + y][d - 2] = { color: shade(c, 1.15) };
+    }
+  }
+
+  // letra "A" marcada al frente con esmalte blanco (z = cara frontal interna)
+  const faceZ = 1;
+  const baseLetterY = 2;
+  const aPoints: [number, number][] = [
+    [2, 1], [3, 0], [4, 0], [4, 1], [3, 1],
+    [1, 2], [2, 2], [3, 2], [4, 2], [5, 2],
+    [1, 3], [5, 3],
+    [1, 4], [2, 4], [3, 4], [4, 4], [5, 4],
+  ];
+  for (const [px, py] of aPoints) {
+    if (grid[px]?.[baseLetterY + py]?.[faceZ] !== undefined) {
+      grid[px][baseLetterY + py][faceZ] = { color: LEGO_PALETTE.white };
+    }
+  }
+
+  // coronación: un bloque destacado + estrella
+  const topY = 1 + height;
+  fill(grid, 1, topY, 1, w - 2, 1, d - 2, colors[height % colors.length]);
+  grid[Math.floor(w / 2)][topY + 1][Math.floor(d / 2)] = { color: LEGO_PALETTE.yellow };
+
+  return finalize("abc", palette, grid, [w, totalH, d]);
+}
+
+/** Patio de juegos: estructura con techo, tobogán y escalera. */
+function genPlayground(palette: string[], w = 10, d = 8): VoxelModel {
+  const frame = palette[0];
+  const slide = palette[1] ?? LEGO_PALETTE.orange;
+  const roof = palette[2] ?? LEGO_PALETTE.yellow;
+  const accent = palette[3] ?? LEGO_PALETTE.red;
+  const ground = LEGO_PALETTE.lime;
+  const stepColor = LEGO_PALETTE.brown;
+
+  const deckH = 4;
+  const totalH = deckH + 4;
+  const grid = makeGrid(w, totalH, d);
+
+  // suelo de césped + arenoso al frente
+  fill(grid, 0, 0, 0, w, 1, d, ground);
+  fill(grid, 0, 0, 0, w, 1, Math.floor(d / 2), shade(ground, 0.95));
+
+  // cuatro postes de soporte
+  const posts: [number, number][] = [
+    [1, 1], [w - 2, 1], [1, d - 2], [w - 2, d - 2],
+  ];
+  for (const [px, pz] of posts) {
+    fill(grid, px, 1, pz, 1, deckH + 1, 1, frame);
+  }
+
+  // plataforma (deck) elevada
+  fill(grid, 1, deckH, 1, w - 2, 1, d - 2, shade(frame, 1.05));
+  // baranda perimetral con huecos
+  for (let x = 1; x < w - 1; x++) {
+    if (x % 2 === 0) grid[x][deckH + 1][1] = { color: accent };
+    if (x % 2 === 0) grid[x][deckH + 1][d - 2] = { color: accent };
+  }
+
+  // techo a dos aguas pequeño sobre la plataforma
+  const midX = Math.floor(w / 2);
+  for (let layer = 0; layer < 2; layer++) {
+    const zMin = 1 + layer;
+    const zMax = d - 1 - layer;
+    if (zMax <= zMin) break;
+    for (let x = 1; x < w - 1; x++) {
+      for (let z = zMin; z < zMax; z++) {
+        grid[x][deckH + 2 + layer][z] = { color: roof };
+      }
+    }
+  }
+
+  // escalera de acceso al frente (lado z = 0)
+  for (let s = 0; s < deckH; s++) {
+    grid[midX - 1][1 + s][0] = { color: stepColor };
+    grid[midX][1 + s][0] = { color: stepColor };
+    grid[midX + 1][1 + s][0] = { color: stepColor };
+  }
+
+  // tobogán: rampa diagonal desde la plataforma hasta el suelo (lado z = d-1)
+  for (let s = 0; s < deckH; s++) {
+    const y = deckH - s;
+    const z = d - 1;
+    grid[midX - 1][y][z] = { color: slide };
+    grid[midX][y][z] = { color: slide };
+    grid[midX + 1][y][z] = { color: slide };
+  }
+
+  return finalize("playground", palette, grid, [w, totalH, d]);
+}
+
+
   structureType: StructureType,
   palette: string[],
   grid: (VoxelCell | null)[][][],
@@ -509,6 +773,14 @@ export function generateBuilding(
       return genBridge(palette, opts.width ?? 13);
     case "pavilion":
       return genPavilion(palette, opts.width ?? 8, opts.depth ?? 8);
+    case "castle":
+      return genCastle(palette, opts.width ?? 9, opts.depth ?? 9, opts.floors ?? 5);
+    case "schoolhouse":
+      return genSchoolhouse(palette, opts.width ?? 9, opts.depth ?? 7, opts.floors ?? 4);
+    case "abc":
+      return genAbc(palette, opts.floors ?? 11);
+    case "playground":
+      return genPlayground(palette, opts.width ?? 10, opts.depth ?? 8);
     case "tower":
     default:
       return genTower(palette, opts.width ?? 5, opts.depth ?? 5, floors);
