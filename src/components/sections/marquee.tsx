@@ -3,13 +3,13 @@
 import { Hexagon } from "lucide-react";
 
 const ITEMS = [
-  "Análisis visual por IA",
-  "Modelado 3D de bloques",
-  "Ingeniería estructural",
-  "Fabricación modular",
-  "Montaje por capas",
-  "Tolerancia ±0.4 mm",
-  "240 obras entregadas",
+  "Obra nueva",
+  "Remodelación",
+  "Diseño arquitectónico",
+  "Maqueta de bloques incluida",
+  "Presupuesto sin sorpresas",
+  "240+ obras entregadas",
+  "Entrega a tiempo",
   "Garantía 10 años",
 ];
 

@@ -1,24 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, RefreshCw, MapPin, Boxes } from "lucide-react";
+import { ArrowUpRight, RefreshCw, MapPin } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import dynamic from "next/dynamic";
-import { SceneErrorBoundary } from "@/components/lego3d/scene-error-boundary";
-import { useWebGLSlot } from "@/components/lego3d/use-webgl-slot";
+import { LegoModel } from "@/components/lego/lego-model";
 import {
   generateBuilding,
   PALETTE_SETS,
   type VoxelModel,
   type StructureType,
 } from "@/lib/lego";
-
-const LegoScene3D = dynamic(
-  () => import("@/components/lego3d/lego-scene-3d").then((m) => m.LegoScene3D),
-  { ssr: false, loading: () => null }
-);
 
 type PaletteName = keyof typeof PALETTE_SETS;
 
@@ -49,7 +42,7 @@ const PROJECTS: Project[] = [
     year: 2023,
     structureType: "skyscraper",
     palette: "industrial",
-    opts: { floors: 16, width: 3, depth: 3 },
+    opts: { floors: 14, width: 3, depth: 3 },
   },
   {
     id: "p3",
@@ -90,7 +83,7 @@ const PROJECTS: Project[] = [
 ];
 
 const FILTERS: { value: string; label: string }[] = [
-  { value: "all", label: "Todos" },
+  { value: "all", label: "Todas" },
   { value: "tower", label: "Torres" },
   { value: "skyscraper", label: "Rascacielos" },
   { value: "house", label: "Casas" },
@@ -106,40 +99,15 @@ const TAB_LABEL: Record<StructureType, string> = {
   pavilion: "Pabellón",
 };
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
-  const [buildId, setBuildId] = useState(1);
-  const [inView, setInView] = useState(false);
-  const hasSlot = useWebGLSlot(inView);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const mounted = inView && hasSlot;
+const STUD_STRIP_COLORS = ["#c8281c", "#f5b82e", "#1e5aa8", "#2e8b57", "#e8542a"];
+
+function ProjectCard({ project }: { project: Project }) {
+  const [buildId, setBuildId] = useState(0);
   const model: VoxelModel = useMemo(
     () =>
       generateBuilding(project.structureType, PALETTE_SETS[project.palette], project.opts),
     [project]
   );
-
-  // Mount 3D when card is in view, UNMOUNT when scrolled away (frees WebGL context)
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            // stagger so multiple contexts don't spin up simultaneously
-            timeout = setTimeout(() => setInView(true), (index % 3) * 200);
-          } else {
-            if (timeout) { clearTimeout(timeout); timeout = null; }
-            setInView(false);
-          }
-        }
-      },
-      { rootMargin: "80px" }
-    );
-    io.observe(el);
-    return () => { io.disconnect(); if (timeout) clearTimeout(timeout); };
-  }, [index]);
 
   return (
     <motion.article
@@ -147,14 +115,30 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="group overflow-hidden rounded-2xl border border-border bg-ink-2/40 transition-colors hover:border-signal/40"
+      className="group relative overflow-hidden rounded-2xl border border-border bg-ink-2/40 transition-all duration-300 hover:-translate-y-1 hover:border-signal/40"
     >
-      <div ref={cardRef}>
+      {/* studs que asoman al pasar el cursor */}
+      <div
+        aria-hidden
+        className="stud-strip absolute left-5 top-2 z-10"
+      >
+        {STUD_STRIP_COLORS.map((c) => (
+          <span
+            key={c}
+            className="h-2 w-2 rounded-full"
+            style={{
+              background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,0.55), rgba(255,255,255,0) 45%), ${c}`,
+              boxShadow: "inset 0 -1px 2px rgba(0,0,0,0.3)",
+            }}
+          />
+        ))}
+      </div>
+
       <button
         type="button"
-        onClick={() => { setInView(true); setBuildId((id) => id + 1); }}
-        className="relative block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
-        aria-label={`Reconstruir modelo 3D de ${project.title}`}
+        onClick={() => setBuildId((id) => id + 1)}
+        className="brick-press relative block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+        aria-label={`Rearmar la maqueta de ${project.title}`}
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-blueprint-fine">
           <div
@@ -165,28 +149,13 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
                 "radial-gradient(circle, rgba(232,84,42,0.16), rgba(232,84,42,0) 65%)",
             }}
           />
-          {mounted ? (
-            <SceneErrorBoundary>
-              <LegoScene3D
-                model={model}
-                buildId={buildId}
-                className="absolute inset-0 h-full w-full"
-                maxDelay={1400}
-                autoRotate
-                quality="lite"
-              />
-            </SceneErrorBoundary>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <span className="relative flex h-10 w-10 items-center justify-center">
-                  <span className="absolute inset-0 animate-ping rounded-full bg-signal/20" />
-                  <Boxes className="h-7 w-7 text-signal/60" />
-                </span>
-                <span className="label-mono text-[0.6rem]">cargando 3D…</span>
-              </div>
-            </div>
-          )}
+          <LegoModel
+            model={model}
+            buildId={buildId}
+            className="absolute inset-0 h-full w-full p-4"
+            maxDelay={1200}
+            ariaLabel={`Maqueta de bloques de ${project.title}`}
+          />
           {/* Top meta strip */}
           <div className="absolute left-3 top-3 flex items-center gap-2">
             <span className="rounded-md border border-border bg-ink/70 px-2 py-0.5 backdrop-blur">
@@ -198,7 +167,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           {/* Rebuild hint */}
           <div className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-md border border-border bg-ink/70 px-2 py-1 backdrop-blur opacity-0 transition-opacity duration-200 group-hover:opacity-100">
             <RefreshCw className="h-3 w-3 text-signal" />
-            <span className="label-mono text-muted-foreground">reconstruir</span>
+            <span className="label-mono text-muted-foreground">rearmar</span>
           </div>
           {/* Block count badge */}
           <div className="absolute bottom-3 right-3">
@@ -242,13 +211,12 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             </div>
           </div>
           <div>
-            <div className="label-mono text-muted-foreground">altura</div>
+            <div className="label-mono text-muted-foreground">entrega</div>
             <div className="mt-0.5 font-mono text-sm text-foreground">
-              {model.metrics.heightM} m
+              {project.year}
             </div>
           </div>
         </div>
-      </div>
       </div>
     </motion.article>
   );
@@ -282,11 +250,12 @@ export function Projects() {
           >
             <span className="label-mono text-signal">Obras construidas</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98]">
-              Modelos que ya son muros.
+              Obra real, presentada bloque a bloque.
             </h2>
             <p className="mt-5 text-lg text-muted-foreground text-pretty leading-relaxed">
-              Seis obras entregadas, cada una nacida de una imagen. Toca
-              cualquier torre para reconstruirla desde la primera capa.
+              Cada obra entregada conserva su maqueta de bloques — la misma que
+              vio el cliente antes de empezar. Toca cualquiera para verla
+              armarse capa por capa.
             </p>
           </motion.div>
         </div>
@@ -318,8 +287,8 @@ export function Projects() {
           transition={{ duration: 0.35 }}
           className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {visible.map((p, i) => (
-            <ProjectCard key={p.id} project={p} index={i} />
+          {visible.map((p) => (
+            <ProjectCard key={p.id} project={p} />
           ))}
         </motion.div>
 
@@ -336,14 +305,15 @@ export function Projects() {
               ¿La tuya?
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sube tu imagen y en minutos tienes un modelo 3D cotizable.
+              Cuéntanos qué quieres construir y recibe tu presupuesto con
+              maqueta incluida.
             </p>
           </div>
           <a
-            href="#estudio"
-            className="inline-flex items-center gap-1.5 rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-signal-foreground transition-colors hover:bg-signal-2"
+            href="#contacto"
+            className="brick-press inline-flex items-center gap-1.5 rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-signal-foreground transition-colors hover:bg-signal-2"
           >
-            Sube tu imagen
+            Cotizar mi obra
             <ArrowUpRight className="h-4 w-4" />
           </a>
         </motion.div>

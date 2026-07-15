@@ -27,9 +27,25 @@ export function BackToTop() {
           exit={{ opacity: 0, scale: 0.8, y: 10 }}
           transition={{ duration: 0.2 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-ink-2/80 text-foreground shadow-brick backdrop-blur-md hover:bg-signal hover:text-signal-foreground hover:border-signal transition-colors"
+          className="brick-press group fixed bottom-6 right-6 z-50 flex h-11 w-[3.5rem] items-center justify-center rounded-md bg-signal text-signal-foreground shadow-brick hover:bg-signal-2 transition-colors"
           aria-label="Volver arriba"
         >
+          {/* studs del brick */}
+          <span
+            aria-hidden
+            className="absolute -top-[5px] inset-x-0 flex justify-evenly"
+          >
+            {[0, 1].map((i) => (
+              <span
+                key={i}
+                className="h-2.5 w-2.5 rounded-full bg-signal transition-colors group-hover:bg-signal-2"
+                style={{
+                  boxShadow:
+                    "inset 0 2px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.35)",
+                }}
+              />
+            ))}
+          </span>
           <ArrowUp className="h-5 w-5" />
         </motion.button>
       )}

@@ -260,184 +260,61 @@
 }
 
 /* ============================================================
-   LEGO BRICK SYSTEM — CSS 3D (preserve-3d)
-   A brick = body (6 faces) + studs (cylinders) on top.
-   Driven by CSS custom props: --bw (width), --bd (depth),
-   --bh (height), --bc (color), --studs (grid template).
-   Unit: 1 stud = 22px.
+   LEGO ISO SYSTEM — animaciones para el renderer SVG isométrico
+   (LegoModel) y efectos de "snap" de bloques en la UI.
    ============================================================ */
 @layer components {
-  .lego-scene {
-    perspective: 1400px;
-    perspective-origin: 50% 38%;
-    transform-style: preserve-3d;
-  }
-  .lego-stage {
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
-  }
-
-  /* A single brick. Sized via custom props. */
-  .lego-brick {
-    position: absolute;
-    transform-style: preserve-3d;
-    /* default 2x2 brick */
-    --bw: 44px;
-    --bd: 44px;
-    --bh: 22px;
-    --bc: #c8281c;
-    --stud-r: 7px;
-    width: var(--bw);
-    height: var(--bh);
-    /* depth via 3d faces */
-  }
-  .lego-brick .face {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: var(--bc);
-    backface-visibility: hidden;
-  }
-  /* top face */
-  .lego-brick .f-top {
-    width: var(--bw);
-    height: var(--bd);
-    transform: rotateX(90deg) translateZ(0px);
-    transform-origin: top left;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 40%),
-      var(--bc);
-  }
-  /* front face */
-  .lego-brick .f-front {
-    width: var(--bw);
-    height: var(--bh);
-    transform: translateZ(var(--bd));
-    background:
-      linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0) 35%),
-      linear-gradient(90deg, rgba(0,0,0,0.22), rgba(255,255,255,0.10) 50%, rgba(0,0,0,0.22)),
-      var(--bc);
-  }
-  /* right face */
-  .lego-brick .f-right {
-    width: var(--bd);
-    height: var(--bh);
-    transform: rotateY(90deg) translateZ(var(--bw));
-    transform-origin: top left;
-    background:
-      linear-gradient(180deg, rgba(0,0,0,0.34), rgba(0,0,0,0) 35%),
-      linear-gradient(90deg, rgba(0,0,0,0.30), rgba(255,255,255,0.06) 60%),
-      var(--bc);
-    filter: brightness(0.78);
-  }
-  /* left face */
-  .lego-brick .f-left {
-    width: var(--bd);
-    height: var(--bh);
-    transform: rotateY(-90deg);
-    transform-origin: top left;
-    background:
-      linear-gradient(180deg, rgba(0,0,0,0.30), rgba(0,0,0,0) 35%),
-      var(--bc);
-    filter: brightness(0.62);
-  }
-  /* back face */
-  .lego-brick .f-back {
-    width: var(--bw);
-    height: var(--bd);
-    transform: rotateX(-90deg) translateZ(calc(-1 * var(--bh)));
-    transform-origin: top left;
-    background: var(--bc);
-    filter: brightness(0.5);
-  }
-  /* bottom face */
-  .lego-brick .f-bottom {
-    width: var(--bw);
-    height: var(--bd);
-    transform: rotateX(-90deg);
-    transform-origin: top left;
-    background: var(--bc);
-    filter: brightness(0.45);
-  }
-
-  /* Studs — cylinders on top. Rendered as a stack of rotated rectangles
-     approximating a cylinder, but we use a simpler radial-gradient disc
-     with a side band for performance. */
-  .lego-studs {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: var(--bw);
-    height: var(--bd);
-    transform: rotateX(90deg);
-    transform-origin: top left;
-    display: grid;
-    gap: 0;
-  }
-  .lego-stud {
-    position: relative;
-    width: calc(var(--stud-r) * 2);
-    height: calc(var(--stud-r) * 2);
-    border-radius: 50%;
-    background:
-      radial-gradient(circle at 35% 30%, rgba(255,255,255,0.55), rgba(255,255,255,0) 45%),
-      var(--bc);
-    box-shadow:
-      0 0 0 1px rgba(0,0,0,0.18),
-      inset 0 -2px 3px rgba(0,0,0,0.28);
-    align-self: center;
-    justify-self: center;
-  }
-
-  /* Build animation — brick drops in from above */
-  @keyframes brick-drop {
-    0% {
-      transform: translateY(-120px) translateZ(0) rotateZ(8deg);
-      opacity: 0;
-    }
-    60% {
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(0) translateZ(0) rotateZ(0deg);
-      opacity: 1;
-    }
-  }
-  .lego-brick.entering {
-    animation: brick-drop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-
-  /* Crane hook line */
-  .crane-line {
-    position: absolute;
-    width: 2px;
-    background: linear-gradient(180deg, rgba(244,241,234,0.0), rgba(244,241,234,0.5));
-    transform-origin: top center;
-  }
-
-  /* Stud pulse for active builder */
-  @keyframes stud-pulse {
-    0%, 100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.18), inset 0 -2px 3px rgba(0,0,0,0.28), 0 0 0 0 rgba(232,84,42,0.0); }
-    50% { box-shadow: 0 0 0 1px rgba(0,0,0,0.18), inset 0 -2px 3px rgba(0,0,0,0.28), 0 0 0 4px rgba(232,84,42,0.25); }
-  }
-
-  /* SVG brick drop (used by LegoBrick) */
-  @keyframes brick-svg-drop {
+  /* Cada brick de la maqueta cae y asienta con un pequeño rebote */
+  @keyframes lego-iso-drop {
     0% {
       opacity: 0;
-      transform: translateY(-26px);
+      transform: translateY(-56px);
     }
     55% {
       opacity: 1;
     }
-    80% {
-      transform: translateY(2px);
+    78% {
+      transform: translateY(2.5px);
     }
     100% {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+  .lego-iso-brick {
+    animation: lego-iso-drop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+
+  /* Flotación suave de la maqueta terminada */
+  @keyframes lego-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .lego-floaty {
+    animation: lego-float 6s ease-in-out infinite;
+  }
+
+  /* Botones y tarjetas que "encajan" como bloque al presionar */
+  .brick-press {
+    transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .brick-press:active {
+    transform: translateY(2px);
+  }
+
+  /* Fila de studs que aparece en el borde superior de una tarjeta */
+  .stud-strip {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .group:hover .stud-strip,
+  .group:focus-within .stud-strip {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   /* Conveyor / scaffold line shimmer */
@@ -449,6 +326,25 @@
     background: linear-gradient(90deg, transparent, rgba(244,241,234,0.14), transparent);
     background-size: 200% 100%;
     animation: shimmer 2.2s linear infinite;
+  }
+
+  /* Loader: letra-bloque del wordmark que cae y asienta */
+  @keyframes loader-letter-drop {
+    0% {
+      opacity: 0;
+      transform: translateY(-42px) rotate(-4deg);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(3px) rotate(1deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) rotate(0deg);
+    }
+  }
+  .loader-letter {
+    animation: loader-letter-drop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 }
 

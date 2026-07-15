@@ -14,11 +14,10 @@ import {
 } from "@/components/ui/sheet";
 
 const NAV = [
-  { label: "Estudio", href: "#estudio" },
   { label: "Servicios", href: "#servicios" },
+  { label: "Proceso", href: "#proceso" },
   { label: "Proyectos", href: "#proyectos" },
-  { label: "Precios", href: "#precios" },
-  { label: "Galería", href: "#galeria" },
+  { label: "Preguntas", href: "#faq" },
   { label: "Contacto", href: "#contacto" },
 ];
 
@@ -64,20 +63,14 @@ export function SiteHeader() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
-            <a
-              href="#contacto"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3"
-            >
-              Cotizar obra
-            </a>
             <ThemeToggle />
             <Button
               asChild
               size="sm"
-              className="bg-signal text-signal-foreground hover:bg-signal-2 rounded-full"
+              className="brick-press bg-signal text-signal-foreground hover:bg-signal-2 rounded-full"
             >
-              <a href="#estudio">
-                Abrir estudio
+              <a href="#contacto">
+                Cotizar mi obra
                 <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
               </a>
             </Button>
@@ -128,9 +121,11 @@ export function SiteHeader() {
                 <div className="p-5 mt-auto">
                   <Button
                     asChild
-                    className="w-full bg-signal text-signal-foreground hover:bg-signal-2 rounded-full"
+                    className="brick-press w-full h-12 bg-signal text-signal-foreground hover:bg-signal-2 rounded-full"
                   >
-                    <a href="#estudio">Abrir estudio de bloques</a>
+                    <a href="#contacto" onClick={() => setOpen(false)}>
+                      Cotizar mi obra
+                    </a>
                   </Button>
                 </div>
               </SheetContent>

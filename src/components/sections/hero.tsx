@@ -2,37 +2,75 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Play, Sparkles } from "lucide-react";
-import dynamic from "next/dynamic";
+import { ArrowUpRight, HardHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LegoModel } from "@/components/lego/lego-model";
 import {
   generateBuilding,
   PALETTE_SETS,
   type VoxelModel,
 } from "@/lib/lego";
 
-// Three.js Canvas must be client-only, no SSR
-const LegoScene3D = dynamic(
-  () => import("@/components/lego3d/lego-scene-3d").then((m) => m.LegoScene3D),
-  { ssr: false, loading: () => null }
-);
-
 const STATS = [
   { value: "240+", label: "obras entregadas" },
-  { value: "1.8M", label: "bloques colocados" },
+  { value: "18", label: "años construyendo" },
   { value: "12", label: "ciudades activas" },
 ];
 
-function useLoopedTower(intervalMs = 6200) {
+/** La maqueta del hero se rearma en loop, como obra en curso. */
+function useLoopedTower(intervalMs = 7500) {
   const [buildId, setBuildId] = useState(0);
   const [model] = useState<VoxelModel>(() =>
-    generateBuilding("tower", PALETTE_SETS.classic, { floors: 9, width: 5, depth: 5 })
+    generateBuilding("tower", PALETTE_SETS.classic, { floors: 8, width: 5, depth: 5 })
   );
   useEffect(() => {
     const t = setInterval(() => setBuildId((i) => i + 1), intervalMs);
     return () => clearInterval(t);
   }, [intervalMs]);
   return { buildId, model };
+}
+
+/** Brick decorativo flotante con studs, en colores de marca. */
+function FloatingBrick({
+  color,
+  className,
+  duration = 6,
+  delay = 0,
+  studs = 2,
+}: {
+  color: string;
+  className?: string;
+  duration?: number;
+  delay?: number;
+  studs?: number;
+}) {
+  return (
+    <motion.div
+      aria-hidden
+      className={`pointer-events-none absolute ${className ?? ""}`}
+      animate={{ y: [0, -12, 0], rotate: [0, 2.5, 0] }}
+      transition={{ duration, repeat: Infinity, ease: "easeInOut", delay }}
+    >
+      <div
+        className="relative h-7 rounded-[4px] shadow-brick"
+        style={{ backgroundColor: color, width: `${studs * 22}px` }}
+      >
+        <div className="absolute -top-1.5 inset-x-0 flex justify-evenly">
+          {Array.from({ length: studs }).map((_, i) => (
+            <span
+              key={i}
+              className="h-2.5 w-2.5 rounded-full"
+              style={{
+                backgroundColor: color,
+                boxShadow:
+                  "inset 0 2px 2px rgba(255,255,255,0.35), inset 0 -1px 2px rgba(0,0,0,0.35)",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 export function Hero() {
@@ -61,6 +99,11 @@ export function Hero() {
         }}
       />
 
+      {/* bricks flotantes de fondo */}
+      <FloatingBrick color="#c8281c" className="top-24 left-[4%] opacity-25 hidden sm:block" duration={7} />
+      <FloatingBrick color="#f5b82e" className="top-40 right-[6%] opacity-20 hidden md:block" duration={6} delay={1.2} studs={3} />
+      <FloatingBrick color="#1e5aa8" className="bottom-24 left-[10%] opacity-15 hidden lg:block" duration={8} delay={0.6} />
+
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* Left: copy */}
@@ -71,9 +114,9 @@ export function Hero() {
               transition={{ duration: 0.6 }}
               className="inline-flex items-center gap-2 rounded-full border border-border bg-ink-2/60 px-3 py-1.5 backdrop-blur"
             >
-              <Sparkles className="h-3.5 w-3.5 text-signal" />
+              <HardHat className="h-3.5 w-3.5 text-signal" />
               <span className="label-mono text-muted-foreground">
-                Constructora modular · est. 2019
+                Constructora · CDMX · est. 2008
               </span>
             </motion.div>
 
@@ -83,9 +126,9 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.05 }}
               className="mt-6 font-display font-extrabold tracking-tight text-balance text-[clamp(2.6rem,7vw,5.2rem)] leading-[0.92]"
             >
-              Construimos con{" "}
+              Construimos tu obra{" "}
               <span className="relative inline-block">
-                <span className="text-signal">bloques</span>
+                <span className="text-signal">bloque a bloque</span>
                 <svg
                   aria-hidden
                   className="absolute -bottom-2 left-0 w-full h-3"
@@ -100,8 +143,8 @@ export function Hero() {
                     strokeLinecap="round"
                   />
                 </svg>
-              </span>{" "}
-              lo que solo imaginabas.
+              </span>
+              .
             </motion.h1>
 
             <motion.p
@@ -110,9 +153,10 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.15 }}
               className="mt-6 max-w-xl text-lg text-muted-foreground text-pretty leading-relaxed"
             >
-              Sube una imagen de la obra que sueñas. Nuestro estudio la analiza,
-              genera un modelo 3D de bloques modulares y lo construimos pieza por
-              pieza — con la precisión del LEGO y el oficio de una constructora.
+              Bloqe es una constructora: casas, locales, remodelaciones y obra
+              comercial. Antes de colocar el primer ladrillo te mostramos tu
+              proyecto como una maqueta de bloques — así ves exactamente qué
+              vamos a construir, pieza por pieza.
             </motion.p>
 
             <motion.div
@@ -124,10 +168,10 @@ export function Hero() {
               <Button
                 asChild
                 size="lg"
-                className="bg-signal text-signal-foreground hover:bg-signal-2 rounded-full h-12 px-6 text-base"
+                className="brick-press bg-signal text-signal-foreground hover:bg-signal-2 rounded-full h-12 px-6 text-base"
               >
-                <a href="#estudio">
-                  Abrir estudio de bloques
+                <a href="#contacto">
+                  Cotizar mi obra
                   <ArrowUpRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>
@@ -135,12 +179,9 @@ export function Hero() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="rounded-full h-12 px-6 text-base border-border bg-ink-2/40 hover:bg-ink-3"
+                className="brick-press rounded-full h-12 px-6 text-base border-border bg-ink-2/40 hover:bg-ink-3"
               >
-                <a href="#proyectos">
-                  <Play className="mr-2 h-4 w-4" />
-                  Ver obras construidas
-                </a>
+                <a href="#proyectos">Ver proyectos</a>
               </Button>
             </motion.div>
 
@@ -170,7 +211,7 @@ export function Hero() {
             </motion.dl>
           </div>
 
-          {/* Right: live tower */}
+          {/* Right: maqueta en vivo */}
           <div className="lg:col-span-6 xl:col-span-7">
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
@@ -185,7 +226,7 @@ export function Hero() {
                   <div className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-signal" />
                     <span className="label-mono text-muted-foreground">
-                      modelo-001 · torre residencial
+                      maqueta-001 · torre residencial
                     </span>
                   </div>
                   <span className="label-mono text-muted-foreground hidden sm:inline">
@@ -199,12 +240,13 @@ export function Hero() {
                     aria-hidden
                     className="pointer-events-none absolute left-1/2 top-0 h-2/3 w-px bg-gradient-to-b from-transparent via-signal/40 to-transparent"
                   />
-                  <LegoScene3D
+                  <LegoModel
                     model={model}
                     buildId={buildId}
-                    className="absolute inset-0 h-full w-full"
-                    maxDelay={2400}
-                    autoRotate
+                    className="absolute inset-0 h-full w-full p-6 sm:p-10"
+                    maxDelay={2200}
+                    float
+                    ariaLabel="Maqueta de bloques de una torre residencial armándose"
                   />
                   {/* scanning beam */}
                   <div
@@ -238,9 +280,9 @@ export function Hero() {
 
               {/* floating tag */}
               <div className="absolute -bottom-4 -left-3 sm:-left-6 rounded-lg border border-border bg-ink-2 px-3.5 py-2.5 shadow-brick">
-                <div className="label-mono text-signal">ensamblaje en vivo</div>
+                <div className="label-mono text-signal">maqueta de bloques</div>
                 <div className="mt-0.5 text-xs text-muted-foreground">
-                  cada bloque se coloca con tolerancia ±0.4&nbsp;mm
+                  así presentamos cada diseño antes de construirlo
                 </div>
               </div>
             </motion.div>

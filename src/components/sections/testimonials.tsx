@@ -14,7 +14,7 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     quote:
-      "Subí una foto de referencia el lunes y el viernes estábamos colocando la primera capa. La precisión del ensamblaje elimina discusiones en obra.",
+      "Aprobamos el proyecto en una tarde: la maqueta de bloques deja ver la obra completa sin saber leer planos. En obra, cero discusiones.",
     name: "Mariana Téllez",
     role: "Directora de obra",
     company: "Estudio Téllez Arquitectos",
@@ -22,7 +22,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     quote:
-      "El modelo 3D de bloques convirtió una negociación de tres meses en una sola reunión. El cliente vio exactamente lo que iba a recibir.",
+      "La maqueta de bloques convirtió una negociación de tres meses en una sola reunión. El cliente vio exactamente lo que iba a recibir.",
     name: "Joaquín Rebollar",
     role: "Desarrollador inmobiliario",
     company: "Grupo Rebollar",
@@ -30,7 +30,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     quote:
-      "Llevamos dos remodelaciones con BLOQE. Lo que más pesa es el mantenimiento: bloque dañado se reemplaza, no se demuele.",
+      "Llevamos dos remodelaciones con BLOQE. Presupuesto pieza por pieza y reportes semanales: siempre supimos qué se hizo y qué costó.",
     name: "Paula Coss y León",
     role: "Asset manager",
     company: "Inmobiliaria Polarix",

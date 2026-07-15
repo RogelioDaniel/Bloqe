@@ -53,7 +53,7 @@ const INTENT_LABEL: Record<ContactValues["intent"], string> = {
 type ContactValues = z.infer<typeof contactSchema>;
 
 const CONTACT_DETAILS = [
-  { icon: MapPin, label: "Estudio", value: "Av. Insurgentes 1245, CDMX" },
+  { icon: MapPin, label: "Oficina", value: "Av. Insurgentes 1245, CDMX" },
   { icon: Mail, label: "Correo", value: "hola@bloqe.mx", href: "mailto:hola@bloqe.mx" },
   { icon: Phone, label: "Teléfono", value: "+52 55 8472 9900", href: "tel:+525584729900" },
 ];
@@ -201,10 +201,10 @@ export function Contact() {
             </div>
 
             <a
-              href="#estudio"
+              href="#proyectos"
               className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-signal link-signal"
             >
-              ¿Prefieres empezar por el estudio de bloques?
+              ¿Prefieres ver obras entregadas primero?
               <ArrowUpRight className="h-4 w-4" />
             </a>
           </motion.div>

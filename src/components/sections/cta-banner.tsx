@@ -67,19 +67,19 @@ export function CtaBanner() {
           </h2>
 
           <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground text-pretty leading-relaxed">
-            Sube una imagen de la construcción que tienes en mente. En minutos
-            tendrás un modelo 3D de bloques, un blueprint cotizable y una
-            estimación real.
+            Cuéntanos qué quieres construir. Te visitamos sin costo, diseñamos
+            tu proyecto con su maqueta de bloques y te damos un presupuesto
+            cerrado, pieza por pieza.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button
               asChild
               size="lg"
-              className="bg-signal text-signal-foreground hover:bg-signal-2 rounded-full h-12 px-7 text-base"
+              className="brick-press bg-signal text-signal-foreground hover:bg-signal-2 rounded-full h-12 px-7 text-base"
             >
-              <a href="#estudio">
-                Abrir estudio de bloques
+              <a href="#contacto">
+                Cotizar mi obra
                 <ArrowUpRight className="ml-2 h-4 w-4" />
               </a>
             </Button>
@@ -87,14 +87,14 @@ export function CtaBanner() {
               asChild
               size="lg"
               variant="outline"
-              className="rounded-full h-12 px-7 text-base border-border bg-ink-2/40 hover:bg-ink-3"
+              className="brick-press rounded-full h-12 px-7 text-base border-border bg-ink-2/40 hover:bg-ink-3"
             >
-              <a href="#contacto">Hablar con un asesor</a>
+              <a href="#proyectos">Ver obras entregadas</a>
             </Button>
           </div>
 
           <p className="mt-6 text-xs text-muted-foreground">
-            Sin compromiso · Prototipo gratuito · Respuesta en 24 horas hábiles
+            Sin compromiso · Visita sin costo · Respuesta en 24 horas hábiles
           </p>
         </motion.div>
       </div>

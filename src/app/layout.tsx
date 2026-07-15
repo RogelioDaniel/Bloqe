@@ -21,38 +21,39 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "BLOQE — Constructora Modular | Construimos con bloques",
+  title: "BLOQE — Constructora | Construimos tu obra bloque a bloque",
   description:
-    "BLOQE es una constructora premium que transforma imágenes de obras en modelos 3D de bloques modulares. Diseñamos, modelamos y construimos con precisión de ingeniería y estética de ensamblaje.",
+    "BLOQE es una constructora: casas, locales, remodelaciones y obra comercial. Cada proyecto se presenta como una maqueta de bloques antes de construirse — ves tu obra pieza por pieza, con presupuesto cerrado y garantía de 10 años.",
   keywords: [
     "constructora",
-    "construcción modular",
-    "bloques 3D",
-    "modelado 3D",
+    "construcción",
+    "obra nueva",
+    "remodelación",
+    "diseño arquitectónico",
     "arquitectura",
     "BLOQE",
     "obra",
-    "ingeniería",
+    "CDMX",
   ],
-  authors: [{ name: "BLOQE Constructora Modular" }],
+  authors: [{ name: "BLOQE Constructora" }],
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
   },
   openGraph: {
-    title: "BLOQE — Constructora Modular",
+    title: "BLOQE — Constructora",
     description:
-      "Transformamos imágenes de obras en modelos 3D de bloques modulares y los construimos.",
+      "Construimos tu obra bloque a bloque: diseño, presupuesto cerrado y garantía de 10 años.",
     siteName: "BLOQE",
     type: "website",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "BLOQE — Constructora Modular" }],
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "BLOQE — Constructora" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BLOQE — Constructora Modular",
+    title: "BLOQE — Constructora",
     description:
-      "Transformamos imágenes de obras en modelos 3D de bloques modulares y los construimos.",
+      "Construimos tu obra bloque a bloque: diseño, presupuesto cerrado y garantía de 10 años.",
     images: ["/og-image.svg"],
   },
 };

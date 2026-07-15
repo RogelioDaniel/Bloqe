@@ -3,26 +3,21 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  Boxes,
-  ScanLine,
-  Ruler,
+  Home,
+  Building2,
   Hammer,
-  Factory,
+  PencilRuler,
+  HardHat,
   Wrench,
   ArrowUpRight,
   type LucideIcon,
 } from "lucide-react";
-import dynamic from "next/dynamic";
+import { LegoModel } from "@/components/lego/lego-model";
 import {
   generateBuilding,
   PALETTE_SETS,
   type VoxelModel,
 } from "@/lib/lego";
-
-const LegoScene3D = dynamic(
-  () => import("@/components/lego3d/lego-scene-3d").then((m) => m.LegoScene3D),
-  { ssr: false, loading: () => null }
-);
 
 interface Service {
   icon: LucideIcon;
@@ -33,41 +28,41 @@ interface Service {
 
 const SERVICES: Service[] = [
   {
-    icon: Boxes,
-    title: "Construcción modular",
+    icon: Home,
+    title: "Obra nueva residencial",
     description:
-      "Ensambllaje por capas con bloques prefabricados: cada pieza encaja con tolerancia milimétrica y se reemplaza sin demoler.",
+      "Casas desde cero: cimentación, estructura, instalaciones y acabados. Un solo contrato, un solo responsable de principio a fin.",
     featured: true,
   },
   {
-    icon: ScanLine,
-    title: "Modelado desde imagen",
+    icon: Building2,
+    title: "Construcción comercial",
     description:
-      "Subes una foto, nuestra VLM la decodifica y devuelve un blueprint de bloques listo para fabricar.",
-  },
-  {
-    icon: Ruler,
-    title: "Ingeniería estructural",
-    description:
-      "Cálculo de cargas, paletas de refuerzo y bandas estructurales firmadas por nuestro estudio.",
+      "Locales, oficinas y naves industriales, con plazos y horarios que respetan tu operación.",
   },
   {
     icon: Hammer,
-    title: "Remodelación",
+    title: "Remodelación y ampliación",
     description:
-      "Intervenimos obra existente: capas nuevas sobre muros viejos, sin tirar lo que ya funciona.",
+      "Intervenimos lo construido sin tirar lo que funciona: niveles nuevos, espacios abiertos, fachadas renovadas.",
   },
   {
-    icon: Factory,
-    title: "Fabricación de bloques",
+    icon: PencilRuler,
+    title: "Diseño arquitectónico",
     description:
-      "Producimos cada lote en planta con polímero reforzado y numeración por capas.",
+      "Proyecto ejecutivo completo, entregado con su maqueta de bloques para que veas la obra antes de construirla.",
+  },
+  {
+    icon: HardHat,
+    title: "Supervisión de obra",
+    description:
+      "Residente asignado, bitácora semanal con fotos y avance por etapas. Sabes en qué va tu obra, siempre.",
   },
   {
     icon: Wrench,
-    title: "Montaje & mantenimiento",
+    title: "Mantenimiento y garantía",
     description:
-      "Equipo propio de montaje y programa de mantenimiento anual con garantía de 10 años.",
+      "Programa anual de mantenimiento y garantía estructural de 10 años en todo lo que construimos.",
   },
 ];
 
@@ -97,9 +92,10 @@ function StudRow({ className }: { className?: string }) {
 export function Services() {
   const featuredModel: VoxelModel = useMemo(
     () =>
-      generateBuilding("pavilion", PALETTE_SETS.monolith, {
-        width: 6,
+      generateBuilding("house", PALETTE_SETS.classic, {
+        width: 8,
         depth: 6,
+        floors: 3,
       }),
     []
   );
@@ -120,12 +116,12 @@ export function Services() {
           >
             <span className="label-mono text-signal">Servicios</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98]">
-              Seis capas de oficio, un solo contrato.
+              Todo lo que tu obra necesita, en un solo lugar.
             </h2>
             <p className="mt-5 max-w-2xl text-lg text-muted-foreground text-pretty leading-relaxed">
-              Desde la primera imagen hasta el mantenimiento anual: cubrimos
-              toda la cadena de la obra modular. Contratas lo que necesites,
-              escalas cuando quieras.
+              De la primera visita al último acabado: diseñamos, construimos y
+              damos mantenimiento. Contratas lo que necesites, del tamaño que
+              lo necesites.
             </p>
           </motion.div>
         </div>
@@ -163,7 +159,7 @@ export function Services() {
                     <StudRow className="mt-5" />
                   </div>
 
-                  {/* Tower preview */}
+                  {/* Maqueta de la casa */}
                   <div className="relative mt-6 aspect-[4/3] overflow-hidden rounded-xl border border-border bg-blueprint-fine">
                     <div
                       aria-hidden
@@ -173,17 +169,16 @@ export function Services() {
                           "radial-gradient(circle, rgba(232,84,42,0.18), rgba(232,84,42,0) 65%)",
                       }}
                     />
-                    <LegoScene3D
+                    <LegoModel
                       model={featuredModel}
-                      buildId={1}
-                      className="absolute inset-0 h-full w-full"
-                      maxDelay={1800}
-                      autoRotate
-                      quality="lite"
+                      className="absolute inset-0 h-full w-full p-5"
+                      maxDelay={1600}
+                      float
+                      ariaLabel="Maqueta de bloques de una casa residencial"
                     />
                     <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-border bg-ink/70 px-2.5 py-1 backdrop-blur">
                       <span className="label-mono text-muted-foreground">
-                        pavilion · monolith · {featuredModel.metrics.blockCount} bloques
+                        maqueta · casa · {featuredModel.metrics.blockCount} bloques
                       </span>
                     </div>
                   </div>

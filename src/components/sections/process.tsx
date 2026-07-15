@@ -1,7 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Upload, Cpu, Boxes, Layers, type LucideIcon } from "lucide-react";
+import {
+  MessagesSquare,
+  PencilRuler,
+  Calculator,
+  HardHat,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Step {
@@ -15,35 +21,35 @@ interface Step {
 const STEPS: Step[] = [
   {
     number: "01",
-    title: "Subes la imagen",
+    title: "Nos cuentas tu proyecto",
     description:
-      "Una foto, un render o un croquis. La arrastras al estudio y queda registrada como caso de obra.",
-    detail: "tiempo aprox. 30 s",
-    icon: Upload,
+      "Una llamada o una visita al terreno. Escuchamos qué quieres construir, para quién y con qué presupuesto.",
+    detail: "respuesta en 24 h · visita sin costo",
+    icon: MessagesSquare,
   },
   {
     number: "02",
-    title: "Análisis por IA (VLM)",
+    title: "Diseño + maqueta de bloques",
     description:
-      "Nuestro modelo visual detecta tipología, alturas, paleta y materiales. Devuelve un dictamen estructural.",
-    detail: "tiempo aprox. 4 min",
-    icon: Cpu,
+      "Dibujamos el proyecto y lo armamos como maqueta de bloques: ves volúmenes, niveles y fachadas antes de aprobar nada.",
+    detail: "2–4 semanas",
+    icon: PencilRuler,
   },
   {
     number: "03",
-    title: "Modelo 3D de bloques",
+    title: "Presupuesto pieza por pieza",
     description:
-      "Generamos un blueprint de bloques modulares con capas, métricas y toliras de refuerzo. Lo revisas y apruebas.",
-    detail: "tiempo aprox. 10 min",
-    icon: Boxes,
+      "Desglosamos la obra como un set de bloques: cada partida con su precio. Presupuesto cerrado, sin sorpresas a mitad de obra.",
+    detail: "precio cerrado por contrato",
+    icon: Calculator,
   },
   {
     number: "04",
-    title: "Construcción por capas",
+    title: "Construcción y entrega",
     description:
-      "Fabricamos los bloques en planta y los montamos en sitio, capa por capa, con tolerancia de ±0.4 mm.",
-    detail: "tiempo aprox. 6–14 semanas",
-    icon: Layers,
+      "Construimos por etapas con reportes semanales de avance y residente en obra. Entregamos a tiempo, con garantía de 10 años.",
+    detail: "3–9 meses según la obra",
+    icon: HardHat,
   },
 ];
 
@@ -64,11 +70,11 @@ export function Process() {
           >
             <span className="label-mono text-signal">Proceso</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98] text-foreground">
-              De imagen a obra, en cuatro capas.
+              De la idea a las llaves, en cuatro pasos.
             </h2>
             <p className="mt-5 max-w-2xl text-lg text-muted-foreground text-pretty leading-relaxed">
-              Un flujo lineal, trazable y sin intermediarios. Cada capa deja
-              registro: sabes en qué piso está tu obra, siempre.
+              Un proceso claro y sin intermediarios. Cada paso deja registro:
+              sabes en qué va tu obra, siempre.
             </p>
           </motion.div>
         </div>
@@ -160,18 +166,17 @@ export function Process() {
         >
           <div>
             <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
-              ¿Listo para abrir el estudio?
+              ¿Listo para el paso 01?
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sube tu imagen y en menos de 15 minutos tienes un modelo 3D
-              cotizable.
+              Cuéntanos tu proyecto hoy y agenda una visita sin costo.
             </p>
           </div>
           <a
-            href="#estudio"
-            className="inline-flex items-center gap-1.5 rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-signal-foreground transition-colors hover:bg-signal-2"
+            href="#contacto"
+            className="brick-press inline-flex items-center gap-1.5 rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-signal-foreground transition-colors hover:bg-signal-2"
           >
-            Abrir estudio de bloques
+            Cotizar mi obra
           </a>
         </motion.div>
       </div>

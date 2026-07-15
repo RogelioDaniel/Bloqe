@@ -16,20 +16,20 @@ interface QA {
 
 const FAQS: QA[] = [
   {
-    q: "¿Cómo funciona el estudio de bloques?",
-    a: "Subes una imagen o modelo 3D. Nuestro modelo de visión lo analiza, deduce estructura y materiales, y genera un modelo 3D de bloques modulares que puedes orbitar y exportar.",
+    q: "¿Por qué presentan los proyectos con bloques tipo LEGO?",
+    a: "Es nuestra manera de mostrarte la obra antes de construirla. La maqueta de bloques deja ver volúmenes, niveles y fachadas de forma clara — sin planos difíciles de leer. Y refleja cómo trabajamos: por etapas y por piezas, sin sorpresas.",
   },
   {
-    q: "¿Necesito un modelo 3D profesional?",
-    a: "No. Con una foto basta para generar un prototipo. Si tienes un archivo .glb o .gltf, lo voxelizamos directamente en bloques.",
+    q: "¿La obra se construye con bloques de juguete?",
+    a: "No. La maqueta es de bloques; la obra es construcción real: concreto, acero, block, instalaciones y acabados con proveedores certificados. Los bloques son la forma de presentarte y dar seguimiento al proyecto.",
   },
   {
-    q: "¿Los bloques son LEGO reales?",
-    a: "Usamos bloques modulares prefabricados con tolerancia ±0.4 mm, compatibles con sistema LEGO. La fabricación es propia.",
+    q: "¿Qué tipo de obras hacen?",
+    a: "Casas desde cero, remodelaciones y ampliaciones, locales comerciales, oficinas y naves industriales. También proyectos de diseño arquitectónico si aún no tienes planos.",
   },
   {
     q: "¿Cuánto tarda una obra?",
-    a: "Un prototipo 3D se entrega en minutos. La obra física depende del modelo: desde 3 semanas para viviendas hasta 8 meses para torres.",
+    a: "Depende del proyecto: una remodelación media toma de 6 a 12 semanas; una casa nueva, de 6 a 9 meses. En el paso de diseño te damos un calendario por etapas y lo respetamos por contrato.",
   },
   {
     q: "¿Trabajan fuera de CDMX?",
@@ -37,7 +37,7 @@ const FAQS: QA[] = [
   },
   {
     q: "¿Qué garantía ofrecen?",
-    a: "10 años en estructura, 2 años en acabados, y reemplazo de cualquier bloque defectuoso sin demoler.",
+    a: "10 años en estructura y 2 años en acabados, por escrito en el contrato. Además, programa de mantenimiento anual opcional.",
   },
 ];
 

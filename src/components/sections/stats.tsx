@@ -22,9 +22,9 @@ const STATS: Stat[] = [
     progress: 0.82,
   },
   {
-    to: 1.8,
-    format: (n) => `${n.toFixed(1)}M`,
-    label: "bloques colocados",
+    to: 480,
+    format: (n) => `${Math.round(n)}K`,
+    label: "m² construidos",
     icon: Boxes,
     progress: 0.68,
   },
@@ -126,11 +126,11 @@ export function Stats() {
           <div className="flex items-center gap-3">
             <span className="h-2 w-2 rounded-full bg-signal" aria-hidden />
             <span className="label-mono text-muted-foreground">
-              constructora modular · métricas en vivo
+              constructora · resultados a la fecha
             </span>
           </div>
           <span className="label-mono text-muted-foreground">
-            Actualizado 2025
+            Actualizado 2026
           </span>
         </motion.div>
 

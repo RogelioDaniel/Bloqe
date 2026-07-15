@@ -7,20 +7,20 @@ const COLS = [
   {
     title: "Navegación",
     links: [
-      { label: "Estudio de bloques", href: "#estudio" },
       { label: "Servicios", href: "#servicios" },
       { label: "Proceso", href: "#proceso" },
       { label: "Proyectos", href: "#proyectos" },
+      { label: "Preguntas", href: "#faq" },
       { label: "Contacto", href: "#contacto" },
     ],
   },
   {
     title: "Servicios",
     links: [
-      { label: "Modelado desde imagen", href: "#estudio" },
-      { label: "Construcción modular", href: "#servicios" },
-      { label: "Ingeniería estructural", href: "#servicios" },
+      { label: "Obra nueva", href: "#servicios" },
+      { label: "Construcción comercial", href: "#servicios" },
       { label: "Remodelación", href: "#servicios" },
+      { label: "Diseño arquitectónico", href: "#servicios" },
       { label: "Mantenimiento", href: "#servicios" },
     ],
   },
@@ -35,9 +35,9 @@ export function SiteFooter() {
           <div className="lg:col-span-5">
             <Logo size={32} />
             <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed">
-              Constructora modular. Convertimos imágenes de obras en modelos 3D
-              de bloques y los construimos pieza por pieza — precisión de
-              ensamblaje, oficio de constructora.
+              Constructora. Casas, locales, remodelaciones y obra comercial.
+              Cada proyecto se presenta como una maqueta de bloques antes de
+              construirse — para que veas tu obra pieza por pieza.
             </p>
             <div className="mt-6 space-y-2 text-sm">
               <div className="flex items-center gap-2.5 text-muted-foreground">
@@ -81,13 +81,13 @@ export function SiteFooter() {
                 ¿Tienes una obra en mente?
               </h3>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Sube una imagen y te devolvemos un modelo 3D en minutos.
+                Cuéntanos tu proyecto y te respondemos en 24 horas hábiles.
               </p>
               <a
-                href="#estudio"
+                href="#contacto"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-signal hover:text-signal-2 transition-colors"
               >
-                Abrir estudio
+                Cotizar mi obra
                 <ArrowUpRight className="h-4 w-4" />
               </a>
             </div>
@@ -96,8 +96,8 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-border pt-6">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} BLOQE Constructora Modular. Construido
-            con bloques, no con plantillas.
+            © {new Date().getFullYear()} BLOQE Constructora. Construido con
+            bloques, no con plantillas.
           </p>
           <div className="flex items-center gap-5 text-xs text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-colors">
