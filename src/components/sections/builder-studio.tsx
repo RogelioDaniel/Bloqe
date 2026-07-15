@@ -18,6 +18,8 @@ import {
   AlertTriangle,
   Link2,
   Camera,
+  Download,
+  Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +92,8 @@ export function BuilderStudio() {
   const [structureType, setStructureType] = useState<StructureType>("tower");
   const [paletteName, setPaletteName] = useState("classic");
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [copying, setCopying] = useState(false);
   const [mode, setMode] = useState<"image" | "model">("image");
   const [gltfUrl, setGltfUrl] = useState<string | null>(null);
   const [resolution, setResolution] = useState(14);
@@ -288,6 +292,77 @@ export function BuilderStudio() {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  // ---- export the 3D canvas as a PNG download ----
+  const onExportPng = async () => {
+    if (!result) return;
+    setExporting(true);
+    try {
+      // wait one frame so the latest Three.js render is composited to the canvas.
+      // preserveDrawingBuffer:true (set on the LegoScene3D Canvas) lets us read pixels
+      // between frames without the GPU clearing the buffer.
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve())
+      );
+      const canvas = document.querySelector<HTMLCanvasElement>(
+        "#estudio canvas"
+      );
+      if (!canvas) {
+        throw new Error("No se encontró el canvas 3D.");
+      }
+      const dataUrl = canvas.toDataURL("image/png");
+      if (!dataUrl || dataUrl === "data:,") {
+        throw new Error("El canvas está vacío.");
+      }
+      const filename = `bloqe-${result.blueprint.structureType}-${Date.now()}.png`;
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("PNG exportado", {
+        description: filename,
+      });
+    } catch (e) {
+      toast.error("No se pudo exportar el PNG.", {
+        description: (e as Error).message,
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // ---- copy the blueprint JSON to clipboard ----
+  const onCopyJson = async () => {
+    if (!result) return;
+    setCopying(true);
+    try {
+      const json = JSON.stringify(result.blueprint, null, 2);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(json);
+      } else {
+        // fallback for non-secure contexts
+        const ta = document.createElement("textarea");
+        ta.value = json;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      toast.success("Blueprint copiado", {
+        description: `${json.length.toLocaleString("es-MX")} caracteres en el portapapeles`,
+      });
+    } catch (e) {
+      toast.error("No se pudo copiar el blueprint.", {
+        description: (e as Error).message,
+      });
+    } finally {
+      setCopying(false);
     }
   };
 
@@ -982,27 +1057,57 @@ export function BuilderStudio() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                  <Button
-                    className="flex-1 bg-signal text-signal-foreground hover:bg-signal-2 rounded-full"
-                    onClick={() => setBuildId((b) => b + 1)}
-                  >
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Reconstruir modelo
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1 border-border bg-ink-3/40 hover:bg-ink-3 rounded-full"
-                    onClick={onSave}
-                    disabled={saving}
-                  >
-                    {saving ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="mr-2 h-4 w-4" />
-                    )}
-                    Guardar proyecto
-                  </Button>
+                <div className="mt-4 flex flex-col gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      className="flex-1 bg-signal text-signal-foreground hover:bg-signal-2 rounded-full"
+                      onClick={() => setBuildId((b) => b + 1)}
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Reconstruir modelo
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-border bg-ink-3/40 hover:bg-ink-3 rounded-full"
+                      onClick={onSave}
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="mr-2 h-4 w-4" />
+                      )}
+                      Guardar proyecto
+                    </Button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-border bg-ink-3/40 hover:bg-ink-3 rounded-full"
+                      onClick={onExportPng}
+                      disabled={exporting}
+                    >
+                      {exporting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="mr-2 h-4 w-4" />
+                      )}
+                      Exportar PNG
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-border bg-ink-3/40 hover:bg-ink-3 rounded-full"
+                      onClick={onCopyJson}
+                      disabled={copying}
+                    >
+                      {copying ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Copy className="mr-2 h-4 w-4" />
+                      )}
+                      Copiar JSON
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             )}

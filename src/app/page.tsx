@@ -8,8 +8,11 @@ import { BuilderStudio } from "@/components/sections/builder-studio";
 import { Services } from "@/components/sections/services";
 import { Process } from "@/components/sections/process";
 import { Projects } from "@/components/sections/projects";
+import { Pricing } from "@/components/sections/pricing";
 import { Stats } from "@/components/sections/stats";
 import { Testimonials } from "@/components/sections/testimonials";
+import { CommunityGallery } from "@/components/sections/community-gallery";
+import { FAQ } from "@/components/sections/faq";
 import { Contact } from "@/components/sections/contact";
 
 export default function Home() {
@@ -23,8 +26,11 @@ export default function Home() {
         <Services />
         <Process />
         <Projects />
+        <Pricing />
         <Stats />
         <Testimonials />
+        <CommunityGallery />
+        <FAQ />
         <Contact />
       </main>
       <SiteFooter />

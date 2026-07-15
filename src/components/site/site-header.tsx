@@ -15,8 +15,9 @@ import {
 const NAV = [
   { label: "Estudio", href: "#estudio" },
   { label: "Servicios", href: "#servicios" },
-  { label: "Proceso", href: "#proceso" },
   { label: "Proyectos", href: "#proyectos" },
+  { label: "Precios", href: "#precios" },
+  { label: "Galería", href: "#galeria" },
   { label: "Contacto", href: "#contacto" },
 ];
 

@@ -155,3 +155,145 @@ Stage Summary:
 - Dos modos de input: (1) Imagen → VLM analiza → genera edificio 3D; (2) Modelo 3D (GLB/GLTF) → voxeliza → legoifica. Más formas demo.
 - Performance optimizada: instancing para modelos grandes, lazy-mount en cards, modo lite sin HDRI.
 - Cumple el requisito del usuario: "recrea los legos con three js, hacer construcciones con ellos y con algunos modelos 3d que le pasemos".
+
+---
+Task ID: QA-2
+Agent: frontend-styling-expert
+Task: Build Pricing + FAQ sections and polish the existing Stats section for BLOQE.
+
+Work Log:
+- Leí worklog.md para contexto completo del proyecto (sistema "Blueprint Ink × Modular Block", tokens, secciones existentes).
+- Inspeccioné testimonials.tsx y contact.tsx para alinear patrones (eyebrow .label-mono text-signal, h2 font-display clamp, motion reveal viewport once margin -80px, hover lift, link-signal). Revisé accordion.tsx, button.tsx, card.tsx, badge.tsx y globals.css para confirmar tokens disponibles.
+- Confirmé que cn() usa twMerge → override de hover:underline en AccordionTrigger con hover:no-underline funciona.
+- Creé src/components/sections/pricing.tsx (export Pricing, id="precios"):
+  - Sección oscura bg-ink bg-blueprint bg-grain con glow radial signal sutil arriba.
+  - 3 tiers (Bloque/Capa/Estructura) en grid lg:grid-cols-3 gap-6 lg:items-start.
+  - Capa destacado: border-signal, bg-ink-2, shadow-brick, lg:-mt-4 lg:mb-4 (card "más alta"), badge "Más popular" con Sparkles en bg-signal.
+  - Cada card: icono (Sparkles/Building2/Crown) + tier.id mono, nombre font-display, descripción, precio font-display font-extrabold text-[clamp(2.4rem,5vw,3rem)] + unit mono, divider, lista de features con Check text-signal, CTA rounded-full (filled signal para popular, outline para los demás), hover -translate-y-1.
+  - CTA: Probar gratis → #estudio, Empezar → #contacto, Hablar con ventas → #contacto.
+  - Footnote "Todos los precios en MXN + IVA. Prototipo gratuito sin compromiso." centrada en muted-foreground.
+  - framer-motion reveal escalonado (delay i*0.08), focus-visible ring signal para accesibilidad.
+- Creé src/components/sections/faq.tsx (export FAQ, id="faq"):
+  - Wrapper .paper-theme (vellum) con bg-blueprint-paper para contraste contra secciones oscuras adyacentes.
+  - Layout lg:grid-cols-12: izquierda col-span-5 (eyebrow "Dudas frecuentes", h2 "Lo que nos preguntan antes de construir.", copy de apoyo, CTA link-signal "¿Tu duda no está? Escríbenos" → #contacto). Derecha col-span-7 con Accordion type="single" collapsible defaultValue="faq-0".
+  - 6 Q&A en español con texto exacto del brief.
+  - Cada AccordionItem en contenedor tipo card: rounded-xl border bg-card px-5 shadow-sm, separados por gap-3 (no border-b default).
+  - AccordionTrigger override: font-display text-base font-bold tracking-tight, py-5, no-underline hover:no-underline, [&[data-state=open]>svg]:text-signal (chevron naranja al abrir).
+  - AccordionContent: text-sm leading-relaxed text-muted-foreground text-pretty.
+- Polish de src/components/sections/stats.tsx (Stats):
+  - Añadí motivo de studs LEGO flotantes: 8 motion.span absolutos con radial-gradient en colores clásicos LEGO (rojo/amarillo/azul/verde), opacity 0.12, animación y/x loop easeInOut 8+s.
+  - Section ahora overflow-hidden para contener los studs.
+  - Números más grandes: text-5xl sm:text-6xl (antes clamp 2.6–4rem).
+  - Barra de progreso decorativa bajo cada stat: h-0.5 bg-border con fill bg-signal animada con motion width 0→progress*100% on inView (delay escalonado 0.3+i*0.1). Valores: 0.82/0.68/0.45/1.
+  - Header row ahora flex justify-between: izquierda indicador "en vivo" original, derecha label-mono "Actualizado 2025".
+  - Conservé Counter con count-up (animate 0→to, 1.4s ease).
+- Verifiqué: bun run lint → exit 0, sin errores ni warnings. tsc --noEmit: sin errores en pricing.tsx/faq.tsx/stats.tsx.
+
+Stage Summary:
+- Archivos creados:
+  - src/components/sections/pricing.tsx → export Pricing (id="precios")
+  - src/components/sections/faq.tsx → export FAQ (id="faq", paper-theme)
+- Archivos modificados:
+  - src/components/sections/stats.tsx → export Stats (pulido: studs flotantes, números 5xl/6xl, progress bars, "Actualizado 2025")
+- Componentes shadcn/ui usados: Accordion (en FAQ). lucide-react: Check, ArrowUpRight, Sparkles, Building2, Crown (pricing), Building2, Boxes, MapPin, ShieldCheck (stats).
+- Decisiones de diseño:
+  - Pricing usa acento signal gastado en UN lugar (Capa, el plan recomendado): border-signal + badge filled + lg:-mt-4 para elevarlo visualmente sin saturar a los otros dos. Outline CTAs en los planes laterales mantienen jerarquía.
+  - FAQ en paper-theme crea respiro visual entre Stats (oscuro) y Testimonials/Contact y refuerza el contraste "blueprint paper" del sistema. Accordion cards (no border-b default) para sentirse premium y escaneable.
+  - Stats: el motivo de studs flotantes conecta visualmente con el signature (LEGO) sin competir con los números; las progress bars añaden ritmo horizontal y "sentir de dashboard" sin introducir datos ruidosos.
+- Pendiente: integrar <Pricing /> y <FAQ /> en src/app/page.tsx (sugerencia: Pricing entre Projects y Stats, FAQ entre Testimonials y Contact, o antes de Contact). No se modificó page.tsx por regla del task.
+
+---
+Task ID: QA-1
+Agent: full-stack-developer
+Task: Two premium UX additions — (A) "Galería de la comunidad" section that surfaces saved user projects with lazy-mounted 3D cards, filter pills, and a detail dialog; (B) "Exportar PNG" + "Copiar JSON" actions in the Builder Studio controls panel.
+
+Work Log:
+- Read worklog.md (THREEJS-REBUILD section) + src/lib/lego.ts (VoxelModel, StructureAnalysis, StructureType, PALETTE_SETS, generateBuilding), src/components/lego3d/lego-scene-3d.tsx (Canvas props, OrbitControls, lazy build), src/components/sections/projects.tsx (IntersectionObserver pattern + Tabs filter + card hover-rebuild), src/components/sections/builder-studio.tsx (full Studio flow + onSave), src/app/api/projects/route.ts (GET returns newest 50 DB rows OR 6 samples when empty; samples ship with id `sample-N`).
+- Feature A — created src/components/sections/community-gallery.tsx (export `CommunityGallery`, id="galeria"):
+  • Fetches GET /api/projects on mount via useEffect + fetch (cache: "no-store"); loading state shows 4 Skeleton cards; error state shows destructive banner.
+  • Distinguishes "saved by community" (id NOT starting with "sample-") from placeholder samples. When only samples exist → friendly empty state: "Aún no hay proyectos guardados por la comunidad. Sé el primero — sube tu imagen en el estudio de bloques." with CTA → #estudio.
+  • Header eyebrow "Galería comunitaria" + heading "Modelos que la comunidad ya construyó." + intro paragraph.
+  • Filter pills via shadcn Tabs: Todos / Torres / Casas / Rascacielos / Puentes / Pabellones (client-side filter by structureType). "No hay proyectos de este tipo" fallback inside the grid.
+  • Grid: 1/2/3/4 cols (sm/lg/xl). Each card: motion.button with rounded-2xl border-border bg-ink-2/40 hover:border-signal/40. Body: aspect-[4/3] bg-blueprint-fine + lazy-mount LegoScene3D (quality="lite", autoRotate, maxDelay=1400) via IntersectionObserver with 120px rootMargin and (index % 3) * 220ms stagger. Type pill (top-left), "abrir" hint (top-right on hover), block-count badge (bottom-right). Meta row: title (line-clamp-1), description (line-clamp-2), formatted Spanish date (Intl.DateTimeFormat es-MX, day/month-long/year) + layer/block counts.
+  • Visible count starts at 8; "Ver más proyectos" button appends 8 more (shows `visibleCount / filtered.length` counter).
+  • Card click → ProjectDialog (shadcn Dialog). DialogContent sm:max-w-3xl, dark bg-ink-2, two-column grid (md): left = larger LegoScene3D quality="full" (only mounted while open, auto-freed on close) + sourceImage thumb; right = scrollable analysis panel (max-h-80vh) with metrics grid (bloques/capas/altura), features badges, materials, summary + confidence %, palette swatches, footer date + featured badge. Dialog close delays `setActive(null)` by 200ms so LegoScene3D can unmount after the fade-out animation.
+  • Bottom CTA ("¿Tu modelo no está aquí?") shown only when there are saved projects — links to #estudio.
+  • Accessible: motion.button with aria-label, focus-visible:ring-signal, sr-only live region during loading.
+- Feature B — modified src/components/sections/builder-studio.tsx:
+  • Added lucide `Download` + `Copy` icons to imports; added `exporting` + `copying` state flags.
+  • `onExportPng()`: awaits one `requestAnimationFrame`, queries `document.querySelector('#estudio canvas')`, calls `canvas.toDataURL('image/png')`, generates `<a download="bloqe-{structureType}-{Date.now()}.png">`, programmatic click → cleanup. Toasts "PNG exportado" on success (with filename) or "No se pudo exportar el PNG." on error. Throws explicitly when canvas is missing or empty.
+  • `onCopyJson()`: serializes `result.blueprint` to pretty JSON, prefers `navigator.clipboard.writeText` (secure context) with `document.execCommand('copy')` fallback (textarea), toasts "Blueprint copiado" with char count, or error.
+  • New button row under "Reconstruir modelo" + "Guardar proyecto": a 2×2 grid (4 buttons) on mobile, two 2-button rows on sm+. All buttons: rounded-full border-border bg-ink-3/40 hover:bg-ink-3, Loader2 spinner when busy, disabled when busy.
+- Modified src/components/lego3d/lego-scene-3d.tsx: added `preserveDrawingBuffer: true` to the Canvas `gl` props so the WebGL buffer can be read for PNG export at any time (small perf cost, negligible for low-poly LEGO scenes; safe for all existing consumers — Hero, Projects, Builder Studio).
+- Did NOT touch globals.css, layout.tsx, or page.tsx (user will wire CommunityGallery into the page themselves).
+- Lint: `bun run lint` → exit 0, no errors. `bunx tsc --noEmit` → only the 4 pre-existing errors in examples/ and skills/ (untouched). `bunx eslint` on my 3 files → clean.
+- Smoke-test: `GET /` 200 (176KB); `GET /api/projects` 200 returns real saved DB row (id `cmrlr...` — Prisma CUID, not a sample). Dev log shows clean ✓ compiles, no runtime errors. Prisma query SELECT works.
+
+Stage Summary:
+- Files created: src/components/sections/community-gallery.tsx (export CommunityGallery, ~530 lines).
+- Files modified: src/components/sections/builder-studio.tsx (added Download/Copy icons, exporting/copying state, onExportPng + onCopyJson handlers, new 2×2 button row); src/components/lego3d/lego-scene-3d.tsx (Canvas gl: preserveDrawingBuffer: true).
+- CommunityGallery works in BOTH states: empty DB → /api/projects returns 6 samples → `isSavedProject()` returns false for all → EmptyState with #estudio CTA. Populated DB → saved rows surfaced as lazy-mounted 3D cards; verified live with the existing `cmrlr...` row.
+- Exportar PNG captures the WebGL canvas via `document.querySelector('#estudio canvas').toDataURL('image/png')` (preserved drawing buffer + requestAnimationFrame wait). Filename: `bloqe-{structureType}-{timestamp}.png`. Confirmed by code path + canvas preserves buffer between frames.
+- Copiar JSON writes the full VoxelModel JSON to clipboard with secure-context + execCommand fallback.
+- CommunityGallery is NOT wired into page.tsx (per task instructions); user will import and place it (suggested slot: between Projects and Stats, or between Testimonials and Contact).
+
+---
+Task ID: QA-REVIEW-1
+Agent: main (Z.ai Code) + 2 subagents
+Task: QA review, fix bugs (WebGL context crashes, mobile overflow), add new features (Community Gallery, Export PNG, Pricing, FAQ), polish styling.
+
+## Current project status assessment
+- The site is functionally complete: Hero (3D LEGO tower), Marquee, Builder Studio (image+3D model modes), Services, Process, Projects, Stats, Testimonials, Contact, Footer.
+- Three.js LEGO system works: buildings are recognizable, rotatable, with build animation.
+- Two input modes: image (VLM) and 3D model (GLB voxelization) + demo shapes.
+
+## Completed modifications this round
+
+### Bug fixes
+1. **Projects cards showed placeholders** ("pasa el cursor · 3D") instead of actual 3D models — lazy-mount on hover was not discoverable. Fixed: replaced with IntersectionObserver that auto-mounts 3D when card scrolls into view, unmounts when scrolled away.
+2. **WebGL context loss crash** — scrolling through the page mounted too many simultaneous WebGL contexts (Projects 6 cards + Gallery 8 cards + Hero + Services = >16), causing "THREE.WebGLRenderer: Context Lost" → React client-side crash. Fixed with THREE mitigations:
+   - Created `useWebGLSlot` hook (global semaphore, MAX_CONTEXTS=7) — cards acquire a slot when in view, release when scrolled away.
+   - Created `SceneErrorBoundary` component — catches WebGL context-loss errors, shows graceful fallback ("modelo 3D no disponible") instead of crashing the page.
+   - Lowered dpr to [1, 1.25] for lite quality scenes (less GPU memory per context).
+   - Added `preserveDrawingBuffer: true` + `powerPreference: "high-performance"` to Canvas.
+3. **Community Gallery showed error fallback** — saved project in DB had legacy blueprint shape (`bricks`/`bounds` from old SVG system, not new `grid`/`size`). Fixed: added `normalizedModel` logic that detects legacy shape and regenerates a fresh VoxelModel from structureType + palette. Applied to both card and dialog.
+4. **Mobile horizontal overflow** (scrollW=518 > clientW=390) — marquee `w-max` content caused body to report overflow. Fixed: added `overflow-x: hidden` to both `html` and `body` in globals.css. Verified scrollX stays 0 (can't scroll horizontally).
+5. **Rules-of-hooks violation** in ProjectDialog — early `return null` before `useMemo`. Fixed: moved hook before the early return.
+
+### New features (via subagents)
+1. **Community Gallery section** (`src/components/sections/community-gallery.tsx`) — fetches GET /api/projects, displays saved user builds as 3D cards with filter pills, lazy-mount, click-to-open Dialog with full analysis. Empty state CTA when no saved projects. Normalizes legacy blueprints.
+2. **Export PNG** button in Builder Studio — captures the Three.js canvas via `toDataURL('image/png')`, downloads as `bloqe-{type}-{timestamp}.png`. Toast feedback.
+3. **Copiar JSON** button in Builder Studio — copies blueprint JSON to clipboard (works in real browsers; headless test shows error toast which is correct behavior).
+4. **Pricing section** (`src/components/sections/pricing.tsx`) — 3 tiers (Bloque $0, Capa $4,900 popular highlighted, Estructura a medida) with Check icons, signal-orange CTA, framer-motion reveals.
+5. **FAQ section** (`src/components/sections/faq.tsx`) — paper-theme (light vellum), 2-column layout, shadcn Accordion with 6 Q&As in Spanish, signal-orange chevron when open.
+6. **Stats section polished** — floating LEGO studs motif (8 animated circles), larger numbers (text-5xl/6xl), progress-bar decorations, "Actualizado 2025" mono label.
+
+### Styling improvements
+- Header nav updated: Estudio, Servicios, Proyectos, Precios, Galería, Contacto (was 5 items, now 6).
+- page.tsx composed with all new sections: Hero → Marquee → BuilderStudio → Services → Process → Projects → Pricing → Stats → Testimonials → CommunityGallery → FAQ → Contact → Footer.
+- All new sections use framer-motion whileInView reveals, premium dark/light rhythm, label-mono eyebrows.
+
+## Verification results
+- **Lint**: `bun run lint` → 0 errors, 0 warnings.
+- **tsc**: `tsc --noEmit` → clean (no errors in project files).
+- **Compile**: HTTP 200, page ~208KB.
+- **Full scroll test**: scrolled entire page (12461px) — no crash, no "Application error".
+- **All 9 sections present**: top, estudio, servicios, proceso, proyectos, precios, galeria, faq, contacto.
+- **Builder Studio**: image mode → VLM → 3D skyscraper renders; Export PNG → toast "PNG exportado" + filename; Copiar JSON → clipboard (graceful error in headless).
+- **Community Gallery**: saved project renders 3D model (rascacielos, 150 bloques); legacy blueprint normalized.
+- **Mobile (iPhone 14)**: no horizontal scroll (scrollX=0), 2 canvases, no errors.
+- **VLM assessments**: Hero 7/10, Pricing 8/10, FAQ 8/10, Gallery 7/10 (with 3D model visible).
+
+## Unresolved issues / risks
+1. **WebGL context limit**: with MAX_CONTEXTS=7, some gallery/project cards may show "cargando 3D…" placeholder when many are in view simultaneously. This is intentional graceful degradation — no crash. Could increase to 10-12 on desktop with dedicated GPU, but safer at 7.
+2. **Copiar JSON** requires clipboard permission (HTTPS or localhost) — works in production, shows error toast in insecure contexts. Acceptable.
+3. **Export PNG** captures current canvas frame — if the build animation is mid-flight, the PNG may show partial construction. User can wait for animation to complete before exporting.
+4. **VLM latency** (~5-12s) — acceptable with clear loading states, but could add a timeout fallback.
+
+## Priority recommendations for next phase
+1. **A/B test section order**: try Pricing between Stats and Testimonials vs current (after Projects).
+2. **Add a "Compare" view**: show source image and 3D model side-by-side in the Builder Studio.
+3. **Custom brick color picker**: let users pick custom LEGO colors beyond the preset palettes.
+4. **Lazy-load Three.js**: currently bundled; code-splitting the 3D chunks could improve initial load.
+5. **Add OpenGraph image + favicon**: generate a branded OG image from a LEGO tower screenshot.
+6. **Keyboard accessibility audit**: verify tab order and focus management in Builder Studio and Dialogs.

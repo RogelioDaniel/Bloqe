@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, RefreshCw, MapPin, Boxes } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
+import { SceneErrorBoundary } from "@/components/lego3d/scene-error-boundary";
+import { useWebGLSlot } from "@/components/lego3d/use-webgl-slot";
 import {
   generateBuilding,
   PALETTE_SETS,
@@ -104,14 +106,40 @@ const TAB_LABEL: Record<StructureType, string> = {
   pavilion: "Pabellón",
 };
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, index }: { project: Project; index: number }) {
   const [buildId, setBuildId] = useState(1);
-  const [mounted, setMounted] = useState(false);
+  const [inView, setInView] = useState(false);
+  const hasSlot = useWebGLSlot(inView);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mounted = inView && hasSlot;
   const model: VoxelModel = useMemo(
     () =>
       generateBuilding(project.structureType, PALETTE_SETS[project.palette], project.opts),
     [project]
   );
+
+  // Mount 3D when card is in view, UNMOUNT when scrolled away (frees WebGL context)
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            // stagger so multiple contexts don't spin up simultaneously
+            timeout = setTimeout(() => setInView(true), (index % 3) * 200);
+          } else {
+            if (timeout) { clearTimeout(timeout); timeout = null; }
+            setInView(false);
+          }
+        }
+      },
+      { rootMargin: "80px" }
+    );
+    io.observe(el);
+    return () => { io.disconnect(); if (timeout) clearTimeout(timeout); };
+  }, [index]);
 
   return (
     <motion.article
@@ -120,11 +148,11 @@ function ProjectCard({ project }: { project: Project }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
       className="group overflow-hidden rounded-2xl border border-border bg-ink-2/40 transition-colors hover:border-signal/40"
-      onMouseEnter={() => setMounted(true)}
     >
+      <div ref={cardRef}>
       <button
         type="button"
-        onClick={() => { setMounted(true); setBuildId((id) => id + 1); }}
+        onClick={() => { setInView(true); setBuildId((id) => id + 1); }}
         className="relative block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
         aria-label={`Reconstruir modelo 3D de ${project.title}`}
       >
@@ -138,19 +166,24 @@ function ProjectCard({ project }: { project: Project }) {
             }}
           />
           {mounted ? (
-            <LegoScene3D
-              model={model}
-              buildId={buildId}
-              className="absolute inset-0 h-full w-full"
-              maxDelay={1400}
-              autoRotate
-              quality="lite"
-            />
+            <SceneErrorBoundary>
+              <LegoScene3D
+                model={model}
+                buildId={buildId}
+                className="absolute inset-0 h-full w-full"
+                maxDelay={1400}
+                autoRotate
+                quality="lite"
+              />
+            </SceneErrorBoundary>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <Boxes className="h-7 w-7 text-signal/60" />
-                <span className="label-mono text-[0.6rem]">pasa el cursor · 3D</span>
+                <span className="relative flex h-10 w-10 items-center justify-center">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-signal/20" />
+                  <Boxes className="h-7 w-7 text-signal/60" />
+                </span>
+                <span className="label-mono text-[0.6rem]">cargando 3D…</span>
               </div>
             </div>
           )}
@@ -215,6 +248,7 @@ function ProjectCard({ project }: { project: Project }) {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </motion.article>
   );
@@ -284,8 +318,8 @@ export function Projects() {
           transition={{ duration: 0.35 }}
           className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {visible.map((p) => (
-            <ProjectCard key={p.id} project={p} />
+          {visible.map((p, i) => (
+            <ProjectCard key={p.id} project={p} index={i} />
           ))}
         </motion.div>
 

@@ -97,8 +97,8 @@ export function LegoScene3D({
     <div className={className}>
       <Canvas
         shadows
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
+        dpr={quality === "full" ? [1, 2] : [1, 1.25]}
+        gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: "high-performance" }}
         style={{ background: "transparent" }}
       >
         <Suspense fallback={<Loader />}>
