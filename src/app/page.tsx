@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
 import { BackToTop } from "@/components/site/back-to-top";
+import { SectionDivider } from "@/components/site/section-divider";
 import { Hero } from "@/components/sections/hero";
 import { Marquee } from "@/components/sections/marquee";
 import { BuilderStudio } from "@/components/sections/builder-studio";
@@ -20,7 +21,7 @@ import { Contact } from "@/components/sections/contact";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-ink text-foreground">
+    <div id="bloqe-root" className="flex min-h-screen flex-col bg-ink text-foreground transition-colors duration-500">
       <ScrollProgress />
       <SiteHeader />
       <main className="flex-1">
@@ -28,11 +29,15 @@ export default function Home() {
         <Marquee />
         <BuilderStudio />
         <Services />
+        <SectionDivider variant="dark-to-light" />
         <Process />
+        <SectionDivider variant="light-to-dark" />
         <Projects />
         <Pricing />
         <Stats />
+        <SectionDivider variant="dark-to-light" />
         <Testimonials />
+        <SectionDivider variant="light-to-dark" />
         <CommunityGallery />
         <FAQ />
         <CtaBanner />

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import {
@@ -69,6 +70,7 @@ export function SiteHeader() {
             >
               Cotizar obra
             </a>
+            <ThemeToggle />
             <Button
               asChild
               size="sm"
@@ -99,14 +101,17 @@ export function SiteHeader() {
                 <SheetTitle className="sr-only">Navegación</SheetTitle>
                 <div className="flex h-16 items-center justify-between border-b border-border px-5">
                   <Logo size={28} />
-                  <SheetClose asChild>
-                    <button
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-md"
-                      aria-label="Cerrar menú"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </SheetClose>
+                  <div className="flex items-center gap-2">
+                    <ThemeToggle />
+                    <SheetClose asChild>
+                      <button
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-md"
+                        aria-label="Cerrar menú"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </SheetClose>
+                  </div>
                 </div>
                 <nav className="flex flex-col p-3">
                   {NAV.map((item) => (

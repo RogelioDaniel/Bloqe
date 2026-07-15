@@ -23,6 +23,9 @@ import {
   Columns2,
   Palette as PaletteIcon,
   RotateCcw,
+  Share2,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,6 +105,8 @@ export function BuilderStudio() {
   const [resolution, setResolution] = useState(14);
   const [customColors, setCustomColors] = useState<string[] | null>(null);
   const [compareView, setCompareView] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const glbRef = useRef<HTMLInputElement>(null);
 
@@ -127,6 +132,40 @@ export function BuilderStudio() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [status, result, compareView, sourceImage]);
+
+  // Restore shared model from URL hash on mount (#estudio&m=<base64>)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    const match = hash.match(/&m=([A-Za-z0-9+/=]+)/);
+    if (!match) return;
+    try {
+      const data = JSON.parse(decodeURIComponent(atob(match[1])));
+      const st = (data.t as StructureType) || "tower";
+      const palette = Array.isArray(data.p) && data.p.length >= 2 ? data.p : PALETTE_SETS.classic;
+      const floors = Math.max(3, Math.min(16, data.f || 8));
+      const bp = generateBuilding(st, palette, { floors });
+      const analysis: StructureAnalysis = {
+        title: data.n || "Modelo compartido",
+        structureType: st,
+        summary: "Modelo cargado desde un link de compartir.",
+        features: ["Compartido via link"],
+        materials: [],
+        dominantColors: palette,
+        floors,
+        height: floors > 10 ? "tall" : floors > 5 ? "medium" : "low",
+        confidence: 1,
+      };
+      setResult({ analysis, blueprint: bp, sourceImage: "", palette });
+      setStructureType(st);
+      setBuildId((b) => b + 1);
+      setStatus("built");
+      // clean the hash so it doesn't re-trigger
+      window.history.replaceState(null, "", window.location.pathname);
+    } catch {
+      // invalid share data — ignore
+    }
+  }, []);
 
   // ---- 3D model handlers ----
   const handleGlb = useCallback((file: File) => {
@@ -409,6 +448,76 @@ export function BuilderStudio() {
       setCopying(false);
     }
   };
+
+  // Share link: encode blueprint metadata in URL hash so it can be shared/restored
+  const onShareLink = async () => {
+    if (!result) return;
+    setSharing(true);
+    try {
+      const shareData = {
+        t: result.analysis.structureType,
+        p: result.palette,
+        n: result.analysis.title,
+        f: result.analysis.floors || 8,
+      };
+      const encoded = btoa(encodeURIComponent(JSON.stringify(shareData)));
+      const url = `${window.location.origin}${window.location.pathname}#estudio&m=${encoded}`;
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      toast.success("Link de compartir copiado", {
+        description: "Pégalo donde quieras — abre el modelo directamente.",
+      });
+    } catch (e) {
+      toast.error("No se pudo generar el link.", {
+        description: (e as Error).message,
+      });
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  // Sound effect: subtle brick-click using Web Audio API (no asset needed)
+  const playBrickSound = useCallback(() => {
+    if (!soundOn) return;
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "square";
+      osc.frequency.setValueAtTime(180 + Math.random() * 120, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.1);
+      ctx.close();
+    } catch {
+      // audio not available — silent
+    }
+  }, [soundOn]);
+
+  // Play sound when buildId changes (model rebuilds)
+  useEffect(() => {
+    if (buildId > 0 && soundOn) {
+      // play a few staggered clicks
+      for (let i = 0; i < 4; i++) {
+        setTimeout(() => playBrickSound(), i * 120);
+      }
+    }
+  }, [buildId, soundOn, playBrickSound]);
 
   return (
     <section
@@ -1238,6 +1347,39 @@ export function BuilderStudio() {
                         <Copy className="mr-2 h-4 w-4" />
                       )}
                       Copiar JSON
+                    </Button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-border bg-ink-3/40 hover:bg-ink-3 rounded-full"
+                      onClick={onShareLink}
+                      disabled={sharing}
+                    >
+                      {sharing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Share2 className="mr-2 h-4 w-4" />
+                      )}
+                      Compartir link
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className={`flex-1 border-border bg-ink-3/40 hover:bg-ink-3 rounded-full ${
+                        soundOn ? "text-signal border-signal/40" : ""
+                      }`}
+                      onClick={() => {
+                        setSoundOn((v) => !v);
+                        if (!soundOn) toast.info("Sonido activado", { description: "Escucharás los bloques al construir." });
+                      }}
+                      aria-pressed={soundOn}
+                    >
+                      {soundOn ? (
+                        <Volume2 className="mr-2 h-4 w-4" />
+                      ) : (
+                        <VolumeX className="mr-2 h-4 w-4" />
+                      )}
+                      {soundOn ? "Sonido on" : "Sonido off"}
                     </Button>
                   </div>
                 </div>
