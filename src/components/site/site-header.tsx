@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { BrickLink } from "./brick-transition";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, ArrowUpRight } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -24,23 +24,11 @@ const NAV = [
 ];
 
 export function SiteHeader() {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "glass border-b border-border"
-          : "bg-transparent border-b border-transparent"
-      }`}
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 glass border-b border-border`}
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="flex h-16 items-center justify-between">
@@ -98,14 +86,6 @@ export function SiteHeader() {
                   <Logo size={28} />
                   <div className="flex items-center gap-2">
                     <ThemeToggle />
-                    <SheetClose asChild>
-                      <button
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-md"
-                        aria-label="Cerrar menú"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </SheetClose>
                   </div>
                 </div>
                 <nav className="flex flex-col p-3">

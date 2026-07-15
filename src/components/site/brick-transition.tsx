@@ -34,6 +34,11 @@ export const useWallStore = create<WallStore>((set) => ({
   trigger: (href) => set({ pending: { href, id: Date.now() } }),
 }));
 
+/** Navega a un destino usando el muro de bloques. Uso programático. */
+export function navigateWithWall(href: string) {
+  useWallStore.getState().trigger(href);
+}
+
 const WALL_COLORS = [
   "#c8281c",
   "#f5b82e",
@@ -44,8 +49,16 @@ const WALL_COLORS = [
   "#22262e",
 ];
 
-const IN_MS = 620; // el muro termina de cubrir (filas + jitter + duración)
-const OUT_MS = 900; // los bricks terminan de caer
+const IN_MS = 480; // el muro termina de cubrir (filas + jitter + duración)
+const OUT_MS = 620; // los bricks terminan de caer
+
+/**
+ * Tiempo total que tarda la transición en cubrir la pantalla por completo.
+ * Se expone para que callers programáticos (p.ej. "volver arriba") esperen
+ * a que el muro tape todo ANTES de hacer el salto — así no se ve cómo la
+ * página se desliza debajo del muro.
+ */
+export const WALL_COVER_MS = IN_MS;
 
 interface WallBrick {
   color: string;
@@ -67,11 +80,13 @@ interface WallGrid {
 function buildWall(direction: "up" | "down"): WallGrid {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const brickW = Math.max(76, Math.ceil(vw / 10));
-  const brickH = 44;
+  // Bricks más anchos y altos → menos piezas → cubren la pantalla antes
+  // y de forma más uniforme (sin ver el contenido deslizándose debajo).
+  const brickW = Math.max(96, Math.ceil(vw / 8));
+  const brickH = 56;
   const cols = Math.ceil(vw / brickW) + 1;
   const rows = Math.ceil(vh / brickH) + 1;
-  const perRow = 300 / rows;
+  const perRow = 260 / rows;
 
   const bricks: WallBrick[] = [];
   for (let r = 0; r < rows; r++) {
@@ -80,10 +95,10 @@ function buildWall(direction: "up" | "down"): WallGrid {
       const rowOrder = direction === "down" ? rows - 1 - r : r;
       bricks.push({
         color: WALL_COLORS[Math.floor(Math.random() * WALL_COLORS.length)],
-        delayIn: rowOrder * perRow + Math.random() * 60,
-        delayOut: Math.random() * 240,
-        wx: (Math.random() - 0.5) * 160,
-        wr: (Math.random() - 0.5) * 140,
+        delayIn: rowOrder * perRow + Math.random() * 40,
+        delayOut: Math.random() * 180,
+        wx: (Math.random() - 0.5) * 140,
+        wr: (Math.random() - 0.5) * 120,
         wr0: (Math.random() - 0.5) * 6,
       });
     }
@@ -106,7 +121,11 @@ export function BrickTransition() {
       if (href.startsWith("#")) {
         const el = document.querySelector(href);
         if (el) {
-          el.scrollIntoView({ behavior: "auto", block: "start" });
+          // Salto instantáneo (sin animación) para que la página NO se
+          // deslice bajo el muro: el destino aparece ya posicionado.
+          const top =
+            el.getBoundingClientRect().top + window.scrollY - 0;
+          window.scrollTo({ top, behavior: "auto" });
           history.replaceState(null, "", href);
         }
       } else {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteLoader } from "@/components/site/site-loader";
@@ -18,6 +19,18 @@ import { CtaBanner } from "@/components/sections/cta-banner";
 import { Contact } from "@/components/sections/contact";
 
 export default function Home() {
+  // Al recargar la página (sin importar la sección en la URL), empezamos
+  // siempre arriba y limpiamos cualquier hash residual para que el
+  // navegador no intente saltar a una sección intermedia.
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (window.location.hash) {
+        history.replaceState(null, "", window.location.pathname);
+      }
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   return (
     <div id="bloqe-root" className="flex min-h-screen flex-col bg-ink text-foreground transition-colors duration-500">
       <SiteLoader />

@@ -521,17 +521,17 @@
   }
   .wall-brick.in-up {
     animation-name: wall-brick-in-up;
-    animation-duration: 0.28s;
+    animation-duration: 0.26s;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
   .wall-brick.in-down {
     animation-name: wall-brick-in-down;
-    animation-duration: 0.28s;
+    animation-duration: 0.26s;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
   .wall-brick.out {
     animation-name: wall-brick-out;
-    animation-duration: 0.6s;
+    animation-duration: 0.5s;
     animation-timing-function: cubic-bezier(0.4, 0, 0.8, 0.4);
   }
   /* stud del brick del muro */

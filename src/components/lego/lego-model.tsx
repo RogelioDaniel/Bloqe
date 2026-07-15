@@ -59,6 +59,13 @@ interface LegoModelProps {
   /** Se llama cuando el usuario interactúa (útil para pausar loops). */
   onUserAction?: () => void;
   ariaLabel?: string;
+  /**
+   * Destrucción dirigida por scroll (0–1). 0 = maqueta intacta;
+   * 1 = toda destruida. Los bloques se desprenden de arriba hacia
+   * abajo de forma determinística (estable entre renders). Se suma
+   * a los bloques que el usuario desprenda manualmente.
+   */
+  breakProgress?: number;
 }
 
 interface RenderBrick extends Brick {
@@ -328,6 +335,7 @@ export function LegoModel({
   controls = false,
   onUserAction,
   ariaLabel,
+  breakProgress = 0,
 }: LegoModelProps) {
   // Los modelos pueden generarse con aleatoriedad: solo cliente.
   const [mounted, setMounted] = useState(false);
@@ -450,6 +458,41 @@ export function LegoModel({
     [rotate]
   );
 
+  // ---- Destrucción dirigida por scroll (breakProgress 0–1) ----
+  // Determinística: ordena los bricks de arriba→abajo y desprende los
+  // primeros N según el progreso. Se fusiona con la rotura manual.
+  const scrollScattered = useMemo<Map<string, ScatterMeta>>(() => {
+    if (breakProgress <= 0 || bricks.length === 0) return new Map();
+    const p = Math.max(0, Math.min(1, breakProgress));
+    // orden estable: mayor y primero (más alto), luego por posición
+    const sorted = [...bricks].sort(
+      (a, b) => b.y - a.y || b.x + b.z - (a.x + a.z)
+    );
+    const count = Math.ceil(sorted.length * p);
+    const next = new Map<string, ScatterMeta>();
+    const maxY = sorted[0]?.y ?? 0;
+    const minY = sorted[sorted.length - 1]?.y ?? 0;
+    const span = Math.max(1, maxY - minY);
+    for (let i = 0; i < count; i++) {
+      const b = sorted[i];
+      // los más altos salen primero: delay crece hacia abajo
+      const tier = (maxY - b.y) / span; // 0 arriba → 1 abajo
+      const m = scatterMetaFor(b, tier * 260);
+      // reemplaza cualquier meta aleatoria con una determinística
+      // para evitar parpadeos entre renders.
+      next.set(b.id, m);
+    }
+    return next;
+  }, [breakProgress, bricks, scatterMetaFor]);
+
+  // La rotura manual tiene prioridad visual sobre la del scroll.
+  const effectiveScattered = useMemo(() => {
+    if (scrollScattered.size === 0) return scattered;
+    const merged = new Map(scrollScattered);
+    for (const [k, v] of scattered) merged.set(k, v);
+    return merged;
+  }, [scrollScattered, scattered]);
+
   const viewBox = useMemo(() => {
     let minX = Infinity;
     let minY = Infinity;
@@ -521,7 +564,7 @@ export function LegoModel({
             <BrickShape
               key={b.id}
               brick={b}
-              scatter={scattered.get(b.id)}
+              scatter={effectiveScattered.get(b.id)}
               interactive={interactive}
               onPick={pickBrick}
             />

@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
+import { navigateWithWall } from "@/components/site/brick-transition";
 
 /**
  * Floating "back to top" button that appears after scrolling down.
- * Premium styling: glassmorphism, signal-orange accent, smooth scroll.
+ * Usa la animación del muro de bloques para volver arriba (mismo efecto
+ * que la navegación entre secciones), en vez de un scroll suave.
  */
 export function BackToTop() {
   const [visible, setVisible] = useState(false);
@@ -26,7 +28,7 @@ export function BackToTop() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 10 }}
           transition={{ duration: 0.2 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={() => navigateWithWall("#top")}
           className="brick-press group fixed bottom-6 right-6 z-50 flex h-11 w-[3.5rem] items-center justify-center rounded-md bg-signal text-signal-foreground shadow-brick hover:bg-signal-2 transition-colors"
           aria-label="Volver arriba"
         >

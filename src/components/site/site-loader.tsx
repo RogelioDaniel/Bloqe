@@ -18,8 +18,8 @@ import {
 //  de entrada del sitio.
 // ============================================================
 
-const BUILD_MS = 2400;
-const REDUCED_MS = 500;
+const BUILD_MS = 1500;
+const REDUCED_MS = 400;
 
 const LETTERS = [
   { char: "B", color: "#e8542a" },
@@ -41,7 +41,8 @@ const LOADER_LABELS: Record<StructureType, string> = {
   playground: "juegos",
 };
 
-/** Cada carga construye una obra distinta. */
+/** Cada carga construye una obra distinta. Modelos pequeños para
+ *  renderizar rápido y no trabar la carga inicial. */
 function randomModel(): { model: VoxelModel; label: string } {
   const r = Math.random;
   const pick = <T,>(arr: T[]) => arr[Math.floor(r() * arr.length)];
@@ -53,41 +54,39 @@ function randomModel(): { model: VoxelModel; label: string } {
     "castle",
     "schoolhouse",
     "abc",
-    "playground",
     "house",
   ]);
 
   let model: VoxelModel;
   switch (type) {
     case "castle":
+      // Castillo pequeño (7x7) — rápido de generar y renderizar.
       model = generateBuilding("castle", palette, {
-        width: 8 + Math.floor(r() * 2),
-        depth: 8,
-        floors: 5,
+        width: 7,
+        depth: 7,
+        floors: 4,
       });
       break;
     case "schoolhouse":
       model = generateBuilding("schoolhouse", palette, {
-        width: 8,
-        depth: 6,
-        floors: 4,
+        width: 7,
+        depth: 5,
+        floors: 3,
       });
       break;
     case "abc":
-      model = generateBuilding("abc", palette, { floors: 10 + Math.floor(r() * 3) });
-      break;
-    case "playground":
-      model = generateBuilding("playground", palette, { width: 10, depth: 8 });
+      // Torre ABC baja para que cargue ligero.
+      model = generateBuilding("abc", palette, { floors: 7 });
       break;
     case "house":
       model = generateBuilding("house", palette, {
-        width: 7 + Math.floor(r() * 3),
-        depth: 5 + Math.floor(r() * 2),
+        width: 6,
+        depth: 5,
         floors: 3,
       });
       break;
     default:
-      model = generateBuilding("castle", palette, { floors: 5, width: 9, depth: 9 });
+      model = generateBuilding("castle", palette, { floors: 4, width: 7, depth: 7 });
   }
   return { model, label: LOADER_LABELS[type] };
 }
