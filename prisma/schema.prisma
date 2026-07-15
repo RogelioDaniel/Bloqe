@@ -1,0 +1,42 @@
+// Prisma schema — Constructora Modular (LEGO Block Builder)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  // tipo de estructura: tower | house | bridge | skyscraper | pavilion
+  structureType String   @default("tower")
+  // paleta de bloques LEGO como JSON string: ["#C8281C","#F5B82E",...]
+  palette       String   @default("[]")
+  // blueprint de capas como JSON string (array de layers con bricks)
+  blueprint     String   @default("[]")
+  // URL de la imagen fuente (data URL o ruta pública)
+  sourceImage   String?
+  // análisis VLM (descripción, características) en JSON
+  analysis      String   @default("{}")
+  // métricas: número de bloques, capas, altura
+  blockCount    Int      @default(0)
+  layerCount    Int      @default(0)
+  featured      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Inquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  intent    String   @default("general") // general | quote | partnership
+  createdAt DateTime @default(now())
+}

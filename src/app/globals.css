@@ -1,0 +1,461 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-bricolage);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-signal: var(--signal);
+  --color-signal-foreground: var(--signal-foreground);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-stud: var(--stud);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ============================================================
+   DESIGN TOKENS — "Blueprint Ink × Modular Block"
+   Constructora premium. No default AI looks.
+   ============================================================ */
+:root {
+  --radius: 0.5rem;
+
+  /* Surfaces — deep blueprint ink (primary chrome) */
+  --ink: #0b0d10;
+  --ink-2: #11141a;
+  --ink-3: #191d25;
+  --ink-4: #232834;
+
+  /* Paper — architectural vellum (light sections) */
+  --paper: #efe9db;
+  --paper-2: #e4dcc8;
+  --paper-3: #d8cfb8;
+
+  /* Signal — construction orange (the single signature accent) */
+  --signal: #e8542a;
+  --signal-2: #ff6a3d;
+  --signal-foreground: #0b0d10;
+
+  /* Stud — LEGO yellow (secondary accent, used sparingly) */
+  --stud: #f5b82e;
+
+  /* shadcn mapping on dark chrome */
+  --background: var(--ink);
+  --foreground: #f4f1ea;
+  --card: var(--ink-2);
+  --card-foreground: #f4f1ea;
+  --popover: var(--ink-2);
+  --popover-foreground: #f4f1ea;
+  --primary: var(--signal);
+  --primary-foreground: var(--signal-foreground);
+  --secondary: var(--ink-3);
+  --secondary-foreground: #f4f1ea;
+  --muted: var(--ink-3);
+  --muted-foreground: #9aa1ad;
+  --accent: var(--ink-3);
+  --accent-foreground: #f4f1ea;
+  --destructive: #e5484d;
+  --border: rgba(244, 241, 234, 0.10);
+  --input: rgba(244, 241, 234, 0.12);
+  --ring: var(--signal);
+  --chart-1: #e8542a;
+  --chart-2: #f5b82e;
+  --chart-3: #2e8b57;
+  --chart-4: #c8281c;
+  --chart-5: #8a8f9a;
+  --sidebar: var(--ink-2);
+  --sidebar-foreground: #f4f1ea;
+  --sidebar-primary: var(--signal);
+  --sidebar-primary-foreground: var(--signal-foreground);
+  --sidebar-accent: var(--ink-3);
+  --sidebar-accent-foreground: #f4f1ea;
+  --sidebar-border: rgba(244, 241, 234, 0.10);
+  --sidebar-ring: var(--signal);
+}
+
+/* Light "paper" variant toggled on a wrapper (not global .dark) */
+.paper-theme {
+  --background: var(--paper);
+  --foreground: #16110a;
+  --card: #fbf8f0;
+  --card-foreground: #16110a;
+  --popover: #fbf8f0;
+  --popover-foreground: #16110a;
+  --primary: var(--signal);
+  --primary-foreground: var(--signal-foreground);
+  --secondary: var(--paper-2);
+  --secondary-foreground: #16110a;
+  --muted: var(--paper-2);
+  --muted-foreground: #6b6353;
+  --accent: var(--paper-2);
+  --accent-foreground: #16110a;
+  --border: rgba(22, 17, 10, 0.12);
+  --input: rgba(22, 17, 10, 0.14);
+  --ring: var(--signal);
+  --sidebar: #fbf8f0;
+  --sidebar-foreground: #16110a;
+  --sidebar-border: rgba(22, 17, 10, 0.12);
+  --sidebar-ring: var(--signal);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--signal);
+    color: var(--signal-foreground);
+  }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--ink); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--ink-4);
+    border-radius: 99px;
+    border: 2px solid var(--ink);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--signal); }
+}
+
+/* ============================================================
+   PREMIUM UTILITIES
+   ============================================================ */
+@layer utilities {
+  .font-display { font-family: var(--font-display), var(--font-sans); }
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  /* Eyebrow / technical label */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Blueprint grid background */
+  .bg-blueprint {
+    background-image:
+      linear-gradient(rgba(244,241,234,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(244,241,234,0.045) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .bg-blueprint-paper {
+    background-image:
+      linear-gradient(rgba(22,17,10,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(22,17,10,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .bg-blueprint-fine {
+    background-image:
+      linear-gradient(rgba(244,241,234,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(244,241,234,0.05) 1px, transparent 1px),
+      linear-gradient(rgba(244,241,234,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(244,241,234,0.025) 1px, transparent 1px);
+    background-size: 112px 112px, 112px 112px, 28px 28px, 28px 28px;
+  }
+
+  /* Film grain / noise for premium texture */
+  .bg-grain {
+    position: relative;
+  }
+  .bg-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Signal underline link */
+  .link-signal {
+    background-image: linear-gradient(var(--signal), var(--signal));
+    background-size: 0% 1.5px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.35s cubic-bezier(0.22,1,0.36,1);
+  }
+  .link-signal:hover { background-size: 100% 1.5px; }
+
+  .ring-hairline { box-shadow: inset 0 0 0 1px rgba(244,241,234,0.08); }
+  .ring-hairline-paper { box-shadow: inset 0 0 0 1px rgba(22,17,10,0.10); }
+
+  /* Glass panel */
+  .glass {
+    background: rgba(17, 20, 26, 0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  .shadow-brick {
+    box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset, 0 8px 24px -8px rgba(0,0,0,0.55);
+  }
+
+  .text-stroke-ink {
+    -webkit-text-stroke: 1.5px var(--ink);
+    color: transparent;
+  }
+
+  .animate-marquee {
+    animation: marquee 38s linear infinite;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+}
+
+/* ============================================================
+   LEGO BRICK SYSTEM — CSS 3D (preserve-3d)
+   A brick = body (6 faces) + studs (cylinders) on top.
+   Driven by CSS custom props: --bw (width), --bd (depth),
+   --bh (height), --bc (color), --studs (grid template).
+   Unit: 1 stud = 22px.
+   ============================================================ */
+@layer components {
+  .lego-scene {
+    perspective: 1400px;
+    perspective-origin: 50% 38%;
+    transform-style: preserve-3d;
+  }
+  .lego-stage {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  /* A single brick. Sized via custom props. */
+  .lego-brick {
+    position: absolute;
+    transform-style: preserve-3d;
+    /* default 2x2 brick */
+    --bw: 44px;
+    --bd: 44px;
+    --bh: 22px;
+    --bc: #c8281c;
+    --stud-r: 7px;
+    width: var(--bw);
+    height: var(--bh);
+    /* depth via 3d faces */
+  }
+  .lego-brick .face {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--bc);
+    backface-visibility: hidden;
+  }
+  /* top face */
+  .lego-brick .f-top {
+    width: var(--bw);
+    height: var(--bd);
+    transform: rotateX(90deg) translateZ(0px);
+    transform-origin: top left;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 40%),
+      var(--bc);
+  }
+  /* front face */
+  .lego-brick .f-front {
+    width: var(--bw);
+    height: var(--bh);
+    transform: translateZ(var(--bd));
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0) 35%),
+      linear-gradient(90deg, rgba(0,0,0,0.22), rgba(255,255,255,0.10) 50%, rgba(0,0,0,0.22)),
+      var(--bc);
+  }
+  /* right face */
+  .lego-brick .f-right {
+    width: var(--bd);
+    height: var(--bh);
+    transform: rotateY(90deg) translateZ(var(--bw));
+    transform-origin: top left;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.34), rgba(0,0,0,0) 35%),
+      linear-gradient(90deg, rgba(0,0,0,0.30), rgba(255,255,255,0.06) 60%),
+      var(--bc);
+    filter: brightness(0.78);
+  }
+  /* left face */
+  .lego-brick .f-left {
+    width: var(--bd);
+    height: var(--bh);
+    transform: rotateY(-90deg);
+    transform-origin: top left;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.30), rgba(0,0,0,0) 35%),
+      var(--bc);
+    filter: brightness(0.62);
+  }
+  /* back face */
+  .lego-brick .f-back {
+    width: var(--bw);
+    height: var(--bd);
+    transform: rotateX(-90deg) translateZ(calc(-1 * var(--bh)));
+    transform-origin: top left;
+    background: var(--bc);
+    filter: brightness(0.5);
+  }
+  /* bottom face */
+  .lego-brick .f-bottom {
+    width: var(--bw);
+    height: var(--bd);
+    transform: rotateX(-90deg);
+    transform-origin: top left;
+    background: var(--bc);
+    filter: brightness(0.45);
+  }
+
+  /* Studs — cylinders on top. Rendered as a stack of rotated rectangles
+     approximating a cylinder, but we use a simpler radial-gradient disc
+     with a side band for performance. */
+  .lego-studs {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--bw);
+    height: var(--bd);
+    transform: rotateX(90deg);
+    transform-origin: top left;
+    display: grid;
+    gap: 0;
+  }
+  .lego-stud {
+    position: relative;
+    width: calc(var(--stud-r) * 2);
+    height: calc(var(--stud-r) * 2);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,0.55), rgba(255,255,255,0) 45%),
+      var(--bc);
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.18),
+      inset 0 -2px 3px rgba(0,0,0,0.28);
+    align-self: center;
+    justify-self: center;
+  }
+
+  /* Build animation — brick drops in from above */
+  @keyframes brick-drop {
+    0% {
+      transform: translateY(-120px) translateZ(0) rotateZ(8deg);
+      opacity: 0;
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(0) translateZ(0) rotateZ(0deg);
+      opacity: 1;
+    }
+  }
+  .lego-brick.entering {
+    animation: brick-drop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Crane hook line */
+  .crane-line {
+    position: absolute;
+    width: 2px;
+    background: linear-gradient(180deg, rgba(244,241,234,0.0), rgba(244,241,234,0.5));
+    transform-origin: top center;
+  }
+
+  /* Stud pulse for active builder */
+  @keyframes stud-pulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.18), inset 0 -2px 3px rgba(0,0,0,0.28), 0 0 0 0 rgba(232,84,42,0.0); }
+    50% { box-shadow: 0 0 0 1px rgba(0,0,0,0.18), inset 0 -2px 3px rgba(0,0,0,0.28), 0 0 0 4px rgba(232,84,42,0.25); }
+  }
+
+  /* SVG brick drop (used by LegoBrick) */
+  @keyframes brick-svg-drop {
+    0% {
+      opacity: 0;
+      transform: translateY(-26px);
+    }
+    55% {
+      opacity: 1;
+    }
+    80% {
+      transform: translateY(2px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Conveyor / scaffold line shimmer */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(244,241,234,0.14), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2.2s linear infinite;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
