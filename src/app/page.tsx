@@ -2,6 +2,8 @@
 
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import { ScrollProgress } from "@/components/site/scroll-progress";
+import { BackToTop } from "@/components/site/back-to-top";
 import { Hero } from "@/components/sections/hero";
 import { Marquee } from "@/components/sections/marquee";
 import { BuilderStudio } from "@/components/sections/builder-studio";
@@ -13,11 +15,13 @@ import { Stats } from "@/components/sections/stats";
 import { Testimonials } from "@/components/sections/testimonials";
 import { CommunityGallery } from "@/components/sections/community-gallery";
 import { FAQ } from "@/components/sections/faq";
+import { CtaBanner } from "@/components/sections/cta-banner";
 import { Contact } from "@/components/sections/contact";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-ink text-foreground">
+      <ScrollProgress />
       <SiteHeader />
       <main className="flex-1">
         <Hero />
@@ -31,9 +35,11 @@ export default function Home() {
         <Testimonials />
         <CommunityGallery />
         <FAQ />
+        <CtaBanner />
         <Contact />
       </main>
       <SiteFooter />
+      <BackToTop />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -20,6 +20,9 @@ import {
   Camera,
   Download,
   Copy,
+  Columns2,
+  Palette as PaletteIcon,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,8 +100,33 @@ export function BuilderStudio() {
   const [mode, setMode] = useState<"image" | "model">("image");
   const [gltfUrl, setGltfUrl] = useState<string | null>(null);
   const [resolution, setResolution] = useState(14);
+  const [customColors, setCustomColors] = useState<string[] | null>(null);
+  const [compareView, setCompareView] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const glbRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcuts (only when a model is built + focus is not in an input)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (status !== "built" || !result) return;
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
+      if (e.key === "r" || e.key === "R") {
+        setBuildId((b) => b + 1);
+        toast.info("Modelo reconstruido", { description: "Atajo: R" });
+      } else if (e.key === "c" || e.key === "C") {
+        if (sourceImage) {
+          setCompareView((v) => !v);
+          toast.info(compareView ? "Vista simple" : "Vista comparada", { description: "Atajo: C" });
+        }
+      } else if (e.key === " ") {
+        e.preventDefault();
+        setAutoRotate((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [status, result, compareView, sourceImage]);
 
   // ---- 3D model handlers ----
   const handleGlb = useCallback((file: File) => {
@@ -244,9 +272,11 @@ export function BuilderStudio() {
 
   // ---- client-side regeneration on override ----
   const regenerate = useCallback(
-    (type: StructureType, pName: string) => {
+    (type: StructureType, pName: string, colors?: string[] | null) => {
       if (!result) return;
-      const palette = PALETTE_SETS[pName] ?? result.palette;
+      const palette = colors && colors.length >= 2
+        ? colors
+        : PALETTE_SETS[pName] ?? result.palette;
       const floors = Math.max(3, Math.min(16, result.analysis.floors || 8));
       const bp = generateBuilding(type, palette, { floors });
       setResult({ ...result, blueprint: bp, palette });
@@ -258,12 +288,26 @@ export function BuilderStudio() {
   const onStructureChange = (v: string) => {
     const t = v as StructureType;
     setStructureType(t);
-    regenerate(t, paletteName);
+    regenerate(t, paletteName, customColors);
   };
 
   const onPaletteChange = (v: string) => {
     setPaletteName(v);
-    regenerate(structureType, v);
+    setCustomColors(null); // reset custom when picking a preset
+    regenerate(structureType, v, null);
+  };
+
+  const onCustomColorChange = (idx: number, color: string) => {
+    const base = customColors ?? (PALETTE_SETS[paletteName] ?? result?.palette ?? PALETTE_SETS.classic);
+    const next = [...base];
+    next[idx] = color;
+    setCustomColors(next);
+    regenerate(structureType, paletteName, next);
+  };
+
+  const resetCustomColors = () => {
+    setCustomColors(null);
+    regenerate(structureType, paletteName, null);
   };
 
   const onSave = async () => {
@@ -891,21 +935,58 @@ export function BuilderStudio() {
                   </span>
                 </div>
                 {status === "built" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground h-8"
-                    onClick={() => setBuildId((b) => b + 1)}
-                  >
-                    <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
-                    Reconstruir
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {sourceImage && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`h-8 ${compareView ? "text-signal" : "text-muted-foreground hover:text-foreground"}`}
+                        onClick={() => setCompareView((v) => !v)}
+                        aria-pressed={compareView}
+                        title="Comparar fuente vs modelo 3D"
+                      >
+                        <Columns2 className="mr-1.5 h-3.5 w-3.5" />
+                        Comparar
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground h-8"
+                      onClick={() => setBuildId((b) => b + 1)}
+                    >
+                      <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+                      Reconstruir
+                    </Button>
+                  </div>
                 )}
               </div>
 
               {/* canvas */}
               <div className="relative aspect-[4/3] sm:aspect-[16/11] bg-blueprint-fine">
                 {status === "built" && result ? (
+                  compareView && sourceImage ? (
+                    <div className="absolute inset-0 grid grid-cols-2 gap-px bg-border">
+                      <div className="relative bg-ink overflow-hidden">
+                        <img src={sourceImage} alt="Imagen fuente" className="h-full w-full object-cover" />
+                        <div className="absolute top-2 left-2 rounded-md border border-border bg-ink/80 px-2 py-1 backdrop-blur">
+                          <span className="label-mono text-[0.6rem] text-foreground">fuente</span>
+                        </div>
+                      </div>
+                      <div className="relative bg-blueprint-fine">
+                        <LegoScene3D
+                          model={result.blueprint}
+                          buildId={buildId}
+                          className="absolute inset-0 h-full w-full"
+                          maxDelay={2600}
+                          autoRotate={autoRotate}
+                        />
+                        <div className="absolute top-2 left-2 rounded-md border border-border bg-ink/80 px-2 py-1 backdrop-blur">
+                          <span className="label-mono text-[0.6rem] text-signal">modelo 3D</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
                   <LegoScene3D
                     model={result.blueprint}
                     buildId={buildId}
@@ -913,6 +994,7 @@ export function BuilderStudio() {
                     maxDelay={2600}
                     autoRotate={autoRotate}
                   />
+                  )
                 ) : status === "analyzing" ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                     <div className="flex gap-1.5">
@@ -1057,6 +1139,56 @@ export function BuilderStudio() {
                   </div>
                 </div>
 
+                {/* Custom color picker */}
+                <div className="mt-4 rounded-xl border border-border bg-ink-3/30 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <PaletteIcon className="h-3.5 w-3.5 text-signal" />
+                      <span className="label-mono text-muted-foreground">
+                        Colores de bloques
+                      </span>
+                      {customColors && (
+                        <Badge variant="outline" className="border-signal/40 text-signal text-[0.6rem] py-0">
+                          personalizada
+                        </Badge>
+                      )}
+                    </div>
+                    {customColors && (
+                      <button
+                        onClick={resetCustomColors}
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        Restablecer
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-2.5 flex flex-wrap gap-2">
+                    {(customColors ?? PALETTE_SETS[paletteName] ?? PALETTE_SETS.classic).map((c, i) => (
+                      <label
+                        key={i}
+                        className="group relative cursor-pointer"
+                        title={`Color ${i + 1}: ${c}`}
+                      >
+                        <span
+                          className="block h-9 w-9 rounded-lg ring-hairline transition-transform group-hover:scale-110"
+                          style={{ backgroundColor: c }}
+                        />
+                        <input
+                          type="color"
+                          value={c}
+                          onChange={(e) => onCustomColorChange(i, e.target.value)}
+                          className="absolute inset-0 cursor-pointer opacity-0"
+                          aria-label={`Cambiar color ${i + 1}`}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Toca cualquier color para personalizarlo. Los cambios se aplican al instante.
+                  </p>
+                </div>
+
                 <div className="mt-4 flex flex-col gap-2">
                   <div className="flex flex-col sm:flex-row gap-2">
                     <Button
@@ -1108,6 +1240,23 @@ export function BuilderStudio() {
                       Copiar JSON
                     </Button>
                   </div>
+                </div>
+
+                {/* Keyboard shortcuts hint */}
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-border pt-3">
+                  <span className="label-mono text-muted-foreground">Atajos</span>
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <kbd className="rounded border border-border bg-ink-3 px-1.5 py-0.5 font-mono text-[0.65rem] text-foreground">R</kbd>
+                    reconstruir
+                  </span>
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <kbd className="rounded border border-border bg-ink-3 px-1.5 py-0.5 font-mono text-[0.65rem] text-foreground">C</kbd>
+                    comparar
+                  </span>
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <kbd className="rounded border border-border bg-ink-3 px-1.5 py-0.5 font-mono text-[0.65rem] text-foreground">Espacio</kbd>
+                    rotación
+                  </span>
                 </div>
               </motion.div>
             )}

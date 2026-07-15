@@ -1,0 +1,51 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(244,241,234,0.05)" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(232,84,42,0.25)"/>
+      <stop offset="100%" stop-color="rgba(232,84,42,0)"/>
+    </radialGradient>
+  </defs>
+  <!-- background -->
+  <rect width="1200" height="630" fill="#0B0D10"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <circle cx="900" cy="315" r="400" fill="url(#glow)"/>
+
+  <!-- logo studs -->
+  <g transform="translate(80, 80)">
+    <rect x="0" y="0" width="56" height="56" rx="12" fill="#11141A" stroke="rgba(244,241,234,0.16)" stroke-width="1"/>
+    <circle cx="18" cy="18" r="5.5" fill="#E8542A"/>
+    <circle cx="38" cy="18" r="5.5" fill="#F5B82E"/>
+    <circle cx="18" cy="38" r="5.5" fill="#1E5AA8"/>
+    <circle cx="38" cy="38" r="5.5" fill="#2E8B57"/>
+    <text x="72" y="38" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#F4F1EA" letter-spacing="-1">BLOQE</text>
+  </g>
+
+  <!-- headline -->
+  <text x="80" y="320" font-family="Arial, sans-serif" font-size="64" font-weight="900" fill="#F4F1EA" letter-spacing="-2">Construimos con</text>
+  <text x="80" y="400" font-family="Arial, sans-serif" font-size="64" font-weight="900" fill="#E8542A" letter-spacing="-2">bloques modulares.</text>
+
+  <!-- subheadline -->
+  <text x="80" y="460" font-family="Arial, sans-serif" font-size="24" font-weight="400" fill="rgba(244,241,234,0.6)">Imagen → Análisis IA → Modelo 3D → Obra</text>
+
+  <!-- bottom metrics -->
+  <g transform="translate(80, 520)">
+    <text x="0" y="0" font-family="monospace" font-size="14" font-weight="500" fill="rgba(244,241,234,0.4)" letter-spacing="3">240+ OBRAS · 1.8M BLOQUES · 12 CIUDADES</text>
+  </g>
+
+  <!-- decorative bricks right side -->
+  <g transform="translate(820, 180)">
+    <!-- tower of bricks -->
+    <rect x="40" y="200" width="120" height="48" rx="4" fill="#C8281C"/>
+    <rect x="40" y="148" width="120" height="48" rx="4" fill="#F5B82E"/>
+    <rect x="50" y="96" width="100" height="48" rx="4" fill="#1E5AA8"/>
+    <rect x="60" y="44" width="80" height="48" rx="4" fill="#2E8B57"/>
+    <rect x="90" y="0" width="20" height="40" rx="4" fill="#E8542A"/>
+    <!-- studs on top brick -->
+    <circle cx="70" cy="168" r="6" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="100" cy="168" r="6" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="130" cy="168" r="6" fill="rgba(255,255,255,0.3)"/>
+  </g>
+</svg>

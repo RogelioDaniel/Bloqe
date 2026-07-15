@@ -35,18 +35,25 @@ export const metadata: Metadata = {
     "ingeniería",
   ],
   authors: [{ name: "BLOQE Constructora Modular" }],
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   openGraph: {
     title: "BLOQE — Constructora Modular",
     description:
       "Transformamos imágenes de obras en modelos 3D de bloques modulares y los construimos.",
     siteName: "BLOQE",
     type: "website",
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "BLOQE — Constructora Modular" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "BLOQE — Constructora Modular",
     description:
       "Transformamos imágenes de obras en modelos 3D de bloques modulares y los construimos.",
+    images: ["/og-image.svg"],
   },
 };
 
