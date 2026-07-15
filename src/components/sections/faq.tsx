@@ -16,28 +16,28 @@ interface QA {
 
 const FAQS: QA[] = [
   {
-    q: "¿Por qué presentan los proyectos con bloques tipo LEGO?",
-    a: "Es nuestra manera de mostrarte la obra antes de construirla. La maqueta de bloques deja ver volúmenes, niveles y fachadas de forma clara — sin planos difíciles de leer. Y refleja cómo trabajamos: por etapas y por piezas, sin sorpresas.",
+    q: "¿A partir de qué edad reciben niños?",
+    a: "Recibimos niños desde los 3 hasta los 6 años, divididos en tres niveles: párvulos (3-4), intermedio (4-5) y preescolar (5-6). Cada grupo tiene su aula y sus maestras tituladas en educación inicial.",
   },
   {
-    q: "¿La obra se construye con bloques de juguete?",
-    a: "No. La maqueta es de bloques; la obra es construcción real: concreto, acero, block, instalaciones y acabados con proveedores certificados. Los bloques son la forma de presentarte y dar seguimiento al proyecto.",
+    q: "¿Qué método pedagógico utilizan?",
+    a: "Trabajamos por proyectos y aprendizaje basado en el juego. Los niños aprenden matemáticas, lenguaje, ciencias y arte explorando, construyendo y preguntando. No hay hojas de trabajo aburridas: todo es aprendizaje vivencial.",
   },
   {
-    q: "¿Qué tipo de obras hacen?",
-    a: "Casas desde cero, remodelaciones y ampliaciones, locales comerciales, oficinas y naves industriales. También proyectos de diseño arquitectónico si aún no tienes planos.",
+    q: "¿Cómo manejan la adaptación los primeros días?",
+    a: "Cada niño tiene su propio ritmo. Hacemos una adaptación gradual: los primeros días son cortos y acompañados por un familiar. Las maestras te mantienen informada en todo momento hasta que tu hijo se sienta seguro y contento.",
   },
   {
-    q: "¿Cuánto tarda una obra?",
-    a: "Depende del proyecto: una remodelación media toma de 6 a 12 semanas; una casa nueva, de 6 a 9 meses. En el paso de diseño te damos un calendario por etapas y lo respetamos por contrato.",
+    q: "¿Qué horarios manejan y hay servicio de alimentos?",
+    a: "Tenemos horario extendido de 7:30 a 15:30, con opción a estancia de tarde hasta las 18:00. Ofrecemos desayuno y comida con menú diseñado por nutrióloga, adaptado a alergias y necesidades especiales.",
   },
   {
-    q: "¿Trabajan fuera de CDMX?",
-    a: "Sí. Tenemos presencia en 12 ciudades y aliados en todo el país. La primera visita es sin costo en zona metropolitana.",
+    q: "¿Cuál es la ratio de maestros por niño?",
+    a: "Mantenemos grupos pequeños con una ratio de 1 maestra por cada 8 niños, garantizando atención personalizada. Cada grupo cuenta además con una asistente para apoyar en rutinas y cuidados.",
   },
   {
-    q: "¿Qué garantía ofrecen?",
-    a: "10 años en estructura y 2 años en acabados, por escrito en el contrato. Además, programa de mantenimiento anual opcional.",
+    q: "¿Qué medidas de seguridad tienen?",
+    a: "Las instalaciones están diseñadas con materiales no tóxicos, esquinas protegidas y acceso controlado. Solo personas autorizadas pueden recoger al niño, y contamos con personal capacitado en primeros auxilios.",
   },
 ];
 
@@ -59,7 +59,7 @@ export function FAQ() {
           >
             <span className="label-mono text-signal">Dudas frecuentes</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98] text-foreground">
-              Lo que nos preguntan antes de construir.
+              Lo que más preguntan las familias.
             </h2>
             <p className="mt-5 max-w-md text-base text-muted-foreground leading-relaxed text-pretty">
               Las seis preguntas que aparecen en cada primera llamada. Si la

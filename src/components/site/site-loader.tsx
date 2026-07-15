@@ -32,26 +32,53 @@ const LETTERS = [
 const LOADER_LABELS: Record<StructureType, string> = {
   tower: "torre",
   skyscraper: "rascacielos",
-  house: "casa",
+  house: "casita",
   bridge: "puente",
-  pavilion: "pabellón",
+  pavilion: "foro",
+  castle: "castillo",
+  schoolhouse: "escuelita",
+  abc: "abecedario",
+  playground: "juegos",
 };
 
 /** Cada carga construye una obra distinta. */
 function randomModel(): { model: VoxelModel; label: string } {
   const r = Math.random;
   const pick = <T,>(arr: T[]) => arr[Math.floor(r() * arr.length)];
-  const palette = PALETTE_SETS[pick(Object.keys(PALETTE_SETS))];
+  // Paletas infantiles para el loader
+  const kidPalettes = ["candy", "rainbow", "storybook", "classic"];
+  const paletteKey = pick(kidPalettes);
+  const palette = PALETTE_SETS[paletteKey] ?? PALETTE_SETS.classic;
   const type = pick<StructureType>([
-    "tower",
+    "castle",
+    "schoolhouse",
+    "abc",
+    "playground",
     "house",
-    "skyscraper",
-    "pavilion",
-    "bridge",
   ]);
 
   let model: VoxelModel;
   switch (type) {
+    case "castle":
+      model = generateBuilding("castle", palette, {
+        width: 8 + Math.floor(r() * 2),
+        depth: 8,
+        floors: 5,
+      });
+      break;
+    case "schoolhouse":
+      model = generateBuilding("schoolhouse", palette, {
+        width: 8,
+        depth: 6,
+        floors: 4,
+      });
+      break;
+    case "abc":
+      model = generateBuilding("abc", palette, { floors: 10 + Math.floor(r() * 3) });
+      break;
+    case "playground":
+      model = generateBuilding("playground", palette, { width: 10, depth: 8 });
+      break;
     case "house":
       model = generateBuilding("house", palette, {
         width: 7 + Math.floor(r() * 3),
@@ -59,30 +86,8 @@ function randomModel(): { model: VoxelModel; label: string } {
         floors: 3,
       });
       break;
-    case "skyscraper":
-      model = generateBuilding("skyscraper", palette, {
-        width: 5,
-        depth: 5,
-        floors: 8 + Math.floor(r() * 3),
-      });
-      break;
-    case "pavilion":
-      model = generateBuilding("pavilion", palette, {
-        width: 6 + Math.floor(r() * 3),
-        depth: 6,
-      });
-      break;
-    case "bridge":
-      model = generateBuilding("bridge", palette, {
-        width: 9 + Math.floor(r() * 4),
-      });
-      break;
     default:
-      model = generateBuilding("tower", palette, {
-        floors: 4 + Math.floor(r() * 4),
-        width: 4 + Math.floor(r() * 2),
-        depth: 4,
-      });
+      model = generateBuilding("castle", palette, { floors: 5, width: 9, depth: 9 });
   }
   return { model, label: LOADER_LABELS[type] };
 }
@@ -133,7 +138,7 @@ export function SiteLoader() {
         <motion.div
           key="site-loader"
           role="status"
-          aria-label="Construyendo el sitio"
+              aria-label="Armando el sitio"
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink bg-blueprint-fine"
           exit={{ y: "-100%" }}
           transition={{ duration: 0.65, ease: [0.65, 0, 0.35, 1] }}
@@ -162,7 +167,7 @@ export function SiteLoader() {
             </div>
             {build && (
               <span className="label-mono mt-3 text-muted-foreground">
-                obra aleatoria · {build.label}
+                armamos algo nuevo · {build.label}
               </span>
             )}
 
@@ -187,7 +192,7 @@ export function SiteLoader() {
             <div className="mt-8 w-56 sm:w-64">
               <div className="flex items-baseline justify-between">
                 <span className="label-mono text-muted-foreground">
-                  colocando bloques
+                  armando bloques
                 </span>
                 <span className="font-mono text-sm text-signal tabular-nums">
                   {progress}%

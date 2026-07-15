@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/sheet";
 
 const NAV = [
-  { label: "Servicios", href: "#servicios" },
+  { label: "Programas", href: "#servicios" },
   { label: "Proceso", href: "#proceso" },
-  { label: "Proyectos", href: "#proyectos" },
+  { label: "Espacios", href: "#espacios" },
   { label: "Preguntas", href: "#faq" },
   { label: "Contacto", href: "#contacto" },
   { label: "Lab", href: "/lab" },
@@ -47,7 +47,7 @@ export function SiteHeader() {
           <a
             href="#top"
             className="flex items-center gap-2 rounded-md"
-            aria-label="BLOQE — inicio"
+            aria-label="BLOQE Escuela — inicio"
           >
             <Logo size={30} />
           </a>
@@ -72,7 +72,7 @@ export function SiteHeader() {
               className="btn-brick font-round bg-signal text-signal-foreground hover:bg-signal-2"
             >
               <BrickLink href="#contacto">
-                Cotizar mi obra
+                Agendar visita
                 <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
               </BrickLink>
             </Button>
@@ -126,7 +126,7 @@ export function SiteHeader() {
                     className="btn-brick font-round w-full h-12 bg-signal text-signal-foreground hover:bg-signal-2"
                   >
                     <BrickLink href="#contacto" onClick={() => setOpen(false)}>
-                      Cotizar mi obra
+                      Agendar visita
                     </BrickLink>
                   </Button>
                 </div>

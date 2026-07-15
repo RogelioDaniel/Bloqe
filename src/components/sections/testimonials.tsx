@@ -14,26 +14,26 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     quote:
-      "Aprobamos el proyecto en una tarde: la maqueta de bloques deja ver la obra completa sin saber leer planos. En obra, cero discusiones.",
+      "Mi hija lloraba al despedirse y ahora corre para entrar. La adaptación fue tan dulce que al segundo mes ya no quería irse. Aquí aprendió a querer la escuela.",
     name: "Mariana Téllez",
-    role: "Directora de obra",
-    company: "Estudio Téllez Arquitectos",
+    role: "Mamá de Sofía · 4 años",
+    company: "Grupo Párvulos",
     studColors: ["#c8281c", "#f5b82e", "#1e5aa8", "#2e8b57"],
   },
   {
     quote:
-      "La maqueta de bloques convirtió una negociación de tres meses en una sola reunión. El cliente vio exactamente lo que iba a recibir.",
+      "Lo que más valoro es la comunicación: cada día sé cómo le fue, qué hizo y qué aprendió. Como papá, esa tranquilidad no tiene precio.",
     name: "Joaquín Rebollar",
-    role: "Desarrollador inmobiliario",
-    company: "Grupo Rebollar",
+    role: "Papá de Mateo · 5 años",
+    company: "Familia Rebollar",
     studColors: ["#2e8b57", "#f5b82e", "#c8281c", "#1e5aa8"],
   },
   {
     quote:
-      "Llevamos dos remodelaciones con BLOQE. Presupuesto pieza por pieza y reportes semanales: siempre supimos qué se hizo y qué costó.",
+      "Los dos hijos pasaron por BLOQE. Salieron leyendo, seguros y curiosos. La base que les dieron aquí se nota hasta hoy en primaria.",
     name: "Paula Coss y León",
-    role: "Asset manager",
-    company: "Inmobiliaria Polarix",
+    role: "Mamá de dos egresados",
+    company: "Familia Coss",
     studColors: ["#1e5aa8", "#2e8b57", "#f5b82e", "#c8281c"],
   },
 ];
@@ -71,9 +71,9 @@ export function Testimonials() {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5 }}
           >
-            <span className="label-mono text-signal">Clientes</span>
+            <span className="label-mono text-signal">Familias</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98] text-foreground">
-              Lo que dicen quienes ya construyen con bloques.
+              Lo que dicen las familias que ya crecen con nosotros.
             </h2>
           </motion.div>
         </div>

@@ -2,45 +2,45 @@
 
 import { useEffect, useRef, useState } from "react";
 import { animate, motion, useInView } from "framer-motion";
-import { Building2, Boxes, MapPin, ShieldCheck } from "lucide-react";
+import { Heart, Users, BookOpen, Smile, type LucideIcon } from "lucide-react";
 
 interface Stat {
   to: number;
   format: (n: number) => string;
   label: string;
-  icon: typeof Building2;
+  icon: LucideIcon;
   /** Target fill (0–1) for the decorative progress bar. */
   progress: number;
 }
 
 const STATS: Stat[] = [
   {
-    to: 240,
-    format: (n) => `${Math.round(n)}+`,
-    label: "obras entregadas",
-    icon: Building2,
-    progress: 0.82,
-  },
-  {
-    to: 480,
-    format: (n) => `${Math.round(n)}K`,
-    label: "m² construidos",
-    icon: Boxes,
-    progress: 0.68,
-  },
-  {
     to: 12,
-    format: (n) => Math.round(n).toString(),
-    label: "ciudades activas",
-    icon: MapPin,
-    progress: 0.45,
+    format: (n) => `${Math.round(n)}+`,
+    label: "años formando niños",
+    icon: Heart,
+    progress: 1,
   },
   {
-    to: 10,
+    to: 850,
+    format: (n) => `${Math.round(n)}+`,
+    label: "niños egresados",
+    icon: Smile,
+    progress: 0.78,
+  },
+  {
+    to: 8,
+    format: (n) => `${Math.round(n)}:1`,
+    label: "ratio maestro-niño",
+    icon: Users,
+    progress: 0.55,
+  },
+  {
+    to: 6,
     format: (n) => Math.round(n).toString(),
-    label: "años de garantía",
-    icon: ShieldCheck,
-    progress: 1,
+    label: "idiomas y talleres",
+    icon: BookOpen,
+    progress: 0.72,
   },
 ];
 
@@ -81,7 +81,7 @@ function Counter({ stat }: { stat: Stat }) {
 export function Stats() {
   return (
     <section
-      aria-label="Métricas de BLOQE"
+      aria-label="Métricas de BLOQE Escuela"
       className="relative overflow-hidden border-t-2 border-signal bg-ink-2 bg-baseplate bg-grain py-16 sm:py-20"
     >
       {/* Floating LEGO studs motif (decorative, low opacity) */}
@@ -126,7 +126,7 @@ export function Stats() {
           <div className="flex items-center gap-3">
             <span className="h-2 w-2 rounded-full bg-signal" aria-hidden />
             <span className="label-mono text-muted-foreground">
-              constructora · resultados a la fecha
+              escuela · resultados a la fecha
             </span>
           </div>
           <span className="label-mono text-muted-foreground">

@@ -532,10 +532,6 @@ function genCastle(palette: string[], w = 9, d = 9, walls = 5): VoxelModel {
     // techo cónico (pirámide de 2 niveles)
     grid[cx][1 + towerH][cz] = { color: roof };
     grid[cx][1 + towerH + 1][cz] = { color: shade(roof, 0.9) };
-    // banderín en la torre frontal-izquierda
-    if (cx === 0 && cz === 0) {
-      grid[cx][1 + towerH + 2] === undefined;
-    }
   }
 
   // bandera central sobre el cuerpo
@@ -726,7 +722,7 @@ function genPlayground(palette: string[], w = 10, d = 8): VoxelModel {
   return finalize("playground", palette, grid, [w, totalH, d]);
 }
 
-
+function finalize(
   structureType: StructureType,
   palette: string[],
   grid: (VoxelCell | null)[][][],

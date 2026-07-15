@@ -3,14 +3,14 @@
 import { Hexagon } from "lucide-react";
 
 const ITEMS = [
-  "Obra nueva",
-  "Remodelación",
-  "Diseño arquitectónico",
-  "Maqueta de bloques incluida",
-  "Presupuesto sin sorpresas",
-  "240+ obras entregadas",
-  "Entrega a tiempo",
-  "Garantía 10 años",
+  "Educación lúdica",
+  "Inglés diario",
+  "Taller de bloques y robótica",
+  "Arte y música",
+  "Grupos reducidos",
+  "Ratio 1:8",
+  "Adaptación gradual",
+  "Espacios seguros",
 ];
 
 export function Marquee() {

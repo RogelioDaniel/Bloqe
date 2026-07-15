@@ -7,22 +7,22 @@ const COLS = [
   {
     title: "Navegación",
     links: [
-      { label: "Servicios", href: "#servicios" },
+      { label: "Programas", href: "#servicios" },
       { label: "Proceso", href: "#proceso" },
-      { label: "Proyectos", href: "#proyectos" },
+      { label: "Espacios", href: "#espacios" },
       { label: "Preguntas", href: "#faq" },
       { label: "Contacto", href: "#contacto" },
       { label: "Laboratorio de bloques", href: "/lab" },
     ],
   },
   {
-    title: "Servicios",
+    title: "Programas",
     links: [
-      { label: "Obra nueva", href: "#servicios" },
-      { label: "Construcción comercial", href: "#servicios" },
-      { label: "Remodelación", href: "#servicios" },
-      { label: "Diseño arquitectónico", href: "#servicios" },
-      { label: "Mantenimiento", href: "#servicios" },
+      { label: "Párvulos · 3-4 años", href: "#servicios" },
+      { label: "Intermedio · 4-5 años", href: "#servicios" },
+      { label: "Preescolar · 5-6 años", href: "#servicios" },
+      { label: "Taller de bloques", href: "#servicios" },
+      { label: "Inglés y música", href: "#servicios" },
     ],
   },
 ];
@@ -36,9 +36,9 @@ export function SiteFooter() {
           <div className="lg:col-span-5">
             <Logo size={32} />
             <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed">
-              Constructora. Casas, locales, remodelaciones y obra comercial.
-              Cada proyecto se presenta como una maqueta de bloques antes de
-              construirse — para que veas tu obra pieza por pieza.
+              Escuela de educación inicial para niños de 3 a 6 años.
+              Aprendizaje lúdico con bloques, arte, música e inglés en espacios
+              diseñados para descubrir y crecer — pieza por pieza.
             </p>
             <div className="mt-6 space-y-2 text-sm">
               <div className="flex items-center gap-2.5 text-muted-foreground">
@@ -79,16 +79,16 @@ export function SiteFooter() {
           <div className="lg:col-span-3">
             <div className="rounded-xl border border-border bg-ink-2/60 p-5">
               <h3 className="font-display text-lg font-bold tracking-tight">
-                ¿Tienes una obra en mente?
+                ¿Buscas escuela para tu hijo?
               </h3>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Cuéntanos tu proyecto y te respondemos en 24 horas hábiles.
+                Agenda una visita y te respondemos en 24 horas hábiles.
               </p>
               <a
                 href="#contacto"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-signal hover:text-signal-2 transition-colors"
               >
-                Cotizar mi obra
+                Agendar una visita
                 <ArrowUpRight className="h-4 w-4" />
               </a>
             </div>
@@ -97,8 +97,8 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-border pt-6">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} BLOQE Constructora. Construido con
-            bloques, no con plantillas.
+            © {new Date().getFullYear()} BLOQE Escuela de Educación Inicial.
+            Construido con bloques, no con plantillas.
           </p>
           <div className="flex items-center gap-5 text-xs text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-colors">

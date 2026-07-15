@@ -21,9 +21,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const INTENTS = [
-  { value: "quote", label: "Cotizar obra" },
-  { value: "partnership", label: "Alianza" },
-  { value: "visit", label: "Visita obra" },
+  { value: "quote", label: "Agendar visita" },
+  { value: "partnership", label: "Información" },
+  { value: "visit", label: "Lista de espera" },
   { value: "general", label: "Otro" },
 ] as const;
 
@@ -44,16 +44,16 @@ const contactSchema = z.object({
 // The backend (POST /api/contact) accepts intents: general | quote | partnership.
 // "visit" is a UI-only intent — map it to "general" and flag it in the message.
 const INTENT_LABEL: Record<ContactValues["intent"], string> = {
-  quote: "Cotizar obra",
-  partnership: "Alianza",
-  visit: "Visita a obra",
+  quote: "Agendar visita",
+  partnership: "Información",
+  visit: "Lista de espera",
   general: "Otro",
 };
 
 type ContactValues = z.infer<typeof contactSchema>;
 
 const CONTACT_DETAILS = [
-  { icon: MapPin, label: "Oficina", value: "Av. Insurgentes 1245, CDMX" },
+  { icon: MapPin, label: "Escuela", value: "Av. Insurgentes 1245, CDMX" },
   { icon: Mail, label: "Correo", value: "hola@bloqe.mx", href: "mailto:hola@bloqe.mx" },
   { icon: Phone, label: "Teléfono", value: "+52 55 8472 9900", href: "tel:+525584729900" },
 ];
@@ -99,7 +99,7 @@ export function Contact() {
       }
       toast.success("Solicitud enviada", {
         description:
-          "Te respondemos en menos de 24 horas hábiles. Revisa también tu carpeta de promociones.",
+          "Te respondemos en menos de 24 horas hábiles para agendar tu visita. Revisa también tu carpeta de promociones.",
       });
       form.reset();
     } catch (err) {
@@ -127,11 +127,11 @@ export function Contact() {
           >
             <span className="label-mono text-signal">Contacto</span>
             <h2 className="mt-4 font-display font-extrabold tracking-tight text-balance text-[clamp(2rem,4.4vw,3.4rem)] leading-[0.98]">
-              Cotiza tu obra.
+              Agenda tu visita.
             </h2>
             <p className="mt-5 max-w-md text-lg text-muted-foreground text-pretty leading-relaxed">
-              Cuéntanos qué tienes en mente. Te devolvemos un blueprint
-              cotizable en la primera sesión, sin compromiso.
+              Cuéntanos sobre tu hijo y tu familia. Te agendamos una visita
+              guiada para conocer la escuela juntos, sin compromiso.
             </p>
 
             {/* Intent pills */}
@@ -201,10 +201,10 @@ export function Contact() {
             </div>
 
             <a
-              href="#proyectos"
+              href="#espacios"
               className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-signal link-signal"
             >
-              ¿Prefieres ver obras entregadas primero?
+              ¿Prefieres ver los espacios primero?
               <ArrowUpRight className="h-4 w-4" />
             </a>
           </motion.div>
@@ -230,7 +230,7 @@ export function Contact() {
                   </Label>
                   <Input
                     id="contact-name"
-                    placeholder="Tu nombre"
+                    placeholder="Tu nombre o el de tu hijo"
                     autoComplete="name"
                     aria-invalid={!!formState.errors.name}
                     {...register("name")}
@@ -324,7 +324,7 @@ export function Contact() {
                 <Textarea
                   id="contact-message"
                   rows={5}
-                  placeholder="Cuéntanos sobre la obra: ubicación, m2 aproximados, tiempos, referencia visual si la tienes."
+                  placeholder="Cuéntanos sobre tu hijo: su nombre, edad, lo que buscan para él y cualquier pregunta que tengas."
                   aria-invalid={!!formState.errors.message}
                   {...register("message")}
                 />

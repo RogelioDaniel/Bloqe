@@ -40,7 +40,7 @@ const STEPS: Step[] = [
     number: "03",
     title: "Inscripción",
     description:
-      "Reservamos el lugar, entregamos la documentación y te platicamos sobre la适应性 del niño a su nuevo grupo. Todo claro, por escrito.",
+      "Reservamos el lugar, entregamos la documentación y te platicamos sobre la adaptación del niño a su nuevo grupo. Todo claro, por escrito.",
     detail: "cupos limitados por grupo",
     icon: ClipboardCheck,
   },

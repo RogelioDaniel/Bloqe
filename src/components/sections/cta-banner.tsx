@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Boxes } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrickLink } from "@/components/site/brick-transition";
 
@@ -56,21 +56,21 @@ export function CtaBanner() {
           transition={{ duration: 0.6 }}
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-ink-2/60 px-3 py-1.5 backdrop-blur">
-            <Boxes className="h-3.5 w-3.5 text-signal" />
+            <Sparkles className="h-3.5 w-3.5 text-signal" />
             <span className="label-mono text-muted-foreground">
-              ¿Listo para construir?
+              ¿Lista su familia?
             </span>
           </div>
 
           <h2 className="mt-6 font-display font-extrabold tracking-tight text-balance text-[clamp(2.2rem,5.5vw,4rem)] leading-[0.95]">
-            Tu próxima obra{" "}
-            <span className="text-signal">empieza con un bloque.</span>
+            El primer bloque de su futuro{" "}
+            <span className="text-signal">empieza aquí.</span>
           </h2>
 
           <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground text-pretty leading-relaxed">
-            Cuéntanos qué quieres construir. Te visitamos sin costo, diseñamos
-            tu proyecto con su maqueta de bloques y te damos un presupuesto
-            cerrado, pieza por pieza.
+            Agenda una visita y conoce la escuela con tu hijo. Te mostramos los
+            espacios, el método y respondemos todas tus dudas. Sin costo y sin
+            compromiso.
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -80,7 +80,7 @@ export function CtaBanner() {
               className="btn-brick font-round bg-signal text-signal-foreground hover:bg-signal-2 h-12 px-7 text-base"
             >
               <BrickLink href="#contacto">
-                Cotizar mi obra
+                Agendar una visita
                 <ArrowUpRight className="ml-2 h-4 w-4" />
               </BrickLink>
             </Button>
@@ -90,7 +90,7 @@ export function CtaBanner() {
               variant="outline"
               className="brick-press font-round rounded-lg h-12 px-7 text-base border-border bg-ink-2/40 hover:bg-ink-3"
             >
-              <BrickLink href="#proyectos">Ver obras entregadas</BrickLink>
+              <BrickLink href="#espacios">Ver los espacios</BrickLink>
             </Button>
           </div>
 
