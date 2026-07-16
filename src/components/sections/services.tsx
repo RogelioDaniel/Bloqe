@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   type LucideIcon,
 } from "lucide-react";
+import { BuildReveal, BuildBlock } from "@/components/site/build-reveal";
 import { BrickLink } from "@/components/site/brick-transition";
 import { LegoModel } from "@/components/lego/lego-model";
 import {
@@ -127,8 +128,8 @@ export function Services() {
           </motion.div>
         </div>
 
-        {/* Bento grid */}
-        <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
+        {/* Bento grid — se ensambla como bloques al entrar en viewport */}
+        <BuildReveal className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
           {SERVICES.map((service, i) => {
             const Icon = service.icon;
 
@@ -196,12 +197,8 @@ export function Services() {
             }
 
             return (
-              <motion.article
+              <BuildBlock
                 key={service.title}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.55, delay: i * 0.05 }}
                 className="group card-brick relative flex flex-col rounded-2xl border border-border bg-ink-2/50 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-signal/40"
               >
                 <div className="flex items-center justify-between">
@@ -219,10 +216,10 @@ export function Services() {
                   {service.description}
                 </p>
                 <StudRow className="mt-5" />
-              </motion.article>
+              </BuildBlock>
             );
           })}
-        </div>
+        </BuildReveal>
       </div>
     </section>
   );

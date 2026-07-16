@@ -161,6 +161,9 @@ export function BrickTransition() {
 
     timeouts.current.forEach(clearTimeout);
     timeouts.current = [];
+    // Forzamos scroll instantáneo durante TODA la transición para que
+    // el salto al destino no se anime (el CSS global tiene smooth).
+    document.documentElement.classList.add("no-smooth-scroll");
     setWall({ grid: buildWall(direction), phase: "in", direction });
 
     // 1) El muro termina de cubrir la pantalla por completo.
@@ -178,7 +181,10 @@ export function BrickTransition() {
         setWall((w) => (w ? { ...w, phase: "out" } : w));
       }, IN_MS + HOLD_MS),
       // El muro termina de caer y se quita.
-      setTimeout(() => setWall(null), IN_MS + HOLD_MS + OUT_MS)
+      setTimeout(() => {
+        setWall(null);
+        document.documentElement.classList.remove("no-smooth-scroll");
+      }, IN_MS + HOLD_MS + OUT_MS)
     );
   }, [pending, jumpTo]);
 
@@ -192,7 +198,13 @@ export function BrickTransition() {
     };
   }, [wall]);
 
-  useEffect(() => () => timeouts.current.forEach(clearTimeout), []);
+  useEffect(
+    () => () => {
+      timeouts.current.forEach(clearTimeout);
+      document.documentElement.classList.remove("no-smooth-scroll");
+    },
+    []
+  );
 
   if (!wall) return null;
 

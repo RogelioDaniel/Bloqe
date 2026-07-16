@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   MessagesSquare,
@@ -10,6 +11,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrickLink } from "@/components/site/brick-transition";
+import { LegoModel } from "@/components/lego/lego-model";
+import {
+  generateBuilding,
+  PALETTE_SETS,
+  type StructureType,
+  type VoxelModel,
+} from "@/lib/lego";
 
 interface Step {
   number: string;
@@ -17,6 +25,9 @@ interface Step {
   description: string;
   detail: string;
   icon: LucideIcon;
+  /** Modelo 3D que representa esta etapa de "construcción". */
+  structureType: StructureType;
+  structureOpts: { floors?: number; width?: number; depth?: number };
 }
 
 const STEPS: Step[] = [
@@ -27,6 +38,9 @@ const STEPS: Step[] = [
       "Una llamada o mensaje para contarnos sobre tu hijo: su edad, sus intereses y lo que buscan como familia. Te respondemos todas tus dudas.",
     detail: "respuesta en 24 h",
     icon: MessagesSquare,
+    // Bloques base: los primeros cimientos.
+    structureType: "tower",
+    structureOpts: { floors: 2, width: 3, depth: 3 },
   },
   {
     number: "02",
@@ -35,6 +49,9 @@ const STEPS: Step[] = [
       "Conoces la escuela y los espacios con tu hijo. Vemos juntos las aulas, el patio y el método. La primera visita es sin costo.",
     detail: "visita sin costo",
     icon: CalendarHeart,
+    // La estructura empieza a tomar forma.
+    structureType: "house",
+    structureOpts: { floors: 2, width: 5, depth: 4 },
   },
   {
     number: "03",
@@ -43,6 +60,9 @@ const STEPS: Step[] = [
       "Reservamos el lugar, entregamos la documentación y te platicamos sobre la adaptación del niño a su nuevo grupo. Todo claro, por escrito.",
     detail: "cupos limitados por grupo",
     icon: ClipboardCheck,
+    // La escuela está casi lista.
+    structureType: "schoolhouse",
+    structureOpts: { floors: 3, width: 6, depth: 5 },
   },
   {
     number: "04",
@@ -51,8 +71,39 @@ const STEPS: Step[] = [
       "Acompañamos la adaptación con mucho cariño: periodo de adaptación gradual, reportes diarios y comunicación cercana con la familia.",
     detail: "adaptación gradual",
     icon: HeartHandshake,
+    // ¡Construcción completa! El castillo del niño.
+    structureType: "castle",
+    structureOpts: { floors: 4, width: 7, depth: 7 },
   },
 ];
+
+function StepModel({ step }: { step: Step }) {
+  const model: VoxelModel = useMemo(
+    () =>
+      generateBuilding(
+        step.structureType,
+        PALETTE_SETS.storybook,
+        step.structureOpts
+      ),
+    [step]
+  );
+  return (
+    <div className="relative h-32 w-full overflow-hidden rounded-lg border border-border bg-blueprint-fine">
+      <LegoModel
+        model={model}
+        className="absolute inset-0 h-full w-full p-2"
+        maxDelay={900}
+        float
+        ariaLabel={`Construcción de bloques: ${step.title}`}
+      />
+      <div className="pointer-events-none absolute bottom-1.5 left-1.5 rounded border border-border bg-ink/70 px-1.5 py-0.5 backdrop-blur">
+        <span className="label-mono text-muted-foreground">
+          etapa · {model.metrics.blockCount} bloques
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export function Process() {
   return (
@@ -149,6 +200,11 @@ export function Process() {
                       <span className="font-mono text-xs text-muted-foreground">
                         {step.detail}
                       </span>
+                    </div>
+                    {/* Maqueta de bloques que representa esta etapa de
+                        construcción: crece paso a paso. */}
+                    <div className="mt-5 max-w-xs md:max-w-none">
+                      <StepModel step={step} />
                     </div>
                   </div>
                 </motion.li>

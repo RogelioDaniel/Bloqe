@@ -172,6 +172,14 @@
     -webkit-text-size-adjust: 100%;
     overflow-x: hidden;
   }
+  /* Durante la transición del muro de bloques, forzamos scroll
+     instantáneo para que NO se vea el desplazamiento suave hacia la
+     sección destino (debe estar oculto tras el muro). */
+  html.no-smooth-scroll,
+  html.no-smooth-scroll body {
+    scroll-behavior: auto !important;
+    scroll-padding-top: 0 !important;
+  }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "cv01", "cv11";

@@ -430,33 +430,47 @@ export function LegoModel({
     onUserAction?.();
   }, [bricks, scatterMetaFor, onUserAction]);
 
-  // Swipe horizontal → rotar 90°.
+  // Drag/arrastre horizontal → rotar. Mientras mantienes presionado y
+  // mueves, el modelo va rotando 90° por cada tramo recorrido, dando
+  // sensación de rotación continua con click sostenido.
   const onPointerDown = useCallback((e: React.PointerEvent) => {
     dragRef.current = { x: e.clientX, y: e.clientY };
     movedRef.current = false;
   }, []);
-  const onPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragRef.current) return;
-    if (Math.abs(e.clientX - dragRef.current.x) > 12) movedRef.current = true;
-  }, []);
-  const onPointerUp = useCallback(
+  const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      const start = dragRef.current;
-      dragRef.current = null;
-      if (!start) return;
-      const dx = e.clientX - start.x;
-      const dy = e.clientY - start.y;
-      if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      if (!dragRef.current) return;
+      const dx = e.clientX - dragRef.current.x;
+      if (Math.abs(dx) > 12) movedRef.current = true;
+      // Rotación progresiva: cada ~46px de arrastre, gira 90°.
+      if (movedRef.current && Math.abs(dx) > 46) {
         rotate(dx > 0 ? 1 : -1);
+        // reinicia el origen para el siguiente tramo
+        dragRef.current.x = e.clientX;
       }
-      // deja que el click de tap llegue al brick; el flag evita
-      // desprender piezas cuando en realidad fue un swipe
-      setTimeout(() => {
-        movedRef.current = false;
-      }, 0);
     },
     [rotate]
   );
+  const onPointerUp = useCallback((e: React.PointerEvent) => {
+    const start = dragRef.current;
+    dragRef.current = null;
+    if (!start) return;
+    // Swipe corto (sin arrastre sostenido) también rota.
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (
+      !movedRef.current &&
+      Math.abs(dx) > 30 &&
+      Math.abs(dx) > Math.abs(dy) * 1.4
+    ) {
+      rotate(dx > 0 ? 1 : -1);
+    }
+    // deja que el click de tap llegue al brick; el flag evita
+    // desprender piezas cuando en realidad fue un swipe
+    setTimeout(() => {
+      movedRef.current = false;
+    }, 0);
+  }, [rotate]);
 
   // ---- Destrucción dirigida por scroll (breakProgress 0–1) ----
   // Determinística: ordena los bricks de arriba→abajo y desprende los

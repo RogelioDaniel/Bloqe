@@ -10,19 +10,25 @@ interface SectionDividerProps {
 }
 
 /**
- * An animated "brick wall" divider between sections.
- * Renders a row of staggered LEGO-brick-shaped blocks that fade in on scroll.
- * Creates a premium architectural transition between dark/light sections.
+ * Divisor entre secciones: una fila de bloques que LLEGAN DE DERECHA A
+ * IZQUIERDA y se ensamblan horizontalmente para "cerrar" la sección
+ * anterior antes de iniciar la siguiente. Refuerza la metáfora de que
+ * la página se construye con bloques.
  */
 export function SectionDivider({
   variant = "dark-to-light",
   flip = false,
 }: SectionDividerProps) {
-  const bricks = Array.from({ length: 14 }, (_, i) => i);
-  const colors = ["#c8281c", "#f5b82e", "#1e5aa8", "#2e8b57", "#e8542a", "#9aa1ad"];
+  const bricks = Array.from({ length: 16 }, (_, i) => i);
+  const colors = [
+    "#c8281c",
+    "#f5b82e",
+    "#1e5aa8",
+    "#2e8b57",
+    "#e8542a",
+    "#9aa1ad",
+  ];
 
-  // Var-driven: en modo claro --ink se remapea a tonos papel y el
-  // divisor sigue siendo coherente con ambos temas.
   const fromBg = variant === "dark-to-light" ? "var(--ink)" : "var(--paper)";
   const toBg = variant === "dark-to-light" ? "var(--paper)" : "var(--ink)";
 
@@ -34,26 +40,28 @@ export function SectionDivider({
       }}
       aria-hidden
     >
-      {/* brick row */}
+      {/* brick row — entran de derecha a izquierda en cascada */}
       <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center gap-1 sm:gap-1.5 px-2">
         {bricks.map((i) => {
           const color = colors[i % colors.length];
-          const offset = i % 2 === 0 ? -6 : 6;
           return (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: offset, scale: 0.6 }}
-              whileInView={{ opacity: 0.85, y: 0, scale: 1 }}
+              initial={{ opacity: 0, x: 120, rotate: 8 }}
+              whileInView={{ opacity: 0.85, x: 0, rotate: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{
-                duration: 0.4,
-                delay: i * 0.04,
-                ease: [0.34, 1.56, 0.64, 1],
+                duration: 0.5,
+                // Los primeros bloques (izquierda) llegan primero: se
+                // ensamblan de derecha → izquierda como pidiendo orden.
+                delay: (bricks.length - i) * 0.045,
+                ease: [0.22, 1, 0.36, 1],
               }}
               className="relative h-6 w-8 sm:h-8 sm:w-11 rounded-sm shrink-0"
               style={{
                 backgroundColor: color,
-                boxShadow: "0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
+                boxShadow:
+                  "0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
               }}
             >
               {/* stud */}
