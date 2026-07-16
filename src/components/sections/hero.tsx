@@ -107,18 +107,19 @@ export function Hero() {
       ref={sectionRef}
       id="top"
       onMouseMove={onMouseMove}
-      // R4: móvil más corto (no tanto tiempo con el castillo solo).
-      // Desktop: altura suficiente para que se aprecie la coreografía.
-      className="relative h-[120vh] overflow-hidden bg-ink bg-blueprint bg-grain sm:h-[170vh]"
+      // overflow-visible: los bloques desprendidos caen SOBRE la
+      // siguiente sección en vez de cortarse en el borde del hero.
+      className="relative h-[120vh] overflow-visible bg-ink bg-blueprint bg-grain sm:h-[170vh]"
     >
       {/* ===== Castillo gigante de fondo (pantalla completa) =====
-          R2: sin marco, sin borde, sin "ventana". El castillo es un
-          fondo limpio que ocupa toda la pantalla. Los bloques rotan
-          en 3D y se desplazan a la izquierda conforme bajas. */}
+          `fixed` + z alto: los bloques desprendidos caen VISIBLES
+          sobre la sección siguiente (no se cortan ni se tapan por
+          su fondo). El castillo completo se desvanece antes de que
+          llegues abajo, así que no tapa el contenido permanentemente. */}
       <motion.div
         aria-hidden
         style={{ opacity: castleOpacity, x: castleX }}
-        className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center sm:justify-end sm:pr-[2vw]"
+        className="pointer-events-none fixed inset-0 z-40 flex items-start justify-center pt-[6vh] sm:items-start sm:justify-end sm:pt-[2vh] sm:pr-[2vw]"
       >
         {/* resplandor ambiental */}
         <div
@@ -131,7 +132,7 @@ export function Hero() {
         {/* parallax de mouse anidado */}
         <motion.div
           style={{ x: parallaxX, y: parallaxY }}
-          className="h-[60vh] w-full sm:h-[115vh] sm:w-[60vw]"
+          className="h-[62vh] w-full sm:h-[110vh] sm:w-[60vw]"
         >
           <LegoModel
             model={model}
@@ -152,24 +153,17 @@ export function Hero() {
       <motion.div
         aria-hidden
         style={{ opacity: castleOpacity }}
-        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-ink via-ink/40 to-transparent sm:hidden"
+        className="pointer-events-none fixed inset-0 z-[45] bg-gradient-to-t from-ink via-ink/40 to-transparent sm:hidden"
       />
 
-      {/* Desktop: viñeta lateral para legibilidad del texto sin tapar
-          el castillo (oscurece la zona izquierda). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-[1] hidden sm:block"
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(11,13,16,0.85) 0%, rgba(11,13,16,0.5) 28%, rgba(11,13,16,0) 55%)",
-        }}
-      />
+      {/* (Gradiente lateral izquierdo de desktop eliminado — tapaba
+          el castillo al inicio. El texto ya tiene su propio fondo
+          translúcido para legibilidad.) */}
 
-      {/* ===== Contenido superpuesto ===== */}
+      {/* ===== Contenido superpuesto (encima del castillo z-40) ===== */}
       <motion.div
         style={{ y: copyY, opacity: copyOpacity }}
-        className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-end px-4 pt-28 pb-8 sm:justify-center sm:px-8 sm:pb-20"
+        className="relative z-50 mx-auto flex min-h-screen max-w-7xl flex-col justify-end px-4 pt-28 pb-8 sm:justify-center sm:px-8 sm:pb-20"
       >
         <div className="max-w-xl">
           <motion.div
