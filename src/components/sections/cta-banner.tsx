@@ -98,9 +98,9 @@ export function CtaBanner() {
     () =>
       withKing(
         generateBuilding("castle", PALETTE_SETS.rainbow, {
-          floors: 4,
-          width: 9,
-          depth: 9,
+          floors: 5,
+          width: 11,
+          depth: 11,
         })
       ),
     []
@@ -121,7 +121,7 @@ export function CtaBanner() {
   }, [buildRaw]);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-ink py-20 sm:py-24">
+    <section ref={sectionRef} className="relative overflow-hidden bg-ink py-16 sm:py-24">
       {/* signal glow */}
       <div
         aria-hidden
@@ -137,15 +137,9 @@ export function CtaBanner() {
         className="pointer-events-none absolute inset-0 bg-blueprint-fine opacity-60"
       />
 
-      <div className="relative mx-auto max-w-4xl px-5 sm:px-8 text-center">
-        {/* ===== El castillo del rey ===== */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="relative mx-auto h-64 w-full max-w-lg sm:h-80"
-        >
+      <div className="relative mx-auto max-w-5xl px-5 sm:px-8 text-center">
+        {/* ===== El castillo del rey — GRANDE, como el del inicio ===== */}
+        <div className="relative mx-auto h-[52vh] w-full max-w-2xl sm:h-[68vh]">
           <LegoModel
             model={model}
             buildProgress={build}
@@ -154,7 +148,7 @@ export function CtaBanner() {
             className="absolute inset-0 h-full w-full"
             ariaLabel="Castillo de bloques coronado por un rey"
           />
-        </motion.div>
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}

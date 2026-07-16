@@ -67,6 +67,9 @@ interface ParsedMesh {
   positions: Float32Array; // ya transformadas a espacio de mundo
   indices: Uint32Array;
   triangleCount: number;
+  /** Colores por vértice (RGBA, normalizados 0–1). Vacío si el GLB
+   *  no tiene vertex colors: en ese caso se usa color por material. */
+  colors?: Float32Array;
 }
 
 interface GltfJson {
@@ -181,6 +184,7 @@ export function parseGlb(buffer: ArrayBuffer): ParsedMesh {
   // recorre la escena aplicando transformaciones
   const positionsParts: Float32Array[] = [];
   const indexParts: Uint32Array[] = [];
+  const colorParts: Float32Array[] = [];
   let vertexBase = 0;
 
   const visitNode = (nodeIdx: number, parent: Mat4) => {
@@ -207,7 +211,26 @@ export function parseGlb(buffer: ArrayBuffer): ParsedMesh {
         }
         positionsParts.push(transformed);
 
+        // Vertex colors (COLOR_0): vec3 o vec4, lineal o sRGB.
+        const colIdx = prim.attributes?.COLOR_0;
         const vertCount = pos.length / 3;
+        if (colIdx !== undefined) {
+          const colAcc = readAccessor(colIdx);
+          const col = colAcc.data as Float32Array;
+          const comp = colAcc.components; // 3 (RGB) o 4 (RGBA)
+          const out = new Float32Array(vertCount * 4);
+          for (let i = 0; i < vertCount; i++) {
+            out[i * 4] = col[i * comp];
+            out[i * 4 + 1] = col[i * comp + 1];
+            out[i * 4 + 2] = col[i * comp + 2];
+            out[i * 4 + 3] = comp >= 4 ? col[i * comp + 3] : 1;
+          }
+          colorParts.push(out);
+        } else {
+          // sin vertex colors: rellena con blanco (se mapeará a palette)
+          colorParts.push(new Float32Array(vertCount * 4).fill(1));
+        }
+
         if (prim.indices !== undefined) {
           const idx = readAccessor(prim.indices).data as Uint32Array;
           const shifted = new Uint32Array(idx.length);
@@ -235,11 +258,13 @@ export function parseGlb(buffer: ArrayBuffer): ParsedMesh {
 
   const totalPos = positionsParts.reduce((s, p) => s + p.length, 0);
   const totalIdx = indexParts.reduce((s, p) => s + p.length, 0);
+  const totalCol = colorParts.reduce((s, p) => s + p.length, 0);
   if (!totalPos || !totalIdx) {
     throw new GlbError("El .glb no contiene mallas de triángulos legibles.");
   }
   const positions = new Float32Array(totalPos);
   const indices = new Uint32Array(totalIdx);
+  const colors = new Float32Array(totalCol);
   let po = 0;
   for (const p of positionsParts) {
     positions.set(p, po);
@@ -250,8 +275,13 @@ export function parseGlb(buffer: ArrayBuffer): ParsedMesh {
     indices.set(p, io);
     io += p.length;
   }
+  let co = 0;
+  for (const p of colorParts) {
+    colors.set(p, co);
+    co += p.length;
+  }
 
-  return { positions, indices, triangleCount: indices.length / 3 };
+  return { positions, indices, colors, triangleCount: indices.length / 3 };
 }
 
 // ---------- voxelización scanline ----------
@@ -268,8 +298,9 @@ export async function voxelizeMesh(
   mesh: ParsedMesh,
   { resolution, palette, onProgress, maxTriangles = 50000 }: VoxelizeOptions
 ): Promise<VoxelModel> {
-  const { positions } = mesh;
+  const { positions, colors } = mesh;
   let { indices } = mesh;
+  const hasColors = !!colors && colors.length >= positions.length / 3 * 3;
 
   // presupuesto móvil: muestreo uniforme de triángulos si la malla es enorme
   const triCount = indices.length / 3;
@@ -311,16 +342,47 @@ export async function voxelizeMesh(
   const tri = indices;
   const nTris = tri.length / 3;
 
+  // Pre-mapeo LEGO: cache de colores hex ya convertidos para no
+  // recalcular el más cercano en cada celda.
+  const LEGO_PALETTE_ARR = [
+    "#c8281c", "#931e15", "#f5b82e", "#1e5aa8", "#143f75",
+    "#2e8b57", "#1f5e3b", "#f4f1ea", "#9aa1ad", "#4a4f57",
+    "#1a1d22", "#e8542a", "#d9c7a3", "#6b4a2b", "#3aa6c9",
+    "#c2a878", "#e85aa8", "#7b4ea8", "#9bc53d",
+  ];
+  function hexToRgb(h: string): [number, number, number] {
+    const n = parseInt(h.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  const legoRgb = LEGO_PALETTE_ARR.map(hexToRgb);
+
+  /** Convierte un color RGB (0–1) al color LEGO más cercano (hex). */
+  function snapToLego(r: number, g: number, b: number): string {
+    let best = legoRgb[0];
+    let bestD = Infinity;
+    for (const [lr, lg, lb] of legoRgb) {
+      const d = (r * 255 - lr) ** 2 + (g * 255 - lg) ** 2 + (b * 255 - lb) ** 2;
+      if (d < bestD) { bestD = d; best = [lr, lg, lb]; }
+    }
+    return "#" + best
+      .map((v) => Math.round(v).toString(16).padStart(2, "0"))
+      .join("");
+  }
+
   // Rayo +X por cada celda (y,z): recoge cruces t y rellena por paridad.
+  // Además acumula el color (baricéntrico) de cada cruce para teñir la
+  // celda con el color REAL del modelo, no por altura.
   const totalRows = h * d;
   let row = 0;
   const crossings: number[] = [];
+  const crossingColors: [number, number, number][] = [];
 
   for (let y = 0; y < h; y++) {
     const cy = minY + (y + 0.5) * step;
     for (let z = 0; z < d; z++) {
       const cz = minZ + (z + 0.5) * step;
       crossings.length = 0;
+      crossingColors.length = 0;
 
       for (let t = 0; t < nTris; t++) {
         const a = tri[t * 3] * 3, b = tri[t * 3 + 1] * 3, c = tri[t * 3 + 2] * 3;
@@ -332,7 +394,7 @@ export async function voxelizeMesh(
         if (
           (ay < cy && by < cy && cyy < cy) ||
           (ay > cy && by > cy && cyy > cy) ||
-          (az < cz && bz < cz && czz < cz) ||
+          (az < cz && bz < cz && czz > cz) ||
           (az > cz && bz > cz && czz > cz)
         ) {
           continue;
@@ -351,19 +413,48 @@ export async function voxelizeMesh(
         const ax = positions[a], bx = positions[b], cx = positions[c];
         const ix = ax + u * (bx - ax) + v * (cx - ax);
         crossings.push(ix);
+
+        // color baricéntrico del punto de cruce (si hay vertex colors)
+        if (hasColors) {
+          const w = 1 - u - v;
+          const va = tri[t * 3] * 4;
+          const vb = tri[t * 3 + 1] * 4;
+          const vc = tri[t * 3 + 2] * 4;
+          crossingColors.push([
+            w * colors![va] + u * colors![vb] + v * colors![vc],
+            w * colors![va + 1] + u * colors![vb + 1] + v * colors![vc + 1],
+            w * colors![va + 2] + u * colors![vb + 2] + v * colors![vc + 2],
+          ]);
+        }
       }
 
       if (crossings.length >= 2) {
         crossings.sort((p, q) => p - q);
-        for (let k = 0; k + 1 < crossings.length; k += 2) {
-          const x0 = crossings[k];
-          const x1 = crossings[k + 1];
+        // reordena los colores para que coincidan con los cruces ordenados
+        const order = crossings
+          .map((val, idx) => [val, idx] as const)
+          .sort((p, q) => p[0] - q[0]);
+        for (let k = 0; k + 1 < order.length; k += 2) {
+          const x0 = order[k][0];
+          const x1 = order[k + 1][0];
           const from = Math.max(0, Math.ceil((x0 - minX) / step - 0.5));
           const to = Math.min(w - 1, Math.floor((x1 - minX) / step - 0.5));
+          // color promedio del par de cruces (superficie visible)
+          let cr = 0.7, cg = 0.7, cb = 0.7;
+          if (hasColors && crossingColors[order[k][1]] && crossingColors[order[k + 1][1]]) {
+            const e = crossingColors[order[k][1]];
+            const f = crossingColors[order[k + 1][1]];
+            // el primer cruce (entrada) es la cara visible
+            cr = e[0]; cg = e[1]; cb = e[2];
+          } else {
+            // sin vertex colors: degradado por altura (fallback)
+            const ci = Math.floor((y / h) * palette.length) % palette.length;
+            const [rr, gg, bb] = hexToRgb(palette[ci]);
+            cr = rr / 255; cg = gg / 255; cb = bb / 255;
+          }
+          const cellColor = hasColors ? snapToLego(cr, cg, cb) : palette[Math.floor((y / h) * palette.length) % palette.length];
           for (let x = from; x <= to; x++) {
-            const colorIdx =
-              Math.floor((y / h) * palette.length) % palette.length;
-            grid[x][y][z] = { color: palette[colorIdx] };
+            grid[x][y][z] = { color: cellColor };
           }
         }
       }

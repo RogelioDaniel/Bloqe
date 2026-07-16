@@ -107,24 +107,49 @@ function buildDoor(): VoxelModel {
   });
 }
 
-/** 03 — Lista de inscripción con paloma verde. */
-function buildChecklist(): VoxelModel {
-  return buildFigure(7, 7, 2, (set) => {
-    const paper = "#f4f1ea";
-    const check = "#2e8b57";
-    // base
-    for (let x = 0; x <= 6; x++) for (let z = 0; z <= 1; z++) set(x, 0, z, "#9aa1ad");
-    // panel (la hoja)
-    for (let x = 0; x <= 6; x++)
-      for (let y = 1; y <= 5; y++) set(x, y, 0, paper);
-    // paloma ✓
-    set(1, 3, 0, check);
-    set(2, 2, 0, check);
-    set(3, 3, 0, check);
-    set(4, 4, 0, check);
-    set(5, 5, 0, check);
-    // clip superior
-    for (let x = 2; x <= 4; x++) set(x, 6, 0, "#e8542a");
+/** 03 — Lápiz/pluma: cuerpo amarillo, goma rosa, punta gris y mina negra. */
+function buildPencil(): VoxelModel {
+  return buildFigure(3, 11, 3, (set) => {
+    const body = "#f5b82e"; // madera amarilla
+    const bodyDark = "#c89516";
+    const tip = "#d9c7a3"; // madera clara (cono)
+    const lead = "#1a1d22"; // mina
+    const eraser = "#e85aa8"; // goma rosa
+    const metal = "#9aa1ad"; // férula metálica
+    // cuerpo (diagonal de abajo-izq a arriba-der)
+    const rows: [number, number][] = [
+      // [y, xCentral] — el lápiz sube en diagonal
+      [1, 0], [2, 0],
+      [3, 0], [4, 0],
+      [5, 1], [6, 1],
+      [7, 1], [8, 1],
+    ];
+    for (const [y, cx] of rows) {
+      for (let z = 0; z <= 2; z++) {
+        set(cx, y, z, body);
+        set(cx + 1, y, z, body);
+        // sombra lateral
+        if (z === 2) { set(cx, y, z, bodyDark); set(cx + 1, y, z, bodyDark); }
+      }
+    }
+    // férula metálica (entre cuerpo y goma)
+    set(1, 9, 0, metal);
+    set(1, 9, 1, metal);
+    set(1, 9, 2, metal);
+    // goma (rosa)
+    set(1, 10, 0, eraser);
+    set(1, 10, 1, eraser);
+    set(1, 10, 2, eraser);
+    // punta cónica (madera clara) + mina
+    set(0, 0, 1, tip);
+    set(0, 0, 0, tip);
+    set(0, 0, 2, tip);
+    // mina negra en la punta
+    // (se quita el centro inferior y se pone mina)
+    // base de apoyo
+    for (let x = 0; x <= 2; x++) for (let z = 0; z <= 2; z++) set(x, 0, z, "#4a4f57");
+    // mina visible en la punta inferior
+    set(0, 1, 1, lead);
   });
 }
 
@@ -188,8 +213,8 @@ const STEPS: Step[] = [
       "Reservamos el lugar, entregamos la documentación y te platicamos sobre la adaptación del niño a su nuevo grupo. Todo claro, por escrito.",
     detail: "cupos limitados por grupo",
     icon: ClipboardCheck,
-    build: buildChecklist,
-    caption: "lista firmada",
+    build: buildPencil,
+    caption: "la inscripción",
   },
   {
     number: "04",

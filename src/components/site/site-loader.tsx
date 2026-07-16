@@ -6,7 +6,6 @@ import { LegoModel } from "@/components/lego/lego-model";
 import {
   generateBuilding,
   PALETTE_SETS,
-  type StructureType,
   type VoxelModel,
 } from "@/lib/lego";
 
@@ -18,7 +17,7 @@ import {
 //  de entrada del sitio.
 // ============================================================
 
-const BUILD_MS = 1500;
+const BUILD_MS = 1200;
 const REDUCED_MS = 400;
 
 const LETTERS = [
@@ -29,66 +28,20 @@ const LETTERS = [
   { char: "E", color: "#c8281c" },
 ];
 
-const LOADER_LABELS: Record<StructureType, string> = {
-  tower: "torre",
-  skyscraper: "rascacielos",
-  house: "casita",
-  bridge: "puente",
-  pavilion: "foro",
-  castle: "castillo",
-  schoolhouse: "escuelita",
-  abc: "abecedario",
-  playground: "juegos",
-};
-
-/** Cada carga construye una obra distinta. Modelos pequeños para
- *  renderizar rápido y no trabar la carga inicial. */
-function randomModel(): { model: VoxelModel; label: string } {
-  const r = Math.random;
-  const pick = <T,>(arr: T[]) => arr[Math.floor(r() * arr.length)];
-  // Paletas infantiles para el loader
-  const kidPalettes = ["candy", "rainbow", "storybook", "classic"];
-  const paletteKey = pick(kidPalettes);
+/** Construye siempre el edificio de la escuela — la identidad de
+ *  BLOQE. Modelo pequeño para renderizar fluido. */
+function schoolModel(): { model: VoxelModel; label: string } {
+  const palettes = ["candy", "rainbow", "storybook", "classic"];
+  const paletteKey = palettes[Math.floor(Math.random() * palettes.length)];
   const palette = PALETTE_SETS[paletteKey] ?? PALETTE_SETS.classic;
-  const type = pick<StructureType>([
-    "castle",
-    "schoolhouse",
-    "abc",
-    "house",
-  ]);
-
-  let model: VoxelModel;
-  switch (type) {
-    case "castle":
-      // Castillo pequeño (7x7) — rápido de generar y renderizar.
-      model = generateBuilding("castle", palette, {
-        width: 7,
-        depth: 7,
-        floors: 4,
-      });
-      break;
-    case "schoolhouse":
-      model = generateBuilding("schoolhouse", palette, {
-        width: 7,
-        depth: 5,
-        floors: 3,
-      });
-      break;
-    case "abc":
-      // Torre ABC baja para que cargue ligero.
-      model = generateBuilding("abc", palette, { floors: 7 });
-      break;
-    case "house":
-      model = generateBuilding("house", palette, {
-        width: 6,
-        depth: 5,
-        floors: 3,
-      });
-      break;
-    default:
-      model = generateBuilding("castle", palette, { floors: 4, width: 7, depth: 7 });
-  }
-  return { model, label: LOADER_LABELS[type] };
+  return {
+    model: generateBuilding("schoolhouse", palette, {
+      width: 6,
+      depth: 4,
+      floors: 3,
+    }),
+    label: "escuela",
+  };
 }
 
 export function SiteLoader() {
@@ -106,7 +59,7 @@ export function SiteLoader() {
     // Sobrevive al doble efecto de React Strict Mode sin re-generar.
     if (!startedRef.current) {
       startedRef.current = true;
-      setBuild(randomModel());
+      setBuild(schoolModel());
     }
 
     const counter = animate(0, 100, {
@@ -153,12 +106,15 @@ export function SiteLoader() {
           />
 
           <div className="relative flex flex-col items-center px-6">
-            {/* obra aleatoria armándose */}
+            {/* obra aleatoria armándose — buildProgress animado de 0→1
+                sigue a la barra de progreso, así los bloques caen en
+                orden de abajo→arriba pero fluido (modo quick). Se
+                cuantiza a pasos de ~3% para no saturar de re-renders. */}
             <div className="h-48 w-64 sm:h-56 sm:w-80">
               {build && (
                 <LegoModel
                   model={build.model}
-                  maxDelay={duration * 0.62}
+                  buildProgress={Math.round((progress / 100) * 32) / 32}
                   className="h-full w-full"
                   ariaLabel="Maqueta de bloques en construcción"
                 />
