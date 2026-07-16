@@ -56,10 +56,11 @@ export function Hero() {
     [1, 1, 0]
   );
 
-  // R1: Rotación 3D FLUIDA de la cámara (CSS rotateY). De 0° a ~30°.
+  // Rotación 3D FLUIDA de la cámara (CSS rotateY). De 0° a ~30°.
   const spinY = useTransform(scrollYProgress, [0, 0.8], [0, 30]);
-  // R1: El castillo se desplaza a la IZQUIERDA al bajar (desktop).
-  const castleX = useTransform(scrollYProgress, [0, 0.8], ["0%", "-22%"]);
+  // El castillo se mueve hacia ABAJO con el scroll (sin desplazamiento
+  // horizontal).
+  const castleY = useTransform(scrollYProgress, [0, 1], [0, 320]);
 
   // El contenido sube y se desvanece.
   const copyY = useTransform(scrollYProgress, [0, 0.5], [0, 120]);
@@ -118,7 +119,7 @@ export function Hero() {
           llegues abajo, así que no tapa el contenido permanentemente. */}
       <motion.div
         aria-hidden
-        style={{ opacity: castleOpacity, x: castleX }}
+        style={{ opacity: castleOpacity, y: castleY }}
         className="pointer-events-none fixed inset-0 z-40 flex items-start justify-center pt-[6vh] sm:items-start sm:justify-end sm:pt-[2vh] sm:pr-[2vw]"
       >
         {/* resplandor ambiental */}
