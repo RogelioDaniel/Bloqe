@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  memo,
   useCallback,
   useEffect,
   useId,
@@ -66,11 +67,20 @@ interface LegoModelProps {
    * a los bloques que el usuario desprenda manualmente.
    */
   breakProgress?: number;
+  /**
+   * Construcción dirigida por scroll (0–1). 0 = sin bloques;
+   * 1 = obra completa. Los bloques van "cayendo" y apilándose de
+   * abajo hacia arriba conforme avanza el scroll — como si la obra
+   * se armara con los bloques que caen de la sección anterior.
+   */
+  buildProgress?: number;
 }
 
 interface RenderBrick extends Brick {
   delay: number;
   studs: number[]; // índices locales (0..w-1) con stud visible
+  frontVisible: boolean;
+  sideVisible: boolean;
 }
 
 interface ScatterMeta {
@@ -137,20 +147,24 @@ function prepareBricks(model: VoxelModel, maxDelay: number): PreparedBricks {
   const visible: RenderBrick[] = [];
   for (let i = 0; i < bricks.length; i++) {
     const b = bricks[i];
-    let anyFaceVisible = false;
+    let frontVisible = false;
     const studs: number[] = [];
     for (let j = 0; j < b.w; j++) {
       const topOpen = !isFilled(model, b.x + j, b.y + 1, b.z);
       const frontOpen = !isFilled(model, b.x + j, b.y, b.z - 1);
       if (topOpen) studs.push(j);
-      if (topOpen || frontOpen) anyFaceVisible = true;
+      if (frontOpen) frontVisible = true;
     }
-    if (!isFilled(model, b.x + b.w, b.y, b.z)) anyFaceVisible = true;
-    if (!anyFaceVisible) continue;
+    const sideVisible = !isFilled(model, b.x + b.w, b.y, b.z);
+    // Solo se renderizan bricks con alguna cara visible, y solo las
+    // caras visibles (menos polígonos = más rápido en móvil).
+    if (!frontVisible && !sideVisible && studs.length === 0) continue;
 
     visible.push({
       ...all[i],
       studs,
+      frontVisible,
+      sideVisible,
       delay: b.y * perLayer + ((b.x + b.z * 3) % 5) * (perLayer * 0.12),
     });
   }
@@ -212,15 +226,18 @@ function findUnsupported(
   return falling;
 }
 
-function BrickShape({
+const BrickShape = memo(function BrickShape({
   brick,
   scatter,
   interactive,
+  quick,
   onPick,
 }: {
   brick: RenderBrick;
   scatter?: ScatterMeta;
   interactive?: boolean;
+  /** Retrasos cortos (para construcción por scroll en lotes). */
+  quick?: boolean;
   onPick?: (id: string) => void;
 }) {
   const { x, y, z, w, color } = brick;
@@ -238,7 +255,7 @@ function BrickShape({
   const top = shade(color, 1.14);
   const front = shade(color, 0.84);
   const side = shade(color, 0.6);
-  const studSide = shade(color, 0.72);
+  const studSide = shade(color, 0.7);
   const studTop = shade(color, 1.28);
 
   // Vars de animación por pieza — cada armado se ve distinto.
@@ -256,7 +273,7 @@ function BrickShape({
         "--dx": `${((seed % 21) - 10) * 1.6}px`,
         "--rz": `${((seed % 13) - 6) * 1.2}deg`,
         "--dur": `${0.45 + (seed % 10) * 0.02}s`,
-        animationDelay: `${brick.delay}ms`,
+        animationDelay: `${quick ? (seed % 4) * 45 : brick.delay}ms`,
       };
 
   return (
@@ -267,8 +284,12 @@ function BrickShape({
       role={interactive ? "button" : undefined}
       cursor={interactive ? "pointer" : undefined}
     >
-      <polygon points={pts([tD, tC, bC, bD])} fill={front} />
-      <polygon points={pts([tB, tC, bC, bB])} fill={side} />
+      {brick.frontVisible && (
+        <polygon points={pts([tD, tC, bC, bD])} fill={front} />
+      )}
+      {brick.sideVisible && (
+        <polygon points={pts([tB, tC, bC, bB])} fill={side} />
+      )}
       <polygon
         points={pts([tA, tB, tC, tD])}
         fill={top}
@@ -276,31 +297,21 @@ function BrickShape({
         strokeWidth="0.5"
         strokeLinejoin="round"
       />
-      {brick.studs.map((i) => {
-        const cx = px(x + i + 0.5, z + 0.5);
-        const cy = py(x + i + 0.5, y + 1, z + 0.5);
-        return (
-          <g key={i}>
-            <ellipse
-              cx={cx}
-              cy={cy - 1}
-              rx={HW * 0.34}
-              ry={HH * 0.34}
-              fill={studSide}
-            />
-            <ellipse
-              cx={cx}
-              cy={cy - 2.4}
-              rx={HW * 0.34}
-              ry={HH * 0.34}
-              fill={studTop}
-            />
-          </g>
-        );
-      })}
+      {brick.studs.map((i) => (
+        <ellipse
+          key={i}
+          cx={px(x + i + 0.5, z + 0.5)}
+          cy={py(x + i + 0.5, y + 1, z + 0.5) - 1.7}
+          rx={HW * 0.34}
+          ry={HH * 0.34}
+          fill={studTop}
+          stroke={studSide}
+          strokeWidth="1.1"
+        />
+      ))}
     </g>
   );
-}
+});
 
 function ControlButton({
   label,
@@ -336,6 +347,7 @@ export function LegoModel({
   onUserAction,
   ariaLabel,
   breakProgress = 0,
+  buildProgress,
 }: LegoModelProps) {
   // Los modelos pueden generarse con aleatoriedad: solo cliente.
   const [mounted, setMounted] = useState(false);
@@ -478,31 +490,45 @@ export function LegoModel({
   }, [rotate]);
 
   // ---- Destrucción dirigida por scroll (breakProgress 0–1) ----
-  // Determinística: ordena los bricks de arriba→abajo y desprende los
-  // primeros N según el progreso. Se fusiona con la rotura manual.
+  // Cuantizada a CONTEOS de bricks (no al pixel de scroll) y con metas
+  // cacheadas por id: los bricks no afectados conservan la MISMA
+  // identidad de props y React.memo evita re-renderizarlos. Esto es lo
+  // que mantiene fluido el scroll en móvil.
+  const metaCache = useRef(new Map<string, ScatterMeta>());
+  useEffect(() => {
+    metaCache.current.clear();
+  }, [bricks]);
+
+  const scrollOrder = useMemo(
+    () =>
+      [...bricks].sort((a, b) => b.y - a.y || b.x + b.z - (a.x + a.z)),
+    [bricks]
+  );
+
+  const scatterCount =
+    breakProgress > 0 && bricks.length > 0
+      ? Math.ceil(bricks.length * Math.min(1, breakProgress))
+      : 0;
+
   const scrollScattered = useMemo<Map<string, ScatterMeta>>(() => {
-    if (breakProgress <= 0 || bricks.length === 0) return new Map();
-    const p = Math.max(0, Math.min(1, breakProgress));
-    // orden estable: mayor y primero (más alto), luego por posición
-    const sorted = [...bricks].sort(
-      (a, b) => b.y - a.y || b.x + b.z - (a.x + a.z)
-    );
-    const count = Math.ceil(sorted.length * p);
+    if (scatterCount === 0) return new Map();
     const next = new Map<string, ScatterMeta>();
-    const maxY = sorted[0]?.y ?? 0;
-    const minY = sorted[sorted.length - 1]?.y ?? 0;
+    const maxY = scrollOrder[0]?.y ?? 0;
+    const minY = scrollOrder[scrollOrder.length - 1]?.y ?? 0;
     const span = Math.max(1, maxY - minY);
-    for (let i = 0; i < count; i++) {
-      const b = sorted[i];
-      // los más altos salen primero: delay crece hacia abajo
-      const tier = (maxY - b.y) / span; // 0 arriba → 1 abajo
-      const m = scatterMetaFor(b, tier * 260);
-      // reemplaza cualquier meta aleatoria con una determinística
-      // para evitar parpadeos entre renders.
+    for (let i = 0; i < scatterCount && i < scrollOrder.length; i++) {
+      const b = scrollOrder[i];
+      let m = metaCache.current.get(b.id);
+      if (!m) {
+        // los más altos salen primero: delay crece hacia abajo
+        const tier = (maxY - b.y) / span;
+        m = scatterMetaFor(b, tier * 220);
+        metaCache.current.set(b.id, m);
+      }
       next.set(b.id, m);
     }
     return next;
-  }, [breakProgress, bricks, scatterMetaFor]);
+  }, [scatterCount, scrollOrder, scatterMetaFor]);
 
   // La rotura manual tiene prioridad visual sobre la del scroll.
   const effectiveScattered = useMemo(() => {
@@ -511,6 +537,29 @@ export function LegoModel({
     for (const [k, v] of scattered) merged.set(k, v);
     return merged;
   }, [scrollScattered, scattered]);
+
+  // ---- Construcción dirigida por scroll (buildProgress 0–1) ----
+  // La obra se apila de abajo hacia arriba: solo se montan los primeros
+  // N bricks según el progreso; cada lote nuevo cae con su animación.
+  const buildOrder = useMemo(
+    () =>
+      [...bricks].sort((a, b) => a.y - b.y || a.x + a.z - (b.x + b.z)),
+    [bricks]
+  );
+  const builtCount =
+    buildProgress === undefined
+      ? bricks.length
+      : Math.ceil(bricks.length * Math.max(0, Math.min(1, buildProgress)));
+
+  const renderBricks = useMemo(() => {
+    if (buildProgress === undefined || builtCount >= bricks.length) {
+      return bricks;
+    }
+    const shown = new Set<string>();
+    for (let i = 0; i < builtCount; i++) shown.add(buildOrder[i].id);
+    // conserva el orden del pintor
+    return bricks.filter((b) => shown.has(b.id));
+  }, [bricks, buildOrder, builtCount, buildProgress]);
 
   const viewBox = useMemo(() => {
     let minX = Infinity;
@@ -584,12 +633,13 @@ export function LegoModel({
           key={`${buildId}-${internalBuild}-${rotation}`}
           className={float ? "lego-floaty" : undefined}
         >
-          {bricks.map((b) => (
+          {renderBricks.map((b) => (
             <BrickShape
               key={b.id}
               brick={b}
               scatter={effectiveScattered.get(b.id)}
               interactive={interactive}
+              quick={buildProgress !== undefined}
               onPick={pickBrick}
             />
           ))}

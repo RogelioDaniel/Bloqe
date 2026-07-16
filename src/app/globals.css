@@ -340,7 +340,8 @@
     transform-box: fill-box;
     transform-origin: center bottom;
     animation: lego-iso-drop var(--dur, 0.55s) cubic-bezier(0.3, 0.9, 0.35, 1) both;
-    will-change: transform, opacity;
+    /* sin will-change: promover cientos de bricks a capas propias
+       satura la GPU del celular y era la causa de la lentitud */
   }
 
   /* ---- Romper: el brick sale disparado y cae con "gravedad" ----
@@ -387,39 +388,22 @@
     transform: translateY(2px);
   }
 
-  /* ---- Botón-brick: bisel superior, canto inferior grueso y studs ---- */
+  /* ---- Botón principal: limpio, sin adornos de studs ----
+     Solo un canto inferior sutil + sombra suave + press táctil. */
   .btn-brick {
     position: relative;
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow:
-      inset 0 2px 0 rgba(255, 255, 255, 0.32),
-      inset 0 -4px 0 rgba(0, 0, 0, 0.28),
-      0 10px 22px -10px rgba(0, 0, 0, 0.6);
+      inset 0 -2px 0 rgba(0, 0, 0, 0.14),
+      0 8px 20px -10px rgba(0, 0, 0, 0.45);
     transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.15s ease, background-color 0.2s ease;
   }
-  .btn-brick::before {
-    content: "";
-    position: absolute;
-    top: 3px;
-    left: 14%;
-    right: 14%;
-    height: 5px;
-    pointer-events: none;
-    background-image: radial-gradient(
-      circle at 50% 55%,
-      rgba(255, 255, 255, 0.34) 1.8px,
-      transparent 2.6px
-    );
-    background-size: 13px 5px;
-    background-repeat: repeat-x;
-  }
   .btn-brick:active {
-    transform: translateY(3px);
+    transform: translateY(2px);
     box-shadow:
-      inset 0 2px 0 rgba(255, 255, 255, 0.32),
-      inset 0 -2px 0 rgba(0, 0, 0, 0.28),
-      0 4px 10px -6px rgba(0, 0, 0, 0.6);
+      inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+      0 4px 10px -8px rgba(0, 0, 0, 0.45);
   }
 
   /* ---- Tarjeta-brick: fila de studs en relieve en el borde superior ---- */

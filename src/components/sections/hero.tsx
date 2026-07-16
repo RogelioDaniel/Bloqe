@@ -41,18 +41,25 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
 
   // === Destrucción por scroll ===
+  // La sección mide 190vh: tras salir el texto queda casi una pantalla
+  // completa donde el castillo sigue visible rompiéndose — sus bloques
+  // "alimentan" la construcción de la siguiente sección.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const breakProgress = useTransform(scrollYProgress, [0.05, 0.85], [0, 1]);
-  const castleOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 0.6, 0]);
-  const copyY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const copyOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
+  const breakProgress = useTransform(scrollYProgress, [0.2, 0.92], [0, 1]);
+  const castleOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [1, 1, 0]);
+  const copyY = useTransform(scrollYProgress, [0, 0.5], [0, 120]);
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
 
   const [breakValue, setBreakValue] = useState(0);
   useEffect(() => {
-    const unsub = breakProgress.on("change", (v) => setBreakValue(v));
+    const unsub = breakProgress.on("change", (v) =>
+      // Cuantizado: solo ~40 actualizaciones en todo el recorrido en
+      // vez de una por pixel de scroll (re-render barato en móvil).
+      setBreakValue(Math.round(v * 40) / 40)
+    );
     return () => unsub();
   }, [breakProgress]);
 
@@ -79,7 +86,7 @@ export function Hero() {
       onMouseMove={onMouseMove}
       // overflow-visible permite que los bloques desprendidos caigan
       // por toda la pantalla en vez de cortarse en el canvas.
-      className="relative h-[130vh] overflow-visible bg-ink bg-blueprint bg-grain"
+      className="relative h-[190vh] overflow-visible bg-ink bg-blueprint bg-grain"
     >
       {/* ===== Castillo gigante de fondo (pantalla completa) =====
           Móvil: ocupa el tercio superior, COMPLETO y sin texto encima.
@@ -112,20 +119,15 @@ export function Hero() {
         />
       </motion.div>
 
-      {/* Viñeta ligera: solo asegura contraste en la franja del texto.
-          Móvil: sube desde abajo (el texto vive abajo). Desktop: franja
-          izquierda suave — el castillo queda completo a la derecha. */}
-      <div
+      {/* Viñeta SOLO en móvil (sube desde abajo, donde vive el texto).
+          En desktop no hay fades. Está ligada a la opacidad del castillo
+          para que desaparezca con él y NUNCA se quede flotando sobre las
+          secciones siguientes (era el "fade" fantasma que se veía en
+          toda la página). */}
+      <motion.div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-[1] bg-gradient-to-t from-ink via-ink/45 to-transparent sm:bg-none"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-[1] hidden sm:block"
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(11,13,16,0.78) 0%, rgba(11,13,16,0.42) 34%, rgba(11,13,16,0) 52%)",
-        }}
+        style={{ opacity: castleOpacity }}
+        className="pointer-events-none fixed inset-0 z-[1] bg-gradient-to-t from-ink via-ink/40 to-transparent sm:hidden"
       />
 
       {/* ===== Contenido: placa de vidrio con studs =====

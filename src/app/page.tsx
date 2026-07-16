@@ -9,7 +9,6 @@ import { BackToTop } from "@/components/site/back-to-top";
 import { SectionDivider } from "@/components/site/section-divider";
 import { SectionBlock } from "@/components/site/section-block";
 import { Hero } from "@/components/sections/hero";
-import { Marquee } from "@/components/sections/marquee";
 import { Services } from "@/components/sections/services";
 import { Process } from "@/components/sections/process";
 import { Projects } from "@/components/sections/projects";
@@ -40,9 +39,6 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         {/* Cada sección "encaja" en la construcción al llegar a ella. */}
-        <SectionBlock>
-          <Marquee />
-        </SectionBlock>
         <SectionBlock>
           <Services />
         </SectionBlock>
