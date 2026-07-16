@@ -6,6 +6,7 @@ import { LegoModel } from "@/components/lego/lego-model";
 import {
   generateBuilding,
   PALETTE_SETS,
+  type StructureType,
   type VoxelModel,
 } from "@/lib/lego";
 
@@ -17,7 +18,7 @@ import {
 //  de entrada del sitio.
 // ============================================================
 
-const BUILD_MS = 1200;
+const BUILD_MS = 1500;
 const REDUCED_MS = 400;
 
 const LETTERS = [
@@ -28,20 +29,62 @@ const LETTERS = [
   { char: "E", color: "#c8281c" },
 ];
 
-/** Construye siempre el edificio de la escuela — la identidad de
- *  BLOQE. Modelo pequeño para renderizar fluido. */
-function schoolModel(): { model: VoxelModel; label: string } {
-  const palettes = ["candy", "rainbow", "storybook", "classic"];
-  const paletteKey = palettes[Math.floor(Math.random() * palettes.length)];
+const LOADER_LABELS: Record<StructureType, string> = {
+  tower: "torre",
+  skyscraper: "rascacielos",
+  house: "casita",
+  bridge: "puente",
+  pavilion: "foro",
+  castle: "castillo",
+  schoolhouse: "escuelita",
+  abc: "abecedario",
+  playground: "juegos",
+};
+
+/** Cada carga construye una obra distinta. */
+function randomModel(): { model: VoxelModel; label: string } {
+  const r = Math.random;
+  const pick = <T,>(arr: T[]) => arr[Math.floor(r() * arr.length)];
+  const kidPalettes = ["candy", "rainbow", "storybook", "classic"];
+  const paletteKey = pick(kidPalettes);
   const palette = PALETTE_SETS[paletteKey] ?? PALETTE_SETS.classic;
-  return {
-    model: generateBuilding("schoolhouse", palette, {
-      width: 6,
-      depth: 4,
-      floors: 3,
-    }),
-    label: "escuela",
-  };
+  const type = pick<StructureType>([
+    "castle",
+    "schoolhouse",
+    "abc",
+    "house",
+  ]);
+
+  let model: VoxelModel;
+  switch (type) {
+    case "castle":
+      model = generateBuilding("castle", palette, {
+        width: 7,
+        depth: 7,
+        floors: 4,
+      });
+      break;
+    case "schoolhouse":
+      model = generateBuilding("schoolhouse", palette, {
+        width: 7,
+        depth: 5,
+        floors: 3,
+      });
+      break;
+    case "abc":
+      model = generateBuilding("abc", palette, { floors: 7 });
+      break;
+    case "house":
+      model = generateBuilding("house", palette, {
+        width: 6,
+        depth: 5,
+        floors: 3,
+      });
+      break;
+    default:
+      model = generateBuilding("castle", palette, { floors: 4, width: 7, depth: 7 });
+  }
+  return { model, label: LOADER_LABELS[type] };
 }
 
 export function SiteLoader() {
@@ -51,15 +94,37 @@ export function SiteLoader() {
   const [build, setBuild] = useState<{ model: VoxelModel; label: string } | null>(
     null
   );
+  // Diferir el montaje del modelo un frame: deja que el navegador
+  // pinte PRIMERO el fondo del loader (feedback inmediato) y luego,
+  // en el siguiente frame libre, monte los bloques SVG. Esto evita
+  // el "jank" inicial (los bloques se construían a tirones porque
+  // todo se pintaba en el mismo frame pesado).
+  const [modelReady, setModelReady] = useState(false);
   const startedRef = useRef(false);
 
   const duration = reducedMotion ? REDUCED_MS : BUILD_MS;
 
   useEffect(() => {
+    if (reducedMotion) {
+      setModelReady(true);
+      return;
+    }
+    // doble rAF: espera al siguiente frame pintado, luego monta.
+    let id2 = 0;
+    const id1 = requestAnimationFrame(() => {
+      id2 = requestAnimationFrame(() => setModelReady(true));
+    });
+    return () => {
+      cancelAnimationFrame(id1);
+      cancelAnimationFrame(id2);
+    };
+  }, [reducedMotion]);
+
+  useEffect(() => {
     // Sobrevive al doble efecto de React Strict Mode sin re-generar.
     if (!startedRef.current) {
       startedRef.current = true;
-      setBuild(schoolModel());
+      setBuild(randomModel());
     }
 
     const counter = animate(0, 100, {
@@ -106,15 +171,14 @@ export function SiteLoader() {
           />
 
           <div className="relative flex flex-col items-center px-6">
-            {/* obra aleatoria armándose — buildProgress animado de 0→1
-                sigue a la barra de progreso, así los bloques caen en
-                orden de abajo→arriba pero fluido (modo quick). Se
-                cuantiza a pasos de ~3% para no saturar de re-renders. */}
+            {/* obra aleatoria armándose — maxDelay escalona los delays
+                por capa con CSS (sin re-renders por frame). El montaje
+                se difiere un frame para evitar el jank inicial. */}
             <div className="h-48 w-64 sm:h-56 sm:w-80">
-              {build && (
+              {build && modelReady && (
                 <LegoModel
                   model={build.model}
-                  buildProgress={Math.round((progress / 100) * 32) / 32}
+                  maxDelay={duration * 0.62}
                   className="h-full w-full"
                   ariaLabel="Maqueta de bloques en construcción"
                 />
