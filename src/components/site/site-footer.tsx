@@ -1,6 +1,7 @@
 "use client";
 
 import { Logo } from "./logo";
+import { BrickLink } from "./brick-transition";
 import { ArrowUpRight, MapPin, Mail, Phone } from "lucide-react";
 
 const COLS = [
@@ -63,12 +64,12 @@ export function SiteFooter() {
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <a
+                    <BrickLink
                       href={l.href}
                       className="text-sm text-foreground/80 hover:text-signal transition-colors link-signal"
                     >
                       {l.label}
-                    </a>
+                    </BrickLink>
                   </li>
                 ))}
               </ul>
@@ -84,13 +85,13 @@ export function SiteFooter() {
               <p className="mt-1.5 text-sm text-muted-foreground">
                 Agenda una visita y te respondemos en 24 horas hábiles.
               </p>
-              <a
+              <BrickLink
                 href="#contacto"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-signal hover:text-signal-2 transition-colors"
               >
                 Agendar una visita
                 <ArrowUpRight className="h-4 w-4" />
-              </a>
+              </BrickLink>
             </div>
           </div>
         </div>

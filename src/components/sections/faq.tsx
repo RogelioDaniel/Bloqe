@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { BrickLink } from "@/components/site/brick-transition";
 import {
   Accordion,
   AccordionItem,
@@ -45,7 +46,7 @@ export function FAQ() {
   return (
     <section
       id="faq"
-      className="paper-theme relative bg-blueprint-paper py-20 sm:py-28"
+      className="paper-theme relative bg-paper bg-blueprint-paper py-20 sm:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
@@ -66,13 +67,13 @@ export function FAQ() {
               tuya no está aquí, escríbenos y te respondemos en menos de 24
               horas hábiles.
             </p>
-            <a
+            <BrickLink
               href="#contacto"
               className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-signal link-signal"
             >
               ¿Tu duda no está? Escríbenos
               <ArrowUpRight className="h-4 w-4" aria-hidden />
-            </a>
+            </BrickLink>
           </motion.div>
 
           {/* Right: accordion */}

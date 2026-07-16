@@ -176,6 +176,7 @@ export function Services() {
                       className="absolute inset-0 h-full w-full p-5"
                       maxDelay={1600}
                       float
+                      interactive
                       ariaLabel="Escuelita de bloques para los más pequeños"
                     />
                     <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-border bg-ink/70 px-2.5 py-1 backdrop-blur">

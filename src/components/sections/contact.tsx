@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { BrickLink } from "@/components/site/brick-transition";
 
 const INTENTS = [
   { value: "quote", label: "Agendar visita" },
@@ -200,13 +201,13 @@ export function Contact() {
               })}
             </div>
 
-            <a
+            <BrickLink
               href="#espacios"
               className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-signal link-signal"
             >
               ¿Prefieres ver los espacios primero?
               <ArrowUpRight className="h-4 w-4" />
-            </a>
+            </BrickLink>
           </motion.div>
 
           {/* Right: form */}

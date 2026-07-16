@@ -94,6 +94,7 @@ function StepModel({ step }: { step: Step }) {
         className="absolute inset-0 h-full w-full p-2"
         maxDelay={900}
         float
+        interactive
         ariaLabel={`Construcción de bloques: ${step.title}`}
       />
       <div className="pointer-events-none absolute bottom-1.5 left-1.5 rounded border border-border bg-ink/70 px-1.5 py-0.5 backdrop-blur">
@@ -109,7 +110,7 @@ export function Process() {
   return (
     <section
       id="proceso"
-      className="paper-theme relative bg-blueprint-paper py-20 sm:py-28"
+      className="paper-theme relative bg-paper bg-blueprint-paper py-20 sm:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         {/* Heading */}

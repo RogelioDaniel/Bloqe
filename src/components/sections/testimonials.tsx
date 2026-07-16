@@ -61,7 +61,7 @@ function StudAvatar({ colors }: { colors: string[] }) {
 
 export function Testimonials() {
   return (
-    <section className="paper-theme relative bg-blueprint-paper py-20 sm:py-28">
+    <section className="paper-theme relative bg-paper bg-blueprint-paper py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         {/* Heading */}
         <div className="max-w-3xl">

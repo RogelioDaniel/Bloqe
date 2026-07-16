@@ -32,13 +32,13 @@ export function SiteHeader() {
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="flex h-16 items-center justify-between">
-          <a
+          <BrickLink
             href="#top"
             className="flex items-center gap-2 rounded-md"
             aria-label="BLOQE Escuela — inicio"
           >
             <Logo size={30} />
-          </a>
+          </BrickLink>
 
           <nav className="hidden md:flex items-center gap-1">
             {NAV.map((item) => (

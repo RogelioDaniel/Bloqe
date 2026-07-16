@@ -7,6 +7,7 @@ import { SiteLoader } from "@/components/site/site-loader";
 import { ScrollProgress } from "@/components/site/scroll-progress";
 import { BackToTop } from "@/components/site/back-to-top";
 import { SectionDivider } from "@/components/site/section-divider";
+import { SectionBlock } from "@/components/site/section-block";
 import { Hero } from "@/components/sections/hero";
 import { Marquee } from "@/components/sections/marquee";
 import { Services } from "@/components/sections/services";
@@ -38,19 +39,38 @@ export default function Home() {
       <SiteHeader />
       <main className="flex-1">
         <Hero />
-        <Marquee />
-        <Services />
+        {/* Cada sección "encaja" en la construcción al llegar a ella. */}
+        <SectionBlock>
+          <Marquee />
+        </SectionBlock>
+        <SectionBlock>
+          <Services />
+        </SectionBlock>
         <SectionDivider variant="dark-to-light" />
-        <Process />
+        <SectionBlock>
+          <Process />
+        </SectionBlock>
         <SectionDivider variant="light-to-dark" />
-        <Projects />
-        <Stats />
+        <SectionBlock>
+          <Projects />
+        </SectionBlock>
+        <SectionBlock>
+          <Stats />
+        </SectionBlock>
         <SectionDivider variant="dark-to-light" />
-        <Testimonials />
-        <FAQ />
+        <SectionBlock>
+          <Testimonials />
+        </SectionBlock>
+        <SectionBlock>
+          <FAQ />
+        </SectionBlock>
         <SectionDivider variant="light-to-dark" />
-        <CtaBanner />
-        <Contact />
+        <SectionBlock>
+          <CtaBanner />
+        </SectionBlock>
+        <SectionBlock>
+          <Contact />
+        </SectionBlock>
       </main>
       <SiteFooter />
       <BackToTop />

@@ -49,8 +49,11 @@ const WALL_COLORS = [
   "#22262e",
 ];
 
-const IN_MS = 360; // el muro termina de cubrir (filas + jitter + duración)
-const HOLD_MS = 70; // pausa con el muro tapando: deja pintar el destino
+// Cobertura real del muro = max delay por hilada (STAGGER_MS) + jitter
+// (~40) + duración del brick (280). El salto NUNCA debe ocurrir antes.
+const STAGGER_MS = 220; // ventana de retrasos por hilada
+const IN_MS = STAGGER_MS + 40 + 280 + 40; // ≈ 580: muro 100% cerrado
+const HOLD_MS = 120; // pausa con el muro tapando: deja pintar el destino
 const OUT_MS = 560; // los bricks terminan de caer
 
 /**
@@ -88,7 +91,7 @@ function buildWall(direction: "up" | "down"): WallGrid {
   const brickH = 56;
   const cols = Math.ceil(vw / brickW) + 1;
   const rows = Math.ceil(vh / brickH) + 1;
-  const perRow = 260 / rows;
+  const perRow = STAGGER_MS / rows;
 
   const bricks: WallBrick[] = [];
   for (let r = 0; r < rows; r++) {
@@ -122,7 +125,12 @@ export function BrickTransition() {
   const jumpTo = useCallback(
     (href: string) => {
       if (href.startsWith("#")) {
-        const el = document.querySelector(href);
+        let el: Element | null = null;
+        try {
+          el = document.querySelector(href);
+        } catch {
+          // selector inválido (p.ej. href="#") — no saltamos
+        }
         if (el) {
           // Salto instantáneo (sin animación) para que la página NO se
           // deslice bajo el muro: el destino aparece ya posicionado.
@@ -155,8 +163,12 @@ export function BrickTransition() {
     // dirección: ¿el destino está abajo o arriba del viewport?
     let direction: "up" | "down" = "down";
     if (href.startsWith("#")) {
-      const el = document.querySelector(href);
-      if (el) direction = el.getBoundingClientRect().top >= 0 ? "down" : "up";
+      try {
+        const el = document.querySelector(href);
+        if (el) direction = el.getBoundingClientRect().top >= 0 ? "down" : "up";
+      } catch {
+        // selector inválido — asumimos "down"
+      }
     }
 
     timeouts.current.forEach(clearTimeout);
@@ -217,6 +229,18 @@ export function BrickTransition() {
       className="fixed inset-0 z-[90] overflow-hidden"
       style={{ pointerEvents: "all" }}
     >
+      {/* Respaldo opaco: garantiza que la pantalla esté 100% cubierta en
+          el momento del salto aunque algún brick siga entrando. Se
+          desvanece rápido al iniciar la caída para no taparla. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundColor: "var(--ink)",
+          opacity: phase === "in" ? 1 : 0,
+          transition:
+            phase === "in" ? "opacity 0.28s ease 0.15s" : "opacity 0.22s ease",
+        }}
+      />
       {Array.from({ length: grid.rows }).map((_, r) => (
         <div
           key={r}

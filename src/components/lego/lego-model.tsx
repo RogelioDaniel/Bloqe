@@ -379,15 +379,20 @@ export function LegoModel({
   const scatterMetaFor = useCallback(
     (b: RenderBrick, extraDelay: number): ScatterMeta => {
       const r = Math.random;
-      const centerX = px(rotated.size[0] / 2, rotated.size[2] / 2);
+      const [sw, sh, sd] = rotated.size;
+      const centerX = px(sw / 2, sd / 2);
       const bx = px(b.x + b.w / 2, b.z);
       const dir = bx >= centerX ? 1 : -1;
+      // Distancia de caída proporcional al alto del modelo: en maquetas
+      // grandes (castillo del hero) los bloques salen del lienzo y caen
+      // "hacia la pantalla" completa (el svg tiene overflow visible).
+      const modelPx = sh * VH + (sw + sd) * HH;
       return {
         delay: extraDelay + r() * 90,
-        dur: 0.72 + r() * 0.4,
-        sx: dir * (18 + r() * 70),
+        dur: 0.78 + r() * 0.45,
+        sx: dir * (18 + r() * 90),
         sy: -(14 + r() * 34),
-        fy: 190 + r() * 160,
+        fy: modelPx * (1.15 + r() * 0.85) + 140,
         srot: (r() - 0.5) * 260,
       };
     },
@@ -545,7 +550,12 @@ export function LegoModel({
     <div className={cn("relative", className)}>
       <svg
         viewBox={viewBox}
-        className="h-full w-full"
+        // overflow-visible: los bloques desprendidos caen FUERA del
+        // lienzo (hacia la pantalla) en vez de cortarse en el borde.
+        className={cn(
+          "h-full w-full overflow-visible",
+          interactive && "cursor-grab active:cursor-grabbing"
+        )}
         role={ariaLabel ? "img" : undefined}
         aria-label={ariaLabel}
         aria-hidden={ariaLabel ? undefined : true}

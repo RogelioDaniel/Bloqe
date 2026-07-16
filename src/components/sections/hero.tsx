@@ -81,7 +81,9 @@ export function Hero() {
       // por toda la pantalla en vez de cortarse en el canvas.
       className="relative h-[130vh] overflow-visible bg-ink bg-blueprint bg-grain"
     >
-      {/* ===== Castillo gigante de fondo (pantalla completa) ===== */}
+      {/* ===== Castillo gigante de fondo (pantalla completa) =====
+          Móvil: ocupa el tercio superior, COMPLETO y sin texto encima.
+          Desktop: corrido a la derecha; el texto vive a la izquierda. */}
       <motion.div
         aria-hidden
         style={{
@@ -91,13 +93,13 @@ export function Hero() {
         }}
         // Fijo al viewport: ocupa toda la pantalla y los bloques caen
         // libremente sobre ella (no dentro de un contenedor recortado).
-        className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center"
+        className="pointer-events-none fixed inset-0 z-0 flex items-start justify-center pt-[9vh] sm:items-center sm:justify-end sm:pt-0 sm:pr-[2vw]"
       >
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 60% 55%, rgba(232,84,42,0.14), rgba(232,84,42,0) 60%)",
+              "radial-gradient(ellipse at 60% 45%, rgba(232,84,42,0.13), rgba(232,84,42,0) 60%)",
           }}
         />
         <LegoModel
@@ -105,29 +107,35 @@ export function Hero() {
           breakProgress={breakValue}
           maxDelay={2200}
           float
-          className="h-[120vh] w-full"
+          className="h-[52vh] w-full sm:h-[116vh] sm:w-[62vw]"
           ariaLabel="Castillo de bloques de cuento"
         />
       </motion.div>
 
-      {/* Viñeta direccional: oscurece la zona del texto (izquierda)
-          y deja el castillo visible a la derecha. Legible en ambas
-          pantallas sin tapar la mitad del castillo. */}
+      {/* Viñeta ligera: solo asegura contraste en la franja del texto.
+          Móvil: sube desde abajo (el texto vive abajo). Desktop: franja
+          izquierda suave — el castillo queda completo a la derecha. */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-[1]"
+        className="pointer-events-none fixed inset-0 z-[1] bg-gradient-to-t from-ink via-ink/45 to-transparent sm:bg-none"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-[1] hidden sm:block"
         style={{
           background:
-            "linear-gradient(90deg, rgba(11,13,16,0.92) 0%, rgba(11,13,16,0.7) 30%, rgba(11,13,16,0.2) 55%, rgba(11,13,16,0) 100%)",
+            "linear-gradient(90deg, rgba(11,13,16,0.78) 0%, rgba(11,13,16,0.42) 34%, rgba(11,13,16,0) 52%)",
         }}
       />
 
-      {/* ===== Contenido superpuesto (a la izquierda) ===== */}
+      {/* ===== Contenido: placa de vidrio con studs =====
+          Móvil: anclado abajo, bajo el castillo. Desktop: columna
+          izquierda centrada. */}
       <motion.div
         style={{ y: copyY, opacity: copyOpacity }}
-        className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-5 pt-28 pb-20 sm:px-8"
+        className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-end px-4 pt-28 pb-8 sm:justify-center sm:px-8 sm:pb-20"
       >
-        <div className="max-w-xl">
+        <div className="card-brick max-w-xl rounded-2xl border border-border bg-ink/55 p-5 pt-7 backdrop-blur-md sm:border-transparent sm:bg-transparent sm:p-0 sm:pt-0 sm:backdrop-blur-none">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -144,7 +152,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.05 }}
-            className="mt-6 font-display text-[clamp(2.4rem,8vw,5rem)] font-extrabold leading-[0.92] tracking-tight text-balance"
+            className="mt-4 font-display text-[clamp(2rem,7vw,5rem)] font-extrabold leading-[0.92] tracking-tight text-balance sm:mt-6"
           >
             Donde crecen{" "}
             <span className="relative inline-block">
@@ -171,7 +179,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15 }}
-            className="mt-6 max-w-md text-lg text-pretty leading-relaxed text-foreground/90"
+            className="mt-4 max-w-md text-base text-pretty leading-relaxed text-foreground/90 sm:mt-6 sm:text-lg"
           >
             Bloqe es una escuela preescolar para niños de 3 a 6 años. Aprenden
             jugando con bloques, arte, música e inglés — cada niño avanza a su
@@ -182,7 +190,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.25 }}
-            className="mt-8 flex flex-col gap-3 sm:flex-row"
+            className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row"
           >
             <Button
               asChild
@@ -208,7 +216,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.35 }}
-            className="mt-12 grid max-w-md grid-cols-3 gap-4"
+            className="mt-6 grid max-w-md grid-cols-3 gap-3 sm:mt-12 sm:gap-4"
           >
             {STATS.map((s) => (
               <div
