@@ -6,8 +6,6 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { SiteLoader } from "@/components/site/site-loader";
 import { ScrollProgress } from "@/components/site/scroll-progress";
 import { BackToTop } from "@/components/site/back-to-top";
-import { SectionDivider } from "@/components/site/section-divider";
-import { SectionBlock } from "@/components/site/section-block";
 import { Hero } from "@/components/sections/hero";
 import { Services } from "@/components/sections/services";
 import { Process } from "@/components/sections/process";
@@ -32,41 +30,23 @@ export default function Home() {
   }, []);
 
   return (
-    <div id="bloqe-root" className="flex min-h-screen flex-col bg-ink text-foreground transition-colors duration-500">
+    <div
+      id="bloqe-root"
+      className="flex min-h-screen flex-col bg-ink text-foreground transition-colors duration-500"
+    >
       <SiteLoader />
       <ScrollProgress />
       <SiteHeader />
       <main className="flex-1">
         <Hero />
-        {/* Cada sección "encaja" en la construcción al llegar a ella. */}
-        <SectionBlock>
-          <Services />
-        </SectionBlock>
-        <SectionDivider variant="dark-to-light" />
-        <SectionBlock>
-          <Process />
-        </SectionBlock>
-        <SectionDivider variant="light-to-dark" />
-        <SectionBlock>
-          <Projects />
-        </SectionBlock>
-        <SectionBlock>
-          <Stats />
-        </SectionBlock>
-        <SectionDivider variant="dark-to-light" />
-        <SectionBlock>
-          <Testimonials />
-        </SectionBlock>
-        <SectionBlock>
-          <FAQ />
-        </SectionBlock>
-        <SectionDivider variant="light-to-dark" />
-        <SectionBlock>
-          <CtaBanner />
-        </SectionBlock>
-        <SectionBlock>
-          <Contact />
-        </SectionBlock>
+        <Services />
+        <Process />
+        <Projects />
+        <Stats />
+        <Testimonials />
+        <FAQ />
+        <CtaBanner />
+        <Contact />
       </main>
       <SiteFooter />
       <BackToTop />

@@ -12,12 +12,142 @@ import {
 import { cn } from "@/lib/utils";
 import { BrickLink } from "@/components/site/brick-transition";
 import { LegoModel } from "@/components/lego/lego-model";
-import {
-  generateBuilding,
-  PALETTE_SETS,
-  type StructureType,
-  type VoxelModel,
-} from "@/lib/lego";
+import type { VoxelCell, VoxelModel } from "@/lib/lego";
+
+// ============================================================
+//  Figuras hechas a mano en voxels — cada paso del proceso se
+//  representa con SU objeto: teléfono (llamada), entrada de la
+//  escuela (visita), lista con paloma (inscripción) y corazón
+//  (su primer día). El frente de cada figura vive en z=0.
+// ============================================================
+
+type SetVoxel = (x: number, y: number, z: number, color: string) => void;
+
+function buildFigure(
+  w: number,
+  h: number,
+  d: number,
+  paint: (set: SetVoxel) => void
+): VoxelModel {
+  const grid: (VoxelCell | null)[][][] = [];
+  for (let x = 0; x < w; x++) {
+    grid[x] = [];
+    for (let y = 0; y < h; y++) {
+      grid[x][y] = [];
+      for (let z = 0; z < d; z++) grid[x][y][z] = null;
+    }
+  }
+  const set: SetVoxel = (x, y, z, color) => {
+    if (x >= 0 && y >= 0 && z >= 0 && x < w && y < h && z < d) {
+      grid[x][y][z] = { color };
+    }
+  };
+  paint(set);
+
+  let count = 0;
+  let maxY = 0;
+  for (let x = 0; x < w; x++)
+    for (let y = 0; y < h; y++)
+      for (let z = 0; z < d; z++)
+        if (grid[x][y][z]) {
+          count++;
+          if (y > maxY) maxY = y;
+        }
+
+  return {
+    structureType: "pavilion",
+    palette: [],
+    grid,
+    size: [w, h, d],
+    metrics: {
+      blockCount: count,
+      layerCount: maxY + 1,
+      heightM: Math.round((maxY + 1) * 0.096 * 10) / 10,
+    },
+  };
+}
+
+/** 01 — Teléfono clásico: base con teclas y bocina encima. */
+function buildPhone(): VoxelModel {
+  return buildFigure(7, 6, 4, (set) => {
+    const body = "#c8281c";
+    const dark = "#8f1d14";
+    // cuerpo
+    for (let x = 1; x <= 5; x++)
+      for (let y = 1; y <= 2; y++)
+        for (let z = 1; z <= 2; z++) set(x, y, z, body);
+    // bocina: orejas + barra
+    set(1, 3, 1, dark);
+    set(5, 3, 1, dark);
+    for (let x = 1; x <= 5; x++) set(x, 4, 1, dark);
+    // pie/base
+    for (let x = 0; x <= 6; x++) for (let z = 0; z <= 3; z++) set(x, 0, z, "#9aa1ad");
+  });
+}
+
+/** 02 — La entrada de la escuela: arco, puerta y banderín. */
+function buildDoor(): VoxelModel {
+  return buildFigure(9, 7, 3, (set) => {
+    const wall = "#b46fc9";
+    const door = "#6b4a2b";
+    // pasto
+    for (let x = 0; x <= 8; x++) for (let z = 0; z <= 2; z++) set(x, 0, z, "#2e8b57");
+    // columnas
+    for (let y = 1; y <= 4; y++) {
+      for (const x of [1, 2, 6, 7]) set(x, y, 1, wall);
+    }
+    // dintel
+    for (let x = 1; x <= 7; x++) set(x, 5, 1, wall);
+    // puerta al centro
+    for (let y = 1; y <= 3; y++) set(4, y, 1, door);
+    // escalón frontal
+    for (let x = 3; x <= 5; x++) set(x, 1, 0, "#d9c7a3");
+    // banderín
+    set(4, 6, 1, "#f5b82e");
+  });
+}
+
+/** 03 — Lista de inscripción con paloma verde. */
+function buildChecklist(): VoxelModel {
+  return buildFigure(7, 7, 2, (set) => {
+    const paper = "#f4f1ea";
+    const check = "#2e8b57";
+    // base
+    for (let x = 0; x <= 6; x++) for (let z = 0; z <= 1; z++) set(x, 0, z, "#9aa1ad");
+    // panel (la hoja)
+    for (let x = 0; x <= 6; x++)
+      for (let y = 1; y <= 5; y++) set(x, y, 0, paper);
+    // paloma ✓
+    set(1, 3, 0, check);
+    set(2, 2, 0, check);
+    set(3, 3, 0, check);
+    set(4, 4, 0, check);
+    set(5, 5, 0, check);
+    // clip superior
+    for (let x = 2; x <= 4; x++) set(x, 6, 0, "#e8542a");
+  });
+}
+
+/** 04 — Corazón: la adaptación con cariño. */
+function buildHeart(): VoxelModel {
+  return buildFigure(7, 7, 2, (set) => {
+    const red = "#c8281c";
+    // base
+    for (let x = 0; x <= 6; x++) for (let z = 0; z <= 1; z++) set(x, 0, z, "#d9c7a3");
+    const rows: [number, number[]][] = [
+      [1, [3]],
+      [2, [2, 3, 4]],
+      [3, [1, 2, 3, 4, 5]],
+      [4, [0, 1, 2, 3, 4, 5, 6]],
+      [5, [0, 1, 2, 3, 4, 5, 6]],
+      [6, [1, 2, 4, 5]],
+    ];
+    for (const [y, xs] of rows)
+      for (const x of xs) for (let z = 0; z <= 1; z++) set(x, y, z, red);
+    // brillo
+    set(1, 5, 0, "#f4a3b5");
+  });
+}
 
 interface Step {
   number: string;
@@ -25,9 +155,9 @@ interface Step {
   description: string;
   detail: string;
   icon: LucideIcon;
-  /** Modelo 3D que representa esta etapa de "construcción". */
-  structureType: StructureType;
-  structureOpts: { floors?: number; width?: number; depth?: number };
+  /** Figura de bloques acorde al paso. */
+  build: () => VoxelModel;
+  caption: string;
 }
 
 const STEPS: Step[] = [
@@ -38,9 +168,8 @@ const STEPS: Step[] = [
       "Una llamada o mensaje para contarnos sobre tu hijo: su edad, sus intereses y lo que buscan como familia. Te respondemos todas tus dudas.",
     detail: "respuesta en 24 h",
     icon: MessagesSquare,
-    // Bloques base: los primeros cimientos.
-    structureType: "tower",
-    structureOpts: { floors: 2, width: 3, depth: 3 },
+    build: buildPhone,
+    caption: "la llamada",
   },
   {
     number: "02",
@@ -49,9 +178,8 @@ const STEPS: Step[] = [
       "Conoces la escuela y los espacios con tu hijo. Vemos juntos las aulas, el patio y el método. La primera visita es sin costo.",
     detail: "visita sin costo",
     icon: CalendarHeart,
-    // La estructura empieza a tomar forma.
-    structureType: "house",
-    structureOpts: { floors: 2, width: 5, depth: 4 },
+    build: buildDoor,
+    caption: "la entrada de la escuela",
   },
   {
     number: "03",
@@ -60,9 +188,8 @@ const STEPS: Step[] = [
       "Reservamos el lugar, entregamos la documentación y te platicamos sobre la adaptación del niño a su nuevo grupo. Todo claro, por escrito.",
     detail: "cupos limitados por grupo",
     icon: ClipboardCheck,
-    // La escuela está casi lista.
-    structureType: "schoolhouse",
-    structureOpts: { floors: 3, width: 6, depth: 5 },
+    build: buildChecklist,
+    caption: "lista firmada",
   },
   {
     number: "04",
@@ -71,35 +198,26 @@ const STEPS: Step[] = [
       "Acompañamos la adaptación con mucho cariño: periodo de adaptación gradual, reportes diarios y comunicación cercana con la familia.",
     detail: "adaptación gradual",
     icon: HeartHandshake,
-    // ¡Construcción completa! El castillo del niño.
-    structureType: "castle",
-    structureOpts: { floors: 4, width: 7, depth: 7 },
+    build: buildHeart,
+    caption: "con mucho cariño",
   },
 ];
 
 function StepModel({ step }: { step: Step }) {
-  const model: VoxelModel = useMemo(
-    () =>
-      generateBuilding(
-        step.structureType,
-        PALETTE_SETS.storybook,
-        step.structureOpts
-      ),
-    [step]
-  );
+  const model: VoxelModel = useMemo(() => step.build(), [step]);
   return (
-    <div className="relative h-32 w-full overflow-hidden rounded-lg border border-border bg-blueprint-fine">
+    <div className="relative h-36 w-full overflow-hidden rounded-lg border border-border bg-blueprint-fine">
       <LegoModel
         model={model}
-        className="absolute inset-0 h-full w-full p-2"
+        className="absolute inset-0 h-full w-full p-3"
         maxDelay={900}
         float
         interactive
-        ariaLabel={`Construcción de bloques: ${step.title}`}
+        ariaLabel={`Figura de bloques: ${step.caption}`}
       />
       <div className="pointer-events-none absolute bottom-1.5 left-1.5 rounded border border-border bg-ink/70 px-1.5 py-0.5 backdrop-blur">
         <span className="label-mono text-muted-foreground">
-          etapa · {model.metrics.blockCount} bloques
+          {step.caption} · {model.metrics.blockCount} bloques
         </span>
       </div>
     </div>

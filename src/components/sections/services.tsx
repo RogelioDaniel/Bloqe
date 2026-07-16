@@ -124,7 +124,9 @@ export function Services() {
     <section
       ref={sectionRef}
       id="servicios"
-      className="relative bg-ink bg-baseplate bg-grain py-20 sm:py-28"
+      // Mismo patrón de fondo que el hero: sin costura visible donde
+      // termina la pantalla del castillo y empieza esta sección.
+      className="relative bg-ink bg-blueprint bg-grain py-20 sm:py-28"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-14">

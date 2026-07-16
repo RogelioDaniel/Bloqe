@@ -40,43 +40,66 @@ export function Hero() {
   const model = useCastleModel();
   const sectionRef = useRef<HTMLElement>(null);
 
-  // === Destrucción por scroll ===
-  // La sección mide 190vh: tras salir el texto queda casi una pantalla
-  // completa donde el castillo sigue visible rompiéndose — sus bloques
-  // "alimentan" la construcción de la siguiente sección.
+  // === Coreografía por scroll ===
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const breakProgress = useTransform(scrollYProgress, [0.2, 0.92], [0, 1]);
-  const castleOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [1, 1, 0]);
+
+  // Destrucción: empieza tarde y termina antes de salir del viewport.
+  const breakProgress = useTransform(scrollYProgress, [0.2, 0.75], [0, 1]);
+  // El castillo se desvanece por completo ANTES de llegar a la siguiente
+  // sección (así nunca se ve "cortado" contra el borde).
+  const castleOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.55, 0.8],
+    [1, 1, 0]
+  );
+
+  // R1: Rotación 3D FLUIDA de la cámara (CSS rotateY). De 0° a ~30°.
+  const spinY = useTransform(scrollYProgress, [0, 0.8], [0, 30]);
+  // R1: El castillo se desplaza a la IZQUIERDA al bajar (desktop).
+  const castleX = useTransform(scrollYProgress, [0, 0.8], ["0%", "-22%"]);
+
+  // El contenido sube y se desvanece.
   const copyY = useTransform(scrollYProgress, [0, 0.5], [0, 120]);
   const copyOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
 
+  // Suscripción para alimentar breakProgress y spinY (números) al
+  // LegoModel, que espera valores primitivos, no MotionValue.
   const [breakValue, setBreakValue] = useState(0);
+  const [spinValue, setSpinValue] = useState(0);
   useEffect(() => {
-    const unsub = breakProgress.on("change", (v) =>
-      // Cuantizado: solo ~40 actualizaciones en todo el recorrido en
-      // vez de una por pixel de scroll (re-render barato en móvil).
+    const ub = breakProgress.on("change", (v) =>
       setBreakValue(Math.round(v * 40) / 40)
     );
-    return () => unsub();
-  }, [breakProgress]);
+    const us = spinY.on("change", (v) => setSpinValue(Math.round(v * 10) / 10));
+    return () => {
+      ub();
+      us();
+    };
+  }, [breakProgress, spinY]);
+
+  // La animación de caída solo corre en el armado inicial; después,
+  // los giros de cámara son cortes limpios (sin re-armar todo).
+  const [entryDone, setEntryDone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setEntryDone(true), 2800);
+    return () => clearTimeout(t);
+  }, []);
 
   // === Parallax sutil con el mouse ===
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const castleX = useSpring(mx, { stiffness: 60, damping: 20 });
-  const castleY = useSpring(my, { stiffness: 60, damping: 20 });
+  const parallaxX = useSpring(mx, { stiffness: 60, damping: 20 });
+  const parallaxY = useSpring(my, { stiffness: 60, damping: 20 });
 
   function onMouseMove(e: React.MouseEvent) {
     const { innerWidth, innerHeight } = window;
-    // -1 (izq/arriba) a 1 (der/abajo)
     const nx = (e.clientX / innerWidth) * 2 - 1;
     const ny = (e.clientY / innerHeight) * 2 - 1;
-    // Movimiento tenué: máx ~18px
-    mx.set(nx * 18);
-    my.set(ny * 12);
+    mx.set(nx * 16);
+    my.set(ny * 10);
   }
 
   return (
@@ -84,60 +107,71 @@ export function Hero() {
       ref={sectionRef}
       id="top"
       onMouseMove={onMouseMove}
-      // overflow-visible permite que los bloques desprendidos caigan
-      // por toda la pantalla en vez de cortarse en el canvas.
-      className="relative h-[190vh] overflow-visible bg-ink bg-blueprint bg-grain"
+      // R4: móvil más corto (no tanto tiempo con el castillo solo).
+      // Desktop: altura suficiente para que se aprecie la coreografía.
+      className="relative h-[120vh] overflow-hidden bg-ink bg-blueprint bg-grain sm:h-[170vh]"
     >
       {/* ===== Castillo gigante de fondo (pantalla completa) =====
-          Móvil: ocupa el tercio superior, COMPLETO y sin texto encima.
-          Desktop: corrido a la derecha; el texto vive a la izquierda. */}
+          R2: sin marco, sin borde, sin "ventana". El castillo es un
+          fondo limpio que ocupa toda la pantalla. Los bloques rotan
+          en 3D y se desplazan a la izquierda conforme bajas. */}
       <motion.div
         aria-hidden
-        style={{
-          opacity: castleOpacity,
-          x: castleX,
-          y: castleY,
-        }}
-        // Fijo al viewport: ocupa toda la pantalla y los bloques caen
-        // libremente sobre ella (no dentro de un contenedor recortado).
-        className="pointer-events-none fixed inset-0 z-0 flex items-start justify-center pt-[9vh] sm:items-center sm:justify-end sm:pt-0 sm:pr-[2vw]"
+        style={{ opacity: castleOpacity, x: castleX }}
+        className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center sm:justify-end sm:pr-[2vw]"
       >
+        {/* resplandor ambiental */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 60% 45%, rgba(232,84,42,0.13), rgba(232,84,42,0) 60%)",
+              "radial-gradient(ellipse at 60% 45%, rgba(232,84,42,0.12), rgba(232,84,42,0) 60%)",
           }}
         />
-        <LegoModel
-          model={model}
-          breakProgress={breakValue}
-          maxDelay={2200}
-          float
-          className="h-[52vh] w-full sm:h-[116vh] sm:w-[62vw]"
-          ariaLabel="Castillo de bloques de cuento"
-        />
+        {/* parallax de mouse anidado */}
+        <motion.div
+          style={{ x: parallaxX, y: parallaxY }}
+          className="h-[60vh] w-full sm:h-[115vh] sm:w-[60vw]"
+        >
+          <LegoModel
+            model={model}
+            breakProgress={breakValue}
+            spinY={spinValue}
+            entryAnimation={!entryDone}
+            maxDelay={2200}
+            float
+            className="h-full w-full"
+            ariaLabel="Castillo de bloques de cuento"
+          />
+        </motion.div>
       </motion.div>
 
-      {/* Viñeta SOLO en móvil (sube desde abajo, donde vive el texto).
-          En desktop no hay fades. Está ligada a la opacidad del castillo
-          para que desaparezca con él y NUNCA se quede flotando sobre las
-          secciones siguientes (era el "fade" fantasma que se veía en
-          toda la página). */}
+      {/* R4: Viñeta SOLO en móvil (el efecto "ventana transparente"
+          que te gustó). Sube desde abajo, donde vive el texto, y
+          deja ver el castillo arriba. Desaparece con el castillo. */}
       <motion.div
         aria-hidden
         style={{ opacity: castleOpacity }}
-        className="pointer-events-none fixed inset-0 z-[1] bg-gradient-to-t from-ink via-ink/40 to-transparent sm:hidden"
+        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-ink via-ink/40 to-transparent sm:hidden"
       />
 
-      {/* ===== Contenido: placa de vidrio con studs =====
-          Móvil: anclado abajo, bajo el castillo. Desktop: columna
-          izquierda centrada. */}
+      {/* Desktop: viñeta lateral para legibilidad del texto sin tapar
+          el castillo (oscurece la zona izquierda). */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[1] hidden sm:block"
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(11,13,16,0.85) 0%, rgba(11,13,16,0.5) 28%, rgba(11,13,16,0) 55%)",
+        }}
+      />
+
+      {/* ===== Contenido superpuesto ===== */}
       <motion.div
         style={{ y: copyY, opacity: copyOpacity }}
         className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-end px-4 pt-28 pb-8 sm:justify-center sm:px-8 sm:pb-20"
       >
-        <div className="card-brick max-w-xl rounded-2xl border border-border bg-ink/55 p-5 pt-7 backdrop-blur-md sm:border-transparent sm:bg-transparent sm:p-0 sm:pt-0 sm:backdrop-blur-none">
+        <div className="max-w-xl">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}

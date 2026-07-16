@@ -74,6 +74,25 @@ interface LegoModelProps {
    * se armara con los bloques que caen de la sección anterior.
    */
   buildProgress?: number;
+  /**
+   * Giros de cámara adicionales (90° por unidad) controlados desde
+   * fuera — p.ej. rotar la maqueta conforme avanza el scroll.
+   */
+  extraRotation?: number;
+  /**
+   * false = los bloques aparecen al instante (sin animación de
+   * caída). Útil tras el armado inicial, para que un giro de cámara
+   * por scroll sea un corte limpio y no un re-armado completo.
+   */
+  entryAnimation?: boolean;
+  /**
+   * Rotación 3D FLUIDA (grados) aplicada vía CSS `rotateY` sobre el
+   * contenedor del SVG. A diferencia de `extraRotation` (que rota la
+   * rejilla en saltos de 90° y recalcula), esta es puramente visual:
+   * gira la maqueta como un objeto 3D sin recalcular nada. Ideal para
+   * seguir el scroll con una cámara que orbita.
+   */
+  spinY?: number;
 }
 
 interface RenderBrick extends Brick {
@@ -231,6 +250,7 @@ const BrickShape = memo(function BrickShape({
   scatter,
   interactive,
   quick,
+  entry = true,
   onPick,
 }: {
   brick: RenderBrick;
@@ -238,6 +258,8 @@ const BrickShape = memo(function BrickShape({
   interactive?: boolean;
   /** Retrasos cortos (para construcción por scroll en lotes). */
   quick?: boolean;
+  /** false = sin animación de caída: el brick aparece al instante. */
+  entry?: boolean;
   onPick?: (id: string) => void;
 }) {
   const { x, y, z, w, color } = brick;
@@ -278,8 +300,11 @@ const BrickShape = memo(function BrickShape({
 
   return (
     <g
-      className={cn("lego-iso-brick", scatter && "scattering")}
-      style={style}
+      className={cn(
+        (entry || scatter) && "lego-iso-brick",
+        scatter && "scattering"
+      )}
+      style={scatter || entry ? style : undefined}
       onClick={interactive && !scatter ? () => onPick?.(brick.id) : undefined}
       role={interactive ? "button" : undefined}
       cursor={interactive ? "pointer" : undefined}
@@ -348,6 +373,9 @@ export function LegoModel({
   ariaLabel,
   breakProgress = 0,
   buildProgress,
+  extraRotation = 0,
+  entryAnimation = true,
+  spinY = 0,
 }: LegoModelProps) {
   // Los modelos pueden generarse con aleatoriedad: solo cliente.
   const [mounted, setMounted] = useState(false);
@@ -362,7 +390,11 @@ export function LegoModel({
   const dragRef = useRef<{ x: number; y: number } | null>(null);
   const movedRef = useRef(false);
 
-  const rotated = useMemo(() => rotateModel(model, rotation), [model, rotation]);
+  const totalRotation = rotation + extraRotation;
+  const rotated = useMemo(
+    () => rotateModel(model, totalRotation),
+    [model, totalRotation]
+  );
   const { visible: bricks, all: allBricks } = useMemo(
     () => prepareBricks(rotated, maxDelay),
     [rotated, maxDelay]
@@ -609,7 +641,14 @@ export function LegoModel({
         aria-label={ariaLabel}
         aria-hidden={ariaLabel ? undefined : true}
         preserveAspectRatio="xMidYMid meet"
-        style={interactive ? { touchAction: "pan-y" } : undefined}
+        style={{
+          // Rotación 3D fluida (CSS rotateY) controlada por scroll.
+          // No recalcula la grilla: gira el SVG como un objeto 3D.
+          transform: spinY ? `perspective(1200px) rotateY(${spinY}deg)` : undefined,
+          transformOrigin: "center center",
+          transition: "transform 0.1s linear",
+          ...(interactive ? { touchAction: "pan-y" as const } : {}),
+        }}
         onPointerDown={interactive ? onPointerDown : undefined}
         onPointerMove={interactive ? onPointerMove : undefined}
         onPointerUp={interactive ? onPointerUp : undefined}
@@ -640,6 +679,7 @@ export function LegoModel({
               scatter={effectiveScattered.get(b.id)}
               interactive={interactive}
               quick={buildProgress !== undefined}
+              entry={entryAnimation}
               onPick={pickBrick}
             />
           ))}
