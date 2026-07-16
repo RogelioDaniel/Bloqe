@@ -46,21 +46,20 @@ export function Hero() {
     offset: ["start start", "end start"],
   });
 
-  // Destrucción: empieza tarde y termina antes de salir del viewport.
-  const breakProgress = useTransform(scrollYProgress, [0.2, 0.75], [0, 1]);
-  // El castillo se desvanece por completo ANTES de llegar a la siguiente
-  // sección (así nunca se ve "cortado" contra el borde).
+  // Destrucción: empieza al inicio del scroll y termina a media altura.
+  const breakProgress = useTransform(scrollYProgress, [0.1, 0.6], [0, 1]);
+  // El castillo se desvanece por completo a media altura — justo cuando
+  // entra el contenido de Services, sin dejar vacío.
   const castleOpacity = useTransform(
     scrollYProgress,
-    [0, 0.55, 0.8],
+    [0, 0.4, 0.62],
     [1, 1, 0]
   );
 
   // Rotación 3D FLUIDA de la cámara (CSS rotateY). De 0° a ~30°.
-  const spinY = useTransform(scrollYProgress, [0, 0.8], [0, 30]);
-  // El castillo se mueve hacia ABAJO con el scroll (sin desplazamiento
-  // horizontal).
-  const castleY = useTransform(scrollYProgress, [0, 1], [0, 320]);
+  const spinY = useTransform(scrollYProgress, [0, 0.6], [0, 30]);
+  // El castillo se mueve hacia ABAJO con el scroll.
+  const castleY = useTransform(scrollYProgress, [0, 0.7], [0, 260]);
 
   // El contenido sube y se desvanece.
   const copyY = useTransform(scrollYProgress, [0, 0.5], [0, 120]);
@@ -89,11 +88,25 @@ export function Hero() {
     return () => clearTimeout(t);
   }, []);
 
-  // === Parallax sutil con el mouse ===
+  // === Parallax sutil con el mouse — SOLO al inicio ===
+  // Mientras vemos el castillo entero (scroll ≈ 0) sigue al mouse
+  // para no verse estático. Al empezar a scrollear/desconstruir,
+  // el parallax se desvanece a 0 y deja de seguir el mouse.
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const parallaxX = useSpring(mx, { stiffness: 60, damping: 20 });
-  const parallaxY = useSpring(my, { stiffness: 60, damping: 20 });
+  const sx = useSpring(mx, { stiffness: 60, damping: 20 });
+  const sy = useSpring(my, { stiffness: 60, damping: 20 });
+  // Multiplica el parallax por el fade: 1 al inicio, 0 al scrollear.
+  const parallaxX = useTransform([sx, scrollYProgress], (vals) => {
+    const [x, p] = vals as [number, number];
+    const fade = Math.max(0, 1 - Math.min(1, p / 0.08));
+    return x * fade;
+  });
+  const parallaxY = useTransform([sy, scrollYProgress], (vals) => {
+    const [y, p] = vals as [number, number];
+    const fade = Math.max(0, 1 - Math.min(1, p / 0.08));
+    return y * fade;
+  });
 
   function onMouseMove(e: React.MouseEvent) {
     const { innerWidth, innerHeight } = window;
@@ -109,8 +122,9 @@ export function Hero() {
       id="top"
       onMouseMove={onMouseMove}
       // overflow-visible: los bloques desprendidos caen SOBRE la
-      // siguiente sección en vez de cortarse en el borde del hero.
-      className="relative h-[120vh] overflow-visible bg-ink bg-blueprint bg-grain sm:h-[170vh]"
+      // siguiente sección. Altura ajustada: en desktop el castillo
+      // termina justo cuando entra Services (sin vacío largo).
+      className="relative h-[115vh] overflow-visible bg-ink bg-blueprint bg-grain sm:h-[140vh]"
     >
       {/* ===== Castillo gigante de fondo (pantalla completa) =====
           `fixed` + z alto: los bloques desprendidos caen VISIBLES
@@ -130,7 +144,7 @@ export function Hero() {
               "radial-gradient(ellipse at 60% 45%, rgba(232,84,42,0.12), rgba(232,84,42,0) 60%)",
           }}
         />
-        {/* parallax de mouse anidado */}
+        {/* parallax de mouse anidado — se desvanece al scrollear */}
         <motion.div
           style={{ x: parallaxX, y: parallaxY }}
           className="h-[62vh] w-full sm:h-[110vh] sm:w-[60vw]"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { BrickLink } from "./brick-transition";
@@ -25,10 +25,22 @@ const NAV = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  // Oculto al inicio (scroll 0): aparece solo al hacer scroll.
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 glass border-b border-border`}
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
+        visible
+          ? "glass translate-y-0 border-b border-border opacity-100"
+          : "-translate-y-full opacity-0"
+      }`}
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="flex h-16 items-center justify-between">
